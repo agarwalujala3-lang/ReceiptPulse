@@ -14,6 +14,7 @@ The project now reads like a product instead of a single Lambda demo:
 
 - smart receipt enrichment with category, confidence, review status, and duplicate keys
 - review and analytics API for operations workflows
+- Cognito-backed private workspaces so each user only sees their own receipts
 - expense-tracker dashboard UI for technical and non-technical viewers
 - live browser upload console with preview, history drawer, and processing timeline
 - SAM template for backend deployment
@@ -36,8 +37,9 @@ The project now reads like a product instead of a single Lambda demo:
    - review status
 5. The enriched record is stored in DynamoDB
 6. SES sends a receipt processing notification
-7. A second Lambda exposes analytics, review, and export endpoints through HTTP API
-8. The static dashboard reads from the live API and renders a review console
+7. Cognito authenticates each dashboard user and issues JWTs for private API access
+8. A second Lambda exposes user-scoped analytics, review, upload, and export endpoints through HTTP API
+9. The static dashboard reads from the live API and renders a private receipt console
 
 ## AWS Services Used
 
@@ -47,6 +49,7 @@ The project now reads like a product instead of a single Lambda demo:
 - Amazon DynamoDB
 - Amazon SES
 - Amazon API Gateway HTTP API
+- Amazon Cognito
 - Amazon SQS
 - IAM
 - AWS Amplify Hosting
@@ -64,6 +67,7 @@ The project now reads like a product instead of a single Lambda demo:
 
 ### API Layer
 
+- JWT-protected private workspace routes
 - `GET /health`
 - `GET /receipts`
 - `GET /analytics`
@@ -76,9 +80,10 @@ The dashboard in [dashboard](./dashboard) is designed to feel like a real expens
 
 It includes:
 
+- sign up, sign in, sign out, and session refresh for private workspaces
 - finance-style hero and overview
 - receipt upload with live preview
-- saved browser-side upload history drawer
+- saved browser-side upload history drawer scoped per signed-in account
 - success burst animation when a receipt clears the pipeline
 - animated metric counters
 - category spend bars and donut view
@@ -141,13 +146,13 @@ By default it loads demo data. In live mode it reads the backend API from:
 ### [template.yaml](./template.yaml)
 
 - provisions the backend with SAM
-- creates the bucket, DynamoDB table, DLQ, API, and Lambdas
-- accepts deploy-time parameters for SES sender, fallback recipient, and confidence threshold
+- creates the bucket, DynamoDB table, Cognito user pool, DLQ, API, and Lambdas
+- accepts deploy-time parameters for SES sender, fallback recipient, confidence threshold, and Cognito callback URLs
 
 ### [amplify.yml](./amplify.yml)
 
 - publishes the dashboard as a static site
-- injects the live backend API URL through the `API_BASE_URL` environment variable
+- injects the live backend API URL and Cognito hosted UI settings through Amplify environment variables
 
 ### [samconfig.toml](./samconfig.toml)
 
@@ -177,7 +182,7 @@ This repo is ready for a two-part deployment:
 
 ### Backend
 
-Update the email placeholders in [samconfig.toml](./samconfig.toml), then run:
+Update the email and auth placeholders in [samconfig.toml](./samconfig.toml), then run:
 
 ```bash
 sam build
@@ -192,13 +197,17 @@ sam deploy --guided
 
 ### Frontend
 
-Connect the repo in Amplify and add this environment variable:
+Connect the repo in Amplify and add these environment variables:
 
 ```text
 API_BASE_URL=https://your-api-id.execute-api.ap-south-1.amazonaws.com
+COGNITO_HOSTED_UI_DOMAIN=https://your-domain-prefix.auth.ap-south-1.amazoncognito.com
+COGNITO_CLIENT_ID=your-cognito-app-client-id
+COGNITO_REDIRECT_SIGN_IN=https://your-dashboard.example.com
+COGNITO_REDIRECT_SIGN_OUT=https://your-dashboard.example.com
 ```
 
-Amplify will publish the dashboard and inject the API URL into [dashboard/config.js](./dashboard/config.js) during the build.
+Amplify will publish the dashboard and inject both the API URL and Cognito settings into [dashboard/config.js](./dashboard/config.js) during the build.
 
 Detailed steps are in [docs/deployment.md](./docs/deployment.md).
 
@@ -236,7 +245,7 @@ node --check dashboard/app.js
 
 ## Future Extensions
 
-- Cognito authentication
+- MFA and stronger account recovery policies
 - Step Functions approval workflow
 - budget anomaly alerts
 - vendor forecasting

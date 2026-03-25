@@ -11,6 +11,8 @@ This project is designed to go live in two parts:
 - AWS CLI configured locally
 - AWS SAM CLI installed
 - A verified SES sender email in the same AWS Region where you deploy
+- A final dashboard URL for Cognito callbacks, or at minimum the URL you will use during first testing
+- A globally unique Cognito hosted UI domain prefix
 
 Recommended Region for this project:
 
@@ -24,11 +26,14 @@ ap-south-1
 
 The repo includes [samconfig.toml](../samconfig.toml) with sensible defaults for a first production-style deploy.
 
-Before deploying, update the email placeholders in that file:
+Before deploying, update the email and auth placeholders in that file:
 
 ```toml
 SesSenderEmail=your-verified-sender@example.com
 SesDefaultRecipientEmail=finance@example.com
+CognitoDomainPrefix=your-unique-domain-prefix
+FrontendCallbackUrl=https://your-dashboard.example.com
+FrontendLogoutUrl=https://your-dashboard.example.com
 ```
 
 ### 2. Build the stack
@@ -49,11 +54,15 @@ If you want the guided prompt the first time:
 sam deploy --guided
 ```
 
-### 4. Save the API URL
+### 4. Save the backend outputs
 
-After deployment, copy the `ReceiptApiUrl` output value.
+After deployment, copy these output values:
 
-You will use it in the dashboard deployment.
+- `ReceiptApiUrl`
+- `ReceiptHostedUiBaseUrl`
+- `ReceiptUserPoolClientId`
+
+You will use them in the dashboard deployment.
 
 ## Part 2: Make SES Actually Work
 
@@ -75,15 +84,19 @@ In Amplify:
 
 1. Create a new app from the GitHub repo
 2. Keep the root of the repo as the app root
-3. Add an environment variable:
+3. Add these environment variables:
 
 ```text
 API_BASE_URL=https://your-api-id.execute-api.ap-south-1.amazonaws.com
+COGNITO_HOSTED_UI_DOMAIN=https://your-domain-prefix.auth.ap-south-1.amazoncognito.com
+COGNITO_CLIENT_ID=your-cognito-app-client-id
+COGNITO_REDIRECT_SIGN_IN=https://your-dashboard.example.com
+COGNITO_REDIRECT_SIGN_OUT=https://your-dashboard.example.com
 ```
 
 4. Deploy
 
-Amplify will copy the `dashboard/` folder into the published site and inject the live API base URL into `dashboard/config.js`.
+Amplify will copy the `dashboard/` folder into the published site and inject the live API base URL plus Cognito hosted UI settings into `dashboard/config.js`.
 
 ### Option B: Manual Static Hosting
 
@@ -94,6 +107,13 @@ In that case, edit [dashboard/config.js](../dashboard/config.js):
 ```js
 window.RECEIPTPULSE_CONFIG = {
   apiBaseUrl: "https://your-api-id.execute-api.ap-south-1.amazonaws.com",
+  auth: {
+    hostedUiDomain: "https://your-domain-prefix.auth.ap-south-1.amazoncognito.com",
+    clientId: "your-cognito-app-client-id",
+    redirectSignIn: "https://your-dashboard.example.com",
+    redirectSignOut: "https://your-dashboard.example.com",
+    scopes: ["openid", "email", "profile"],
+  },
 };
 ```
 
@@ -107,21 +127,22 @@ After deployment, verify these:
 
 ```text
 GET /health
-GET /analytics
-GET /receipts
+GET /analytics (with Authorization header from a signed-in user)
+GET /receipts (with Authorization header from a signed-in user)
 ```
 
 ### Frontend
 
-- dashboard loads without fallback errors
-- mode badge changes from `Demo Dataset` to `Live API`
-- analytics cards render from real data
-- receipt table fills from the API
+- dashboard loads and shows `Private Workspace` after sign-in
+- Cognito sign-up/sign-in redirects back to the dashboard successfully
+- analytics cards render only the signed-in user's data
+- receipt table fills from the private API
+- uploading a receipt from the browser stores it under the signed-in account
 
 ## Recommended Production Follow-ups
 
-- add Cognito authentication before exposing review routes publicly
-- restrict CORS to your Amplify domain instead of `*`
+- restrict API and S3 CORS to your dashboard domain instead of `*`
+- add MFA or stronger account recovery rules in Cognito for production users
 - add CloudWatch alarms for Lambda errors and DLQ activity
 - add lifecycle policies to the S3 bucket
 - add a custom domain for the dashboard

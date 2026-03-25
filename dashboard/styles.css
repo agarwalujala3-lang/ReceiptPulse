@@ -4827,3 +4827,22 @@ body.cursor-cta .cursor-orb {
     0 18px 36px rgba(39, 143, 214, 0.42),
     0 0 34px rgba(120, 226, 255, 0.3);
 }
+
+.topbar-primary-button {
+  min-width: 0;
+  min-height: 42px;
+  padding: 0.72rem 1rem;
+}
+
+.auth-summary-pill {
+  max-width: min(22rem, 60vw);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.text-input[readonly] {
+  color: rgba(235, 242, 255, 0.82);
+  background: rgba(255, 255, 255, 0.03);
+  cursor: default;
+}

@@ -104,12 +104,22 @@ def process_record(record):
             metadata = head.get("Metadata", {})
         except Exception as exc:
             print(f"Unable to read S3 object metadata for {key}: {exc}")
-    uploader_email = (
-        metadata.get("uploader-email")
-        or metadata.get("user-email")
+    user_email = (
+        metadata.get("user-email")
+        or metadata.get("uploader-email")
         or metadata.get("owner-email")
         or DEFAULT_RECIPIENT_EMAIL
     )
+    user_id = (
+        metadata.get("user-id")
+        or metadata.get("owner-id")
+        or build_fallback_user_id(user_email)
+    )
+    user_name = (
+        metadata.get("user-name")
+        or metadata.get("uploader-name")
+        or user_email.split("@")[0]
+    ).strip()
     receipt_label = (
         metadata.get("receipt-label")
         or metadata.get("uploader-name")
@@ -121,11 +131,13 @@ def process_record(record):
         key=key,
         object_size=object_size,
         etag=etag,
-        uploader_email=uploader_email,
+        user_id=user_id,
+        user_email=user_email,
+        user_name=user_name,
         receipt_label=receipt_label,
     )
 
-    duplicate_receipt = find_duplicate_receipt(receipt_data["duplicate_key"])
+    duplicate_receipt = find_duplicate_receipt(receipt_data["user_duplicate_key"])
     if duplicate_receipt:
         receipt_data["is_duplicate"] = True
         receipt_data["duplicate_of"] = duplicate_receipt["receipt_id"]
@@ -189,7 +201,16 @@ def extract_event_payloads(event):
     return []
 
 
-def process_receipt_with_textract(bucket, key, object_size, etag, uploader_email, receipt_label=""):
+def process_receipt_with_textract(
+    bucket,
+    key,
+    object_size,
+    etag,
+    user_id,
+    user_email,
+    user_name,
+    receipt_label="",
+):
     response = textract.analyze_expense(
         Document={
             "S3Object": {
@@ -208,7 +229,10 @@ def process_receipt_with_textract(bucket, key, object_size, etag, uploader_email
         "s3_path": f"s3://{bucket}/{key}",
         "source_size": int(object_size or 0),
         "etag": etag,
-        "uploaded_by": uploader_email,
+        "user_id": user_id,
+        "user_email": user_email,
+        "user_name": user_name[:120],
+        "uploaded_by": user_email,
         "receipt_label": receipt_label[:120],
         "created_at": now.isoformat(),
         "processed_timestamp": now.isoformat(),
@@ -228,6 +252,7 @@ def process_receipt_with_textract(bucket, key, object_size, etag, uploader_email
         "duplicate_of": None,
         "lifecycle_stage": "stored",
         "duplicate_key": "",
+        "user_duplicate_key": "",
         "source": "textract.analyze_expense",
         "summary_fields": {},
     }
@@ -248,6 +273,7 @@ def process_receipt_with_textract(bucket, key, object_size, etag, uploader_email
         receipt_data["file_name"],
     )
     receipt_data["duplicate_key"] = build_duplicate_key(receipt_data)
+    receipt_data["user_duplicate_key"] = build_user_duplicate_key(receipt_data)
     receipt_data["review_status"] = determine_review_status(receipt_data)
 
     print(json.dumps(receipt_data))
@@ -342,12 +368,14 @@ def determine_review_status(receipt_data):
     return "AUTO_APPROVED"
 
 
-def find_duplicate_receipt(duplicate_key):
+def find_duplicate_receipt(user_duplicate_key):
     table = dynamodb.Table(DYNAMODB_TABLE)
     response = table.query(
-        IndexName="DuplicateKeyIndex",
-        KeyConditionExpression=Key("duplicate_key").eq(duplicate_key),
-        ProjectionExpression="receipt_id, duplicate_key, processed_timestamp, review_status",
+        IndexName="UserDuplicateKeyIndex",
+        KeyConditionExpression=Key("user_duplicate_key").eq(user_duplicate_key),
+        ProjectionExpression=(
+            "receipt_id, user_duplicate_key, processed_timestamp, review_status, user_id"
+        ),
         Limit=1,
     )
     items = response.get("Items", [])
@@ -361,7 +389,11 @@ def store_receipt_in_dynamodb(receipt_data):
 
 
 def send_email_notification(receipt_data):
-    destination = receipt_data["uploaded_by"] or DEFAULT_RECIPIENT_EMAIL
+    destination = (
+        receipt_data.get("user_email")
+        or receipt_data.get("uploaded_by")
+        or DEFAULT_RECIPIENT_EMAIL
+    )
     items_html = "".join(
         (
             "<li>"
@@ -425,6 +457,10 @@ def build_duplicate_key(receipt_data):
     return hashlib.sha256(signature.encode("utf-8")).hexdigest()
 
 
+def build_user_duplicate_key(receipt_data):
+    return f"{receipt_data['user_id']}#{receipt_data['duplicate_key']}"
+
+
 def infer_category(vendor, items, file_name):
     corpus = " ".join(
         [vendor, file_name] + [item.get("name", "") for item in items]
@@ -458,6 +494,11 @@ def detect_currency_symbol(value):
 
 def normalize_text(value):
     return re.sub(r"\s+", " ", str(value).strip().lower())
+
+
+def build_fallback_user_id(email):
+    normalized = re.sub(r"[^a-z0-9._-]+", "-", normalize_text(email).replace(" ", ""))
+    return normalized.strip("-") or "public-demo"
 
 
 def normalize_date(raw_value):

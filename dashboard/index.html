@@ -31,6 +31,10 @@
         <div class="topbar-actions">
           <span class="status-pill" id="modeBadge">Demo Dataset</span>
           <span class="status-note" id="statusNote">Booting console.</span>
+          <span class="status-pill auth-summary-pill" id="authSummary">Guest Preview</span>
+          <button class="ghost-link ghost-button" id="authSecondaryCta" type="button">Create Account</button>
+          <button class="primary-button topbar-primary-button" id="authCta" type="button">Sign In</button>
+          <button class="ghost-link ghost-button" id="signOutButton" type="button" hidden>Sign Out</button>
           <button class="ghost-link ghost-button" id="historyToggle" type="button">Past Uploads</button>
           <a
             class="ghost-link"
@@ -116,10 +120,10 @@
               </p>
             </article>
             <article class="glass-card">
-              <span class="mini-label">Personal History</span>
+              <span class="mini-label">Private Workspace</span>
               <p>
-                Keep a receipt archive, monthly totals, and vendor history in one place without the
-                feel of a heavy finance workspace.
+                Sign in once, then keep a user-scoped receipt archive, monthly totals, and vendor
+                history in one place without leaking data across accounts.
               </p>
             </article>
           </div>
@@ -172,8 +176,8 @@
                 <input class="text-input" id="uploadName" type="text" placeholder="Groceries, Electricity, Shopping..." />
               </label>
               <label class="field">
-                <span>Receipt email</span>
-                <input class="text-input" id="uploadEmail" type="email" placeholder="you@example.com" />
+                <span>Signed-in account</span>
+                <input class="text-input" id="uploadAccount" type="text" placeholder="Sign in to unlock private uploads" readonly />
               </label>
             </div>
 
@@ -181,7 +185,7 @@
               <button class="primary-button upload-submit" id="uploadSubmit" type="submit">
                 Upload And Process
               </button>
-              <span class="upload-helper">If you enter your own label, ReceiptPulse will use that label for the receipt icon and chart styling instead of the detected category.</span>
+              <span class="upload-helper" id="uploadHelper">If you enter your own label, ReceiptPulse will use that label for the receipt icon and chart styling instead of the detected category.</span>
             </div>
           </form>
 
@@ -379,8 +383,8 @@
         </div>
       </div>
       <p class="history-copy">
-        Keep a simple local record of what you uploaded from this browser, then clear local or
-        stored history whenever you want a clean view again.
+        Keep a private local record of what you uploaded from this browser, then clear local or
+        stored history for your signed-in workspace whenever you want a clean view again.
       </p>
       <div class="history-range-shell">
         <label class="field history-field">

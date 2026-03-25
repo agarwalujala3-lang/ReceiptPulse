@@ -2,14 +2,15 @@ import csv
 import json
 import os
 import re
+import time
 import uuid
 from collections import defaultdict
-from decimal import Decimal
 from datetime import datetime, timezone
+from decimal import Decimal
 from io import StringIO
-import time
 
 import boto3
+from boto3.dynamodb.conditions import Key
 from botocore.exceptions import ClientError
 
 
@@ -19,12 +20,19 @@ RECEIPT_TABLE = os.environ.get("DYNAMODB_TABLE", "ReceiptRecords")
 RECEIPT_BUCKET = os.environ.get("RECEIPT_BUCKET", "")
 CACHE_TTL_SECONDS = int(os.environ.get("SNAPSHOT_CACHE_TTL_SECONDS", "15"))
 UPLOAD_URL_EXPIRES_IN = int(os.environ.get("UPLOAD_URL_EXPIRES_IN", "900"))
-_SNAPSHOT_CACHE = {"expires_at": 0.0, "payload": None}
+ALLOWED_UPLOAD_TYPES = {"application/pdf", "image/png", "image/jpeg"}
+_SNAPSHOT_CACHE = {}
+
+
+class ApiError(Exception):
+    def __init__(self, status_code, message):
+        super().__init__(message)
+        self.status_code = status_code
+        self.message = message
 
 
 def lambda_handler(event, context):
     if event.get("warmer") or event.get("source") == "aws.events":
-        get_snapshot_payload(force_refresh=True)
         return response(200, {"status": "warm"})
 
     method = (
@@ -52,108 +60,165 @@ def lambda_handler(event, context):
                         "/uploads/status",
                         "/exports/csv",
                     ],
+                    "workspaceAccess": "JWT authentication is required for private receipt routes.",
                 },
             )
         if method == "GET" and path == "/health":
             return response(200, {"status": "ok"})
+
+        identity = require_identity(event)
+
         if method == "POST" and path == "/uploads":
-            body = json.loads(event.get("body") or "{}")
-            return response(200, create_upload_session(body))
+            body = parse_json_body(event)
+            return response(200, create_upload_session(body, identity))
         if method == "GET" and path == "/uploads/status":
             query_params = event.get("queryStringParameters") or {}
-            return response(200, get_upload_status(query_params.get("key")))
+            return response(200, get_upload_status(query_params.get("key"), identity))
         if method == "GET" and path == "/receipts":
-            snapshot = get_snapshot_payload()
+            snapshot = get_snapshot_payload(identity["user_id"])
             receipts = filter_receipts(
                 snapshot["receipts"], event.get("queryStringParameters") or {}
             )
             return response(200, {"receipts": receipts})
         if method == "GET" and path == "/analytics":
-            analytics = get_snapshot_payload()["analytics"]
+            analytics = get_snapshot_payload(identity["user_id"])["analytics"]
             return response(200, analytics)
         if method == "GET" and path == "/snapshot":
-            return response(200, get_snapshot_payload())
+            return response(200, get_snapshot_payload(identity["user_id"]))
         if method == "POST" and path == "/receipts/clear":
-            body = json.loads(event.get("body") or "{}")
-            deleted = clear_receipts(body)
+            body = parse_json_body(event)
+            deleted = clear_receipts(body, identity)
             return response(200, deleted)
         if method == "GET" and path == "/exports/csv":
-            csv_text = export_csv(get_snapshot_payload()["receipts"])
+            receipts = get_snapshot_payload(identity["user_id"])["receipts"]
+            csv_text = export_csv(receipts)
             return response(200, csv_text, content_type="text/csv")
         if method == "PATCH" and path.startswith("/receipts/") and path.endswith("/review"):
             receipt_id = path.split("/")[2]
-            body = json.loads(event.get("body") or "{}")
-            updated = update_review_status(receipt_id, body)
+            body = parse_json_body(event)
+            updated = update_review_status(receipt_id, body, identity)
             return response(200, updated)
+    except ApiError as exc:
+        return response(exc.status_code, {"message": exc.message})
     except Exception as exc:
+        print(f"Unhandled dashboard API error: {exc}")
         return response(500, {"message": str(exc)})
 
     return response(404, {"message": "Route not found."})
 
 
-def scan_receipts():
+def require_identity(event):
+    claims = (
+        event.get("requestContext", {})
+        .get("authorizer", {})
+        .get("jwt", {})
+        .get("claims", {})
+    )
+    user_id = (
+        claims.get("sub")
+        or claims.get("cognito:username")
+        or claims.get("username")
+        or ""
+    ).strip()
+    if not user_id:
+        raise ApiError(401, "Authentication is required for this workspace route.")
+
+    user_email = (claims.get("email") or claims.get("cognito:username") or "").strip()
+    user_name = (
+        claims.get("name")
+        or claims.get("given_name")
+        or user_email
+        or user_id
+    ).strip()
+    return {
+        "user_id": user_id,
+        "user_email": user_email,
+        "user_name": user_name,
+    }
+
+
+def parse_json_body(event):
+    try:
+        return json.loads(event.get("body") or "{}")
+    except json.JSONDecodeError as exc:
+        raise ApiError(400, "Request body must be valid JSON.") from exc
+
+
+def query_user_receipts(user_id):
     table = dynamodb.Table(RECEIPT_TABLE)
     items = []
-    scan_args = {
+    query_args = {
+        "IndexName": "UserReceiptIndex",
+        "KeyConditionExpression": Key("user_id").eq(user_id),
         "ProjectionExpression": (
             "receipt_id, vendor, category, review_status, total_amount, "
             "confidence_score, expense_month, uploaded_by, receipt_label, s3_path, "
             "processed_timestamp, is_duplicate, review_reasons, file_name, "
-            "currency_symbol, duplicate_of, item_count, #receipt_key"
+            "currency_symbol, duplicate_of, item_count, user_id, user_email, user_name, "
+            "created_at, #receipt_key"
         ),
         "ExpressionAttributeNames": {"#receipt_key": "key"},
+        "ScanIndexForward": False,
     }
-    response = table.scan(**scan_args)
-    items.extend(response.get("Items", []))
+    page = table.query(**query_args)
+    items.extend(page.get("Items", []))
 
-    while "LastEvaluatedKey" in response:
-        response = table.scan(
-            ExclusiveStartKey=response["LastEvaluatedKey"],
-            **scan_args,
+    while "LastEvaluatedKey" in page:
+        page = table.query(
+            ExclusiveStartKey=page["LastEvaluatedKey"],
+            **query_args,
         )
-        items.extend(response.get("Items", []))
+        items.extend(page.get("Items", []))
 
-    items.sort(key=lambda item: item.get("processed_timestamp", ""), reverse=True)
     return items
 
 
-def get_snapshot_payload(force_refresh=False):
+def get_snapshot_payload(user_id, force_refresh=False):
     now = time.time()
+    cached = _SNAPSHOT_CACHE.get(user_id)
     if (
         not force_refresh
-        and _SNAPSHOT_CACHE["payload"] is not None
-        and _SNAPSHOT_CACHE["expires_at"] > now
+        and cached is not None
+        and cached["expires_at"] > now
     ):
-        return _SNAPSHOT_CACHE["payload"]
+        return cached["payload"]
 
-    receipts = scan_receipts()
+    receipts = query_user_receipts(user_id)
     payload = {
         "receipts": receipts,
         "analytics": build_analytics(receipts),
         "generatedAt": datetime.now(timezone.utc).isoformat(),
     }
-    _SNAPSHOT_CACHE["payload"] = payload
-    _SNAPSHOT_CACHE["expires_at"] = now + CACHE_TTL_SECONDS
+    _SNAPSHOT_CACHE[user_id] = {
+        "expires_at": now + CACHE_TTL_SECONDS,
+        "payload": payload,
+    }
     return payload
 
 
-def create_upload_session(payload):
+def create_upload_session(payload, identity):
     if not RECEIPT_BUCKET:
-        raise ValueError("Receipt bucket is not configured for uploads.")
+        raise ApiError(500, "Receipt bucket is not configured for uploads.")
 
     file_name = sanitize_filename(payload.get("fileName") or "receipt-upload")
     content_type = payload.get("contentType") or "application/octet-stream"
-    uploader_email = (payload.get("uploaderEmail") or "ops@receiptpulse.dev").strip()
+    if content_type not in ALLOWED_UPLOAD_TYPES:
+        raise ApiError(400, "Only PDF, PNG, JPG, and JPEG receipts are supported.")
+
     receipt_label = (
         payload.get("receiptLabel")
         or payload.get("uploaderName")
         or ""
     ).strip()
     stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
-    object_key = f"incoming/{stamp}/{uuid.uuid4().hex[:12]}-{file_name}"
+    user_key = sanitize_path_segment(identity["user_id"])
+    object_key = f"users/{user_key}/{stamp}/{uuid.uuid4().hex[:12]}-{file_name}"
     metadata = {
-        "uploader-email": uploader_email[:120],
-        "uploader-name": receipt_label[:120],
+        "user-id": identity["user_id"][:120],
+        "user-email": identity["user_email"][:120],
+        "user-name": identity["user_name"][:120],
+        "uploader-email": identity["user_email"][:120],
+        "uploader-name": identity["user_name"][:120],
         "receipt-label": receipt_label[:120],
     }
 
@@ -175,6 +240,9 @@ def create_upload_session(payload):
         "expiresIn": UPLOAD_URL_EXPIRES_IN,
         "headers": {
             "Content-Type": content_type,
+            "x-amz-meta-user-id": metadata["user-id"],
+            "x-amz-meta-user-email": metadata["user-email"],
+            "x-amz-meta-user-name": metadata["user-name"],
             "x-amz-meta-uploader-email": metadata["uploader-email"],
             "x-amz-meta-uploader-name": metadata["uploader-name"],
             "x-amz-meta-receipt-label": metadata["receipt-label"],
@@ -183,16 +251,7 @@ def create_upload_session(payload):
     }
 
 
-def get_upload_status(object_key):
-    receipt = find_receipt_by_key(object_key, force_refresh=True)
-    if receipt:
-        return {
-            "status": "PROCESSED",
-            "stage": "stored",
-            "receipt": serialize_receipt(receipt),
-            "message": "Receipt processed and available in the operations console.",
-        }
-
+def get_upload_status(object_key, identity):
     if not object_key:
         return {
             "status": "INVALID",
@@ -200,8 +259,22 @@ def get_upload_status(object_key):
             "message": "Upload key is missing.",
         }
 
+    assert_user_owns_object_key(object_key, identity["user_id"])
+
+    receipt = find_receipt_by_key(object_key, identity["user_id"], force_refresh=True)
+    if receipt:
+        return {
+            "status": "PROCESSED",
+            "stage": "stored",
+            "receipt": serialize_receipt(receipt),
+            "message": "Receipt processed and available in your private workspace.",
+        }
+
     try:
         head = s3.head_object(Bucket=RECEIPT_BUCKET, Key=object_key)
+        owner_id = head.get("Metadata", {}).get("user-id", "")
+        if owner_id and owner_id != identity["user_id"]:
+            raise ApiError(403, "This receipt belongs to a different user.")
     except ClientError as exc:
         error_code = exc.response.get("Error", {}).get("Code", "")
         if error_code in {"404", "NotFound", "NoSuchKey"}:
@@ -216,22 +289,25 @@ def get_upload_status(object_key):
         "status": "PROCESSING",
         "stage": "textract",
         "objectKey": object_key,
-        "lastModified": head.get("LastModified", datetime.now(timezone.utc)).astimezone(
-            timezone.utc
-        ).isoformat(),
-        "message": "Receipt uploaded. AI extraction and rule checks are running now.",
+        "lastModified": head.get("LastModified", datetime.now(timezone.utc))
+        .astimezone(timezone.utc)
+        .isoformat(),
+        "message": "Receipt uploaded. AI extraction and review checks are running now.",
     }
 
 
-def find_receipt_by_key(object_key, force_refresh=False):
-    if not object_key:
-        return None
-
-    snapshot = get_snapshot_payload(force_refresh=force_refresh)
+def find_receipt_by_key(object_key, user_id, force_refresh=False):
+    snapshot = get_snapshot_payload(user_id, force_refresh=force_refresh)
     for receipt in snapshot["receipts"]:
         if receipt.get("key") == object_key:
             return receipt
     return None
+
+
+def assert_user_owns_object_key(object_key, user_id):
+    expected_prefix = f"users/{sanitize_path_segment(user_id)}/"
+    if not str(object_key).startswith(expected_prefix):
+        raise ApiError(403, "This upload key does not belong to the signed-in user.")
 
 
 def filter_receipts(receipts, query_params):
@@ -342,6 +418,7 @@ def export_csv(receipts):
             "uploaded_by",
             "receipt_label",
             "s3_path",
+            "processed_timestamp",
         ],
     )
     writer.writeheader()
@@ -358,42 +435,51 @@ def export_csv(receipts):
                 "uploaded_by": receipt.get("uploaded_by"),
                 "receipt_label": receipt.get("receipt_label"),
                 "s3_path": receipt.get("s3_path"),
+                "processed_timestamp": receipt.get("processed_timestamp"),
             }
         )
     return buffer.getvalue()
 
 
-def update_review_status(receipt_id, payload):
+def update_review_status(receipt_id, payload, identity):
     table = dynamodb.Table(RECEIPT_TABLE)
     review_status = payload.get("reviewStatus", "REVIEWED")
-    reviewer = payload.get("reviewer", "ops-console")
+    reviewer = identity["user_email"] or identity["user_name"] or "workspace-user"
     note = payload.get("note", "")
     reviewed_at = datetime.now(timezone.utc).isoformat()
 
-    response = table.update_item(
-        Key={"receipt_id": receipt_id},
-        UpdateExpression=(
-            "SET review_status = :status, reviewed_by = :reviewed_by, "
-            "reviewed_at = :reviewed_at, reviewer_note = :reviewer_note"
-        ),
-        ExpressionAttributeValues={
-            ":status": review_status,
-            ":reviewed_by": reviewer,
-            ":reviewed_at": reviewed_at,
-            ":reviewer_note": note,
-        },
-        ReturnValues="ALL_NEW",
-    )
-    invalidate_snapshot_cache()
-    return {"receipt": response.get("Attributes", {})}
+    try:
+        response_payload = table.update_item(
+            Key={"receipt_id": receipt_id},
+            UpdateExpression=(
+                "SET review_status = :status, reviewed_by = :reviewed_by, "
+                "reviewed_at = :reviewed_at, reviewer_note = :reviewer_note"
+            ),
+            ConditionExpression="attribute_exists(receipt_id) AND user_id = :user_id",
+            ExpressionAttributeValues={
+                ":status": review_status,
+                ":reviewed_by": reviewer,
+                ":reviewed_at": reviewed_at,
+                ":reviewer_note": note,
+                ":user_id": identity["user_id"],
+            },
+            ReturnValues="ALL_NEW",
+        )
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+            raise ApiError(404, "Receipt not found for the signed-in user.") from exc
+        raise
+
+    invalidate_snapshot_cache(identity["user_id"])
+    return {"receipt": serialize_receipt(response_payload.get("Attributes", {}))}
 
 
-def clear_receipts(payload):
+def clear_receipts(payload, identity):
     from_date = payload.get("fromDate") or ""
     to_date = payload.get("toDate") or ""
     matching_receipts = [
         receipt
-        for receipt in scan_receipts()
+        for receipt in query_user_receipts(identity["user_id"])
         if receipt_matches_range(receipt, from_date, to_date)
     ]
 
@@ -420,19 +506,24 @@ def clear_receipts(payload):
                 except ClientError:
                     pass
 
-    invalidate_snapshot_cache()
+    invalidate_snapshot_cache(identity["user_id"])
     return {
         "deletedCount": len(matching_receipts),
         "deletedS3Objects": deleted_objects,
         "fromDate": from_date or None,
         "toDate": to_date or None,
-        "message": f"Deleted {len(matching_receipts)} stored receipts for the selected period.",
+        "message": (
+            f"Deleted {len(matching_receipts)} stored receipts from your private workspace."
+        ),
     }
 
 
-def invalidate_snapshot_cache():
-    _SNAPSHOT_CACHE["payload"] = None
-    _SNAPSHOT_CACHE["expires_at"] = 0.0
+def invalidate_snapshot_cache(user_id=None):
+    if user_id:
+        _SNAPSHOT_CACHE.pop(user_id, None)
+        return
+
+    _SNAPSHOT_CACHE.clear()
 
 
 def serialize_receipt(receipt):
@@ -484,6 +575,11 @@ def sanitize_filename(value):
     return sanitized or "receipt-upload"
 
 
+def sanitize_path_segment(value):
+    sanitized = re.sub(r"[^A-Za-z0-9._-]+", "-", str(value).strip()).strip(".-")
+    return sanitized or "user"
+
+
 def receipt_matches_range(receipt, from_date, to_date):
     stamp = parse_receipt_timestamp(receipt)
     if stamp is None:
@@ -528,12 +624,12 @@ def response(status_code, payload, content_type="application/json"):
     body = payload if isinstance(payload, str) else json.dumps(normalize_payload(payload))
     cache_control = "no-store"
     if content_type == "application/json" and status_code == 200:
-        cache_control = "public, max-age=10, stale-while-revalidate=20"
+        cache_control = "private, no-store"
     return {
         "statusCode": status_code,
         "headers": {
             "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Headers": "Content-Type",
+            "Access-Control-Allow-Headers": "Content-Type, Authorization",
             "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
             "Content-Type": content_type,
             "Cache-Control": cache_control,

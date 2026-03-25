@@ -1,7 +1,9 @@
 const FILTERS = ["ALL", "AUTO_APPROVED", "NEEDS_REVIEW", "DUPLICATE"];
 const POLL_INTERVAL_MS = 2500;
 const MAX_POLL_ATTEMPTS = 30;
-const HISTORY_STORAGE_KEY = "receiptpulse-upload-history";
+const HISTORY_STORAGE_KEY_PREFIX = "receiptpulse-upload-history";
+const AUTH_STORAGE_KEY = "receiptpulse-auth-session";
+const AUTH_PKCE_STORAGE_KEY = "receiptpulse-auth-pkce";
 const MAX_HISTORY_ITEMS = 8;
 const HOW_IT_WORKS = [
   {
@@ -380,6 +382,10 @@ const elements = {
   filterRow: document.querySelector("#filterRow"),
   modeBadge: document.querySelector("#modeBadge"),
   statusNote: document.querySelector("#statusNote"),
+  authSummary: document.querySelector("#authSummary"),
+  authCta: document.querySelector("#authCta"),
+  authSecondaryCta: document.querySelector("#authSecondaryCta"),
+  signOutButton: document.querySelector("#signOutButton"),
   riskHeadline: document.querySelector("#riskHeadline"),
   opsStrip: document.querySelector("#opsStrip"),
   spotlightKicker: document.querySelector("#spotlightKicker"),
@@ -399,7 +405,8 @@ const elements = {
   previewFrame: document.querySelector("#previewFrame"),
   previewMeta: document.querySelector("#previewMeta"),
   uploadName: document.querySelector("#uploadName"),
-  uploadEmail: document.querySelector("#uploadEmail"),
+  uploadAccount: document.querySelector("#uploadAccount"),
+  uploadHelper: document.querySelector("#uploadHelper"),
   uploadSubmit: document.querySelector("#uploadSubmit"),
   uploadTimeline: document.querySelector("#uploadTimeline"),
   uploadMessage: document.querySelector("#uploadMessage"),
@@ -429,11 +436,12 @@ const elements = {
   successBurst: document.querySelector("#successBurst"),
 };
 
+const authConfig = normalizeAuthConfig(window.RECEIPTPULSE_CONFIG?.auth || {});
 let dashboardData = null;
 let activeDashboardView = null;
 let activeFilter = "ALL";
 let apiBase = "";
-let uploadHistory = loadUploadHistory();
+let uploadHistory = [];
 let previewObjectUrl = "";
 let latestPreview = null;
 let archiveOpen = false;
@@ -457,6 +465,509 @@ let confirmState = {
   resolve: null,
   previousFocus: null,
 };
+let authState = {
+  status: "idle",
+  tokens: loadStoredTokens(),
+  user: null,
+};
+
+function normalizeAuthConfig(raw) {
+  const fallbackUrl = `${window.location.origin}${window.location.pathname}`;
+  const scopes =
+    Array.isArray(raw?.scopes) && raw.scopes.length
+      ? raw.scopes.map((scope) => String(scope).trim()).filter(Boolean)
+      : ["openid", "email", "profile"];
+
+  return {
+    hostedUiDomain: String(raw?.hostedUiDomain || "").trim().replace(/\/$/, ""),
+    clientId: String(raw?.clientId || "").trim(),
+    redirectSignIn: String(raw?.redirectSignIn || fallbackUrl).trim(),
+    redirectSignOut: String(raw?.redirectSignOut || fallbackUrl).trim(),
+    scopes,
+  };
+}
+
+function isAuthConfigured() {
+  return Boolean(authConfig.hostedUiDomain && authConfig.clientId);
+}
+
+function isSignedIn() {
+  return authState.status === "signed_in" && Boolean(authState.tokens?.accessToken);
+}
+
+function loadStoredTokens() {
+  try {
+    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch (error) {
+    console.warn("Unable to read stored auth session.", error);
+    return null;
+  }
+}
+
+function persistAuthTokens(tokens) {
+  authState.tokens = tokens;
+  try {
+    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
+  } catch (error) {
+    console.warn("Unable to persist auth session.", error);
+  }
+}
+
+function clearStoredTokens() {
+  authState.tokens = null;
+  try {
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+  } catch (error) {
+    console.warn("Unable to clear auth session.", error);
+  }
+}
+
+function loadPkceState() {
+  try {
+    const raw = window.sessionStorage.getItem(AUTH_PKCE_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" ? parsed : null;
+  } catch (error) {
+    console.warn("Unable to read PKCE state.", error);
+    return null;
+  }
+}
+
+function persistPkceState(payload) {
+  try {
+    window.sessionStorage.setItem(AUTH_PKCE_STORAGE_KEY, JSON.stringify(payload));
+  } catch (error) {
+    console.warn("Unable to persist PKCE state.", error);
+  }
+}
+
+function clearPkceState() {
+  try {
+    window.sessionStorage.removeItem(AUTH_PKCE_STORAGE_KEY);
+  } catch (error) {
+    console.warn("Unable to clear PKCE state.", error);
+  }
+}
+
+function decodeJwtPayload(token) {
+  if (!token || !token.includes(".")) {
+    return {};
+  }
+
+  try {
+    const encodedPayload = token.split(".")[1];
+    const normalized = encodedPayload.replace(/-/g, "+").replace(/_/g, "/");
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, "=");
+    const decoded = atob(padded);
+    const bytes = Array.from(decoded, (char) => `%${char.charCodeAt(0).toString(16).padStart(2, "0")}`).join("");
+    return JSON.parse(decodeURIComponent(bytes));
+  } catch (error) {
+    console.warn("Unable to decode JWT payload.", error);
+    return {};
+  }
+}
+
+function buildUserFromTokens(tokens) {
+  const claims = decodeJwtPayload(tokens?.idToken || tokens?.accessToken || "");
+  return {
+    id: claims.sub || claims.username || claims["cognito:username"] || "",
+    email: claims.email || claims["cognito:username"] || "",
+    name:
+      claims.name ||
+      claims.given_name ||
+      claims.email ||
+      claims["cognito:username"] ||
+      "Workspace user",
+  };
+}
+
+function isTokenExpired(bufferMs = 60000) {
+  const expiresAt = Number(authState.tokens?.expiresAt || 0);
+  if (!expiresAt) {
+    return true;
+  }
+
+  return Date.now() + bufferMs >= expiresAt;
+}
+
+function setSignedOutState() {
+  clearPkceState();
+  clearStoredTokens();
+  authState = {
+    ...authState,
+    status: isAuthConfigured() ? "signed_out" : "unavailable",
+    user: null,
+    tokens: null,
+  };
+}
+
+function updateAuthFromTokens(tokens) {
+  const user = buildUserFromTokens(tokens);
+  if (!user.id) {
+    throw new Error("Signed-in session is missing a stable user id.");
+  }
+
+  persistAuthTokens(tokens);
+  authState = {
+    ...authState,
+    status: "signed_in",
+    tokens,
+    user,
+  };
+  updateAuthUI();
+}
+
+function getAuthTokenEndpoint() {
+  return `${authConfig.hostedUiDomain}/oauth2/token`;
+}
+
+function buildAuthStartUrl(pathname, state, codeChallenge) {
+  const url = new URL(`${authConfig.hostedUiDomain}/${pathname}`);
+  url.searchParams.set("client_id", authConfig.clientId);
+  url.searchParams.set("response_type", "code");
+  url.searchParams.set("scope", authConfig.scopes.join(" "));
+  url.searchParams.set("redirect_uri", authConfig.redirectSignIn);
+  url.searchParams.set("code_challenge_method", "S256");
+  url.searchParams.set("code_challenge", codeChallenge);
+  url.searchParams.set("state", state);
+  return url.toString();
+}
+
+function buildLogoutUrl() {
+  const url = new URL(`${authConfig.hostedUiDomain}/logout`);
+  url.searchParams.set("client_id", authConfig.clientId);
+  url.searchParams.set("logout_uri", authConfig.redirectSignOut);
+  return url.toString();
+}
+
+function createRandomToken(length = 64) {
+  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
+  const bytes = new Uint8Array(length);
+  window.crypto.getRandomValues(bytes);
+  return Array.from(bytes, (value) => alphabet[value % alphabet.length]).join("");
+}
+
+async function sha256Base64Url(value) {
+  const encoded = new TextEncoder().encode(value);
+  const digest = await window.crypto.subtle.digest("SHA-256", encoded);
+  const bytes = new Uint8Array(digest);
+  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
+  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
+}
+
+async function beginAuthFlow(pathname) {
+  if (!isAuthConfigured()) {
+    throw new Error("Cognito authentication is not configured for this dashboard.");
+  }
+
+  authState = {
+    ...authState,
+    status: "redirecting",
+  };
+  updateAuthUI();
+
+  const verifier = createRandomToken(96);
+  const state = createRandomToken(48);
+  const codeChallenge = await sha256Base64Url(verifier);
+  persistPkceState({ verifier, state });
+  window.location.assign(buildAuthStartUrl(pathname, state, codeChallenge));
+}
+
+async function exchangeCodeForTokens(code, verifier) {
+  const body = new URLSearchParams({
+    grant_type: "authorization_code",
+    client_id: authConfig.clientId,
+    code,
+    redirect_uri: authConfig.redirectSignIn,
+    code_verifier: verifier,
+  });
+
+  const response = await fetch(getAuthTokenEndpoint(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Sign-in exchange failed (${response.status}).`);
+  }
+
+  const payload = await response.json();
+  return {
+    accessToken: payload.access_token || "",
+    idToken: payload.id_token || "",
+    refreshToken: payload.refresh_token || "",
+    expiresAt: Date.now() + Number(payload.expires_in || 3600) * 1000,
+  };
+}
+
+async function refreshAuthSession() {
+  if (!authState.tokens?.refreshToken) {
+    throw new Error("No refresh token is available for this session.");
+  }
+
+  authState = {
+    ...authState,
+    status: "refreshing",
+  };
+  updateAuthUI();
+
+  const body = new URLSearchParams({
+    grant_type: "refresh_token",
+    client_id: authConfig.clientId,
+    refresh_token: authState.tokens.refreshToken,
+  });
+  const response = await fetch(getAuthTokenEndpoint(), {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/x-www-form-urlencoded",
+    },
+    body,
+  });
+
+  if (!response.ok) {
+    throw new Error(`Session refresh failed (${response.status}).`);
+  }
+
+  const payload = await response.json();
+  const refreshed = {
+    ...authState.tokens,
+    accessToken: payload.access_token || authState.tokens.accessToken,
+    idToken: payload.id_token || authState.tokens.idToken,
+    expiresAt: Date.now() + Number(payload.expires_in || 3600) * 1000,
+  };
+  updateAuthFromTokens(refreshed);
+}
+
+async function handleAuthRedirect() {
+  const url = new URL(window.location.href);
+  const error = url.searchParams.get("error");
+  const errorDescription = url.searchParams.get("error_description");
+  const code = url.searchParams.get("code");
+
+  if (!error && !code) {
+    return;
+  }
+
+  const cleanUrl = new URL(window.location.href);
+  ["code", "state", "error", "error_description"].forEach((key) => cleanUrl.searchParams.delete(key));
+
+  if (error) {
+    window.history.replaceState({}, document.title, cleanUrl.toString());
+    setSignedOutState();
+    updateAuthUI();
+    throw new Error(errorDescription || error);
+  }
+
+  const pkceState = loadPkceState();
+  const returnedState = url.searchParams.get("state") || "";
+  if (!pkceState?.verifier || !pkceState?.state || pkceState.state !== returnedState) {
+    window.history.replaceState({}, document.title, cleanUrl.toString());
+    clearPkceState();
+    setSignedOutState();
+    updateAuthUI();
+    throw new Error("Sign-in state verification failed. Try signing in again.");
+  }
+
+  authState = {
+    ...authState,
+    status: "exchanging",
+  };
+  updateAuthUI();
+
+  const tokens = await exchangeCodeForTokens(code, pkceState.verifier);
+  clearPkceState();
+  updateAuthFromTokens(tokens);
+  window.history.replaceState({}, document.title, cleanUrl.toString());
+}
+
+async function initializeAuth() {
+  if (!isAuthConfigured()) {
+    authState = {
+      ...authState,
+      status: "unavailable",
+      user: null,
+      tokens: null,
+    };
+    updateAuthUI();
+    reloadUploadHistory();
+    return;
+  }
+
+  authState = {
+    ...authState,
+    status: authState.tokens ? "restoring" : "signed_out",
+  };
+  updateAuthUI();
+
+  try {
+    await handleAuthRedirect();
+
+    if (authState.tokens) {
+      if (isTokenExpired()) {
+        await refreshAuthSession();
+      } else {
+        updateAuthFromTokens(authState.tokens);
+      }
+    } else {
+      authState = {
+        ...authState,
+        status: "signed_out",
+        user: null,
+      };
+    }
+  } catch (error) {
+    console.error("Authentication bootstrap failed.", error);
+    setSignedOutState();
+    elements.statusNote.textContent =
+      error.message || "Authentication failed. Sign in again to open your workspace.";
+  }
+
+  updateAuthUI();
+  reloadUploadHistory();
+}
+
+async function ensureValidAccessToken() {
+  if (!isAuthConfigured()) {
+    throw new Error("Authentication is not configured for this dashboard.");
+  }
+  if (!authState.tokens?.accessToken) {
+    throw new Error("Sign in to open your private workspace.");
+  }
+
+  if (isTokenExpired()) {
+    await refreshAuthSession();
+  }
+
+  return authState.tokens.accessToken;
+}
+
+async function apiFetch(path, options = {}, retry = true) {
+  if (!apiBase) {
+    throw new Error("Live API is not configured for this dashboard.");
+  }
+
+  const token = await ensureValidAccessToken();
+  const headers = new Headers(options.headers || {});
+  headers.set("Authorization", `Bearer ${token}`);
+
+  const response = await fetch(`${apiBase.replace(/\/$/, "")}${path}`, {
+    ...options,
+    headers,
+  });
+
+  if (response.status === 401 && retry && authState.tokens?.refreshToken) {
+    await refreshAuthSession();
+    return apiFetch(path, options, false);
+  }
+
+  if (response.status === 401) {
+    setSignedOutState();
+    updateAuthUI();
+    throw new Error("Your session expired. Sign in again to continue.");
+  }
+
+  return response;
+}
+
+function getHistoryStorageKey() {
+  return `${HISTORY_STORAGE_KEY_PREFIX}:${authState.user?.id || "guest"}`;
+}
+
+function reloadUploadHistory() {
+  uploadHistory = loadUploadHistory();
+  renderUploadHistory();
+}
+
+function updateAuthUI() {
+  const configured = isAuthConfigured();
+  const signedIn = isSignedIn();
+  const authBusy = ["redirecting", "exchanging", "refreshing", "restoring"].includes(authState.status);
+
+  if (elements.authSummary) {
+    elements.authSummary.textContent = signedIn
+      ? authState.user.email || "Private Workspace"
+      : configured
+        ? "Guest Preview"
+        : "Auth Setup Required";
+  }
+
+  if (elements.authCta) {
+    elements.authCta.hidden = signedIn || !configured;
+    elements.authCta.disabled = authBusy;
+    elements.authCta.textContent = authBusy ? "Opening..." : "Sign In";
+  }
+
+  if (elements.authSecondaryCta) {
+    elements.authSecondaryCta.hidden = signedIn || !configured;
+    elements.authSecondaryCta.disabled = authBusy;
+  }
+
+  if (elements.signOutButton) {
+    elements.signOutButton.hidden = !signedIn;
+    elements.signOutButton.disabled = authBusy;
+  }
+
+  if (elements.uploadAccount) {
+    elements.uploadAccount.value = signedIn
+      ? `${authState.user.name}${authState.user.email ? ` (${authState.user.email})` : ""}`
+      : configured
+        ? "Sign in to unlock your private receipt workspace."
+        : "Add Cognito config to enable private uploads.";
+  }
+
+  if (elements.uploadHelper) {
+    elements.uploadHelper.textContent = signedIn
+      ? "Every file you upload from this device is stored under your account, and only your receipts appear in this workspace."
+      : configured
+        ? "Sign in first. After that, uploads, history, analytics, and delete actions stay scoped to your account."
+        : "Live private uploads need both an API URL and Cognito settings in dashboard/config.js.";
+  }
+}
+
+function bindAuthControls() {
+  if (elements.authCta && elements.authCta.dataset.bound !== "true") {
+    elements.authCta.dataset.bound = "true";
+    elements.authCta.addEventListener("click", () => {
+      void beginAuthFlow("login").catch((error) => {
+        console.error("Unable to start sign-in.", error);
+        elements.statusNote.textContent = error.message || "Unable to start sign-in.";
+      });
+    });
+  }
+
+  if (elements.authSecondaryCta && elements.authSecondaryCta.dataset.bound !== "true") {
+    elements.authSecondaryCta.dataset.bound = "true";
+    elements.authSecondaryCta.addEventListener("click", () => {
+      void beginAuthFlow("signup").catch((error) => {
+        console.error("Unable to start sign-up.", error);
+        elements.statusNote.textContent = error.message || "Unable to start sign-up.";
+      });
+    });
+  }
+
+  if (elements.signOutButton && elements.signOutButton.dataset.bound !== "true") {
+    elements.signOutButton.dataset.bound = "true";
+    elements.signOutButton.addEventListener("click", () => {
+      clearPreviewObjectUrl();
+      setSignedOutState();
+      updateAuthUI();
+      window.location.assign(buildLogoutUrl());
+    });
+  }
+}
 
 function cloneDashboardState(source) {
   return JSON.parse(JSON.stringify(source));
@@ -470,28 +981,41 @@ async function loadDashboard() {
   dashboardData = cloneDashboardState(FALLBACK_DASHBOARD);
   renderDashboard();
 
-  if (apiBase) {
-    elements.modeBadge.textContent = "Syncing";
+  if (!apiBase) {
+    elements.modeBadge.textContent = "Demo Dataset";
     elements.statusNote.textContent =
-      "Console is ready. Pulling live AWS data in the background.";
-
-    try {
-      await refreshLiveSnapshot();
-      elements.modeBadge.textContent = "Live API";
-      elements.statusNote.textContent = "Connected to live AWS receipt data.";
-      return;
-    } catch (error) {
-      console.error("Live API mode failed, falling back to demo data.", error);
-      elements.modeBadge.textContent = "Instant Preview";
-      elements.statusNote.textContent =
-        "Live API is warming up, so the console is staying on its built-in preview state.";
-      return;
-    }
+      "Live API is not configured yet, so the console is running from its built-in preview state.";
+    return;
   }
 
-  elements.modeBadge.textContent = "Demo Dataset";
+  if (!isAuthConfigured()) {
+    elements.modeBadge.textContent = "Setup Needed";
+    elements.statusNote.textContent =
+      "The API is configured, but Cognito settings are missing, so the dashboard is staying in preview mode.";
+    return;
+  }
+
+  if (!isSignedIn()) {
+    elements.modeBadge.textContent = "Private Workspace";
+    elements.statusNote.textContent =
+      "Sign in to load your receipts, charts, and uploads from the live workspace.";
+    return;
+  }
+
+  elements.modeBadge.textContent = "Syncing";
   elements.statusNote.textContent =
-    "Live API is not configured yet, so the console is running from its built-in preview state.";
+    "Console is ready. Pulling your private receipt data in the background.";
+
+  try {
+    await refreshLiveSnapshot();
+    elements.modeBadge.textContent = "Private Workspace";
+    elements.statusNote.textContent = "Connected to your private AWS receipt data.";
+  } catch (error) {
+    console.error("Live API mode failed, falling back to demo data.", error);
+    elements.modeBadge.textContent = "Instant Preview";
+    elements.statusNote.textContent =
+      error.message || "Live workspace sync failed, so the console is staying on its built-in preview state.";
+  }
 }
 
 function mapReceipt(receipt) {
@@ -1018,13 +1542,18 @@ function renderUploadTimeline() {
   elements.uploadMessage.textContent = uploadState.message;
   if (elements.uploadSubmit) {
     const busy = ["preparing", "uploading", "processing"].includes(uploadState.phase);
-    elements.uploadSubmit.disabled = busy;
+    const canUpload = isSignedIn();
+    elements.uploadSubmit.disabled = busy || !canUpload;
     elements.uploadSubmit.textContent =
       uploadState.phase === "uploading"
         ? "Uploading Receipt..."
         : busy
           ? "Processing Receipt..."
-          : "Upload And Process";
+          : canUpload
+            ? "Upload And Process"
+            : isAuthConfigured()
+              ? "Sign In To Upload"
+              : "Auth Setup Required";
   }
 }
 
@@ -1144,9 +1673,13 @@ function renderSpotlight() {
   const receipt = uploadState.receipt;
   if (!receipt) {
     elements.spotlightKicker.textContent = "Current upload";
-    elements.spotlightTitle.textContent = "No receipt from this browser session yet.";
+    elements.spotlightTitle.textContent = isSignedIn()
+      ? "No receipt from this browser session yet."
+      : "Sign in to process receipts into your private workspace.";
     elements.spotlightNarrative.textContent =
-      "Select a file from your device, upload it to S3, and this area will switch into the latest processed expense summary for your own upload.";
+      isSignedIn()
+        ? "Select a file from your device, upload it to S3, and this area will switch into the latest processed expense summary for your own upload."
+        : "Once you sign in, uploads from this device are tied to your account and this area will show the latest processed result from your workspace.";
     elements.spotlightFacts.innerHTML = "";
     elements.spotlightPanel?.style.removeProperty("--theme-accent");
     elements.spotlightPanel?.style.removeProperty("--theme-soft");
@@ -1232,14 +1765,16 @@ function renderUploadHistory() {
     return;
   }
 
+  const signedIn = isSignedIn();
+
   if (elements.historyToggle) {
     elements.historyToggle.textContent = `Past Uploads (${uploadHistory.length})`;
   }
   if (elements.historyDelete) {
-    elements.historyDelete.disabled = !dashboardData?.receipts?.length;
+    elements.historyDelete.disabled = !signedIn || !dashboardData?.receipts?.length;
   }
   if (elements.historyDeleteAction) {
-    elements.historyDeleteAction.disabled = !dashboardData?.receipts?.length;
+    elements.historyDeleteAction.disabled = !signedIn || !dashboardData?.receipts?.length;
   }
   if (elements.historyClearLocal) {
     elements.historyClearLocal.disabled = uploadHistory.length === 0;
@@ -1251,8 +1786,11 @@ function renderUploadHistory() {
   if (!uploadHistory.length) {
     elements.historyList.innerHTML = `
       <article class="history-empty">
-        No uploads have been saved in this browser yet. Process a receipt once and this drawer turns
-        into a running activity log with status, amount, and preview context.
+        ${
+          signedIn
+            ? "No uploads have been saved in this browser for your account yet. Process a receipt once and this drawer turns into a running activity log with status, amount, and preview context."
+            : "Sign in and process a receipt to start a private upload history for this account."
+        }
       </article>
     `;
     return;
@@ -1784,6 +2322,13 @@ function bindUploadControls() {
   elements.uploadForm.dataset.bound = "true";
 
   elements.heroUploadTrigger?.addEventListener("click", () => {
+    if (isAuthConfigured() && !isSignedIn()) {
+      void beginAuthFlow("login").catch((error) => {
+        console.error("Unable to start sign-in.", error);
+        elements.statusNote.textContent = error.message || "Unable to start sign-in.";
+      });
+      return;
+    }
     document.querySelector("#uploadLab")?.scrollIntoView({ behavior: "smooth", block: "start" });
     elements.fileInput?.click();
   });
@@ -1841,6 +2386,11 @@ async function handleUpload(event) {
     return;
   }
 
+  if (!isSignedIn()) {
+    setUploadState("error", "slot", "Sign in to upload receipts into your private workspace.");
+    return;
+  }
+
   const file = elements.fileInput.files[0];
   if (!file) {
     setUploadState("error", "slot", "Choose a receipt file first.");
@@ -1853,7 +2403,6 @@ async function handleUpload(event) {
   }
 
   const receiptLabel = elements.uploadName.value.trim();
-  const uploaderEmail = elements.uploadEmail.value.trim() || "ops@receiptpulse.dev";
 
   try {
     uploadState = {
@@ -1865,9 +2414,9 @@ async function handleUpload(event) {
       startedAt: Date.now(),
       durationMs: null,
     };
-    setUploadState("preparing", "slot", "Requesting a secure upload slot from the API.");
+    setUploadState("preparing", "slot", "Requesting a secure upload slot for your private workspace.");
 
-    const session = await requestUploadSession(file, receiptLabel, uploaderEmail);
+    const session = await requestUploadSession(file, receiptLabel);
     uploadState.objectKey = session.objectKey;
 
     setUploadState("uploading", "transfer", "Uploading the receipt into the S3 intake bucket.");
@@ -1898,8 +2447,8 @@ async function handleUpload(event) {
   }
 }
 
-async function requestUploadSession(file, receiptLabel, uploaderEmail) {
-  const response = await fetch(`${apiBase.replace(/\/$/, "")}/uploads`, {
+async function requestUploadSession(file, receiptLabel) {
+  const response = await apiFetch("/uploads", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify({
@@ -1907,7 +2456,6 @@ async function requestUploadSession(file, receiptLabel, uploaderEmail) {
       contentType: guessContentType(file),
       uploaderName: receiptLabel,
       receiptLabel,
-      uploaderEmail,
     }),
   });
 
@@ -1942,10 +2490,9 @@ async function pollUntilProcessed(objectKey, firstDelay) {
   for (let attempt = 1; attempt <= MAX_POLL_ATTEMPTS; attempt += 1) {
     await sleep(attempt === 1 ? firstDelay : POLL_INTERVAL_MS);
 
-    const response = await fetch(
-      `${apiBase.replace(/\/$/, "")}/uploads/status?key=${encodeURIComponent(objectKey)}`,
-      { cache: "no-store" }
-    );
+    const response = await apiFetch(`/uploads/status?key=${encodeURIComponent(objectKey)}`, {
+      cache: "no-store",
+    });
 
     if (!response.ok) {
       throw new Error(`Status polling failed (${response.status}).`);
@@ -1966,7 +2513,7 @@ async function pollUntilProcessed(objectKey, firstDelay) {
 }
 
 async function refreshLiveSnapshot() {
-  const snapshotResponse = await fetch(`${apiBase.replace(/\/$/, "")}/snapshot`, {
+  const snapshotResponse = await apiFetch("/snapshot", {
     cache: "no-store",
   });
   if (!snapshotResponse.ok) {
@@ -2011,7 +2558,7 @@ function setUploadState(phase, stage, message) {
 
 function loadUploadHistory() {
   try {
-    const raw = window.localStorage.getItem(HISTORY_STORAGE_KEY);
+    const raw = window.localStorage.getItem(getHistoryStorageKey());
     if (!raw) {
       return [];
     }
@@ -2026,7 +2573,7 @@ function loadUploadHistory() {
 
 function persistUploadHistory() {
   try {
-    window.localStorage.setItem(HISTORY_STORAGE_KEY, JSON.stringify(uploadHistory));
+    window.localStorage.setItem(getHistoryStorageKey(), JSON.stringify(uploadHistory));
   } catch (error) {
     console.warn("Unable to persist upload history.", error);
   }
@@ -2306,7 +2853,7 @@ async function clearUploadHistory() {
 }
 
 async function clearStoredReceiptData() {
-  if (!apiBase) {
+  if (!apiBase || !isSignedIn()) {
     return;
   }
 
@@ -2331,7 +2878,7 @@ async function clearStoredReceiptData() {
 
   try {
     toggleStoredDeleteBusy(true);
-    const response = await fetch(`${apiBase.replace(/\/$/, "")}/receipts/clear`, {
+    const response = await apiFetch("/receipts/clear", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ fromDate, toDate }),
@@ -2415,7 +2962,7 @@ function toggleStoredDeleteBusy(isBusy) {
       : "Delete Stored Receipts";
   }
   if (elements.historyDelete) {
-    elements.historyDelete.disabled = isBusy || !dashboardData?.receipts?.length;
+    elements.historyDelete.disabled = isBusy || !isSignedIn() || !dashboardData?.receipts?.length;
   }
 }
 
@@ -2720,14 +3267,19 @@ function formatMonthLabel(value) {
   });
 }
 
+async function initializeApp() {
+  await initializeAuth();
+  await loadDashboard();
+}
+
+bindAuthControls();
 bindUploadControls();
 bindHistoryControls();
 bindArchiveControls();
-renderUploadHistory();
 setArchiveVisibility(false);
 initTopbarScrollFX();
 initCursorFX();
 window.addEventListener("beforeunload", clearPreviewObjectUrl);
-loadDashboard().catch((error) => {
+initializeApp().catch((error) => {
   console.error("Unable to load dashboard.", error);
 });

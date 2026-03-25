@@ -5,9 +5,12 @@ frontend:
       commands:
         - mkdir -p dist
         - |
-          if [ -n "$API_BASE_URL" ]; then
-            printf 'window.RECEIPTPULSE_CONFIG = { apiBaseUrl: "%s" };\n' "$API_BASE_URL" > dashboard/config.js
-          fi
+          printf 'window.RECEIPTPULSE_CONFIG = {\n  apiBaseUrl: "%s",\n  auth: {\n    hostedUiDomain: "%s",\n    clientId: "%s",\n    redirectSignIn: "%s",\n    redirectSignOut: "%s",\n    scopes: ["openid", "email", "profile"],\n  },\n};\n' \
+            "${API_BASE_URL:-}" \
+            "${COGNITO_HOSTED_UI_DOMAIN:-}" \
+            "${COGNITO_CLIENT_ID:-}" \
+            "${COGNITO_REDIRECT_SIGN_IN:-}" \
+            "${COGNITO_REDIRECT_SIGN_OUT:-}" > dashboard/config.js
         - cp -r dashboard/* dist/
   artifacts:
     baseDirectory: dist

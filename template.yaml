@@ -31,6 +31,15 @@ Parameters:
       - "true"
       - "false"
     Description: Read uploader metadata from the uploaded S3 object before processing.
+  CognitoDomainPrefix:
+    Type: String
+    Description: Globally unique Cognito hosted UI domain prefix for ReceiptPulse sign-in.
+  FrontendCallbackUrl:
+    Type: String
+    Description: Exact dashboard URL that Cognito should redirect back to after sign-in.
+  FrontendLogoutUrl:
+    Type: String
+    Description: Exact dashboard URL that Cognito should redirect back to after sign-out.
 
 Globals:
   Function:
@@ -85,6 +94,12 @@ Resources:
           AttributeType: S
         - AttributeName: expense_month
           AttributeType: S
+        - AttributeName: user_id
+          AttributeType: S
+        - AttributeName: processed_timestamp
+          AttributeType: S
+        - AttributeName: user_duplicate_key
+          AttributeType: S
       KeySchema:
         - AttributeName: receipt_id
           KeyType: HASH
@@ -101,6 +116,80 @@ Resources:
               KeyType: HASH
           Projection:
             ProjectionType: ALL
+        - IndexName: UserReceiptIndex
+          KeySchema:
+            - AttributeName: user_id
+              KeyType: HASH
+            - AttributeName: processed_timestamp
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+        - IndexName: UserDuplicateKeyIndex
+          KeySchema:
+            - AttributeName: user_duplicate_key
+              KeyType: HASH
+          Projection:
+            ProjectionType: ALL
+
+  ReceiptUserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub "${AWS::StackName}-users"
+      AutoVerifiedAttributes:
+        - email
+      UsernameAttributes:
+        - email
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 8
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: false
+          RequireUppercase: true
+      Schema:
+        - Name: email
+          Required: true
+          Mutable: true
+        - Name: name
+          Required: false
+          Mutable: true
+      VerificationMessageTemplate:
+        DefaultEmailOption: CONFIRM_WITH_CODE
+      AccountRecoverySetting:
+        RecoveryMechanisms:
+          - Name: verified_email
+            Priority: 1
+
+  ReceiptUserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    Properties:
+      UserPoolId: !Ref ReceiptUserPool
+      ClientName: receiptpulse-dashboard
+      GenerateSecret: false
+      PreventUserExistenceErrors: ENABLED
+      ExplicitAuthFlows:
+        - ALLOW_USER_SRP_AUTH
+        - ALLOW_REFRESH_TOKEN_AUTH
+        - ALLOW_USER_PASSWORD_AUTH
+      AllowedOAuthFlowsUserPoolClient: true
+      AllowedOAuthFlows:
+        - code
+      AllowedOAuthScopes:
+        - openid
+        - email
+        - profile
+      SupportedIdentityProviders:
+        - COGNITO
+      CallbackURLs:
+        - !Ref FrontendCallbackUrl
+      LogoutURLs:
+        - !Ref FrontendLogoutUrl
+
+  ReceiptUserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Ref CognitoDomainPrefix
+      UserPoolId: !Ref ReceiptUserPool
 
   ReceiptProcessorFunction:
     Type: AWS::Serverless::Function
@@ -142,6 +231,7 @@ Resources:
       CorsConfiguration:
         AllowHeaders:
           - Content-Type
+          - Authorization
         AllowMethods:
           - GET
           - POST
@@ -149,6 +239,15 @@ Resources:
           - OPTIONS
         AllowOrigins:
           - "*"
+      Auth:
+        DefaultAuthorizer: ReceiptJwtAuthorizer
+        Authorizers:
+          ReceiptJwtAuthorizer:
+            IdentitySource: "$request.header.Authorization"
+            JwtConfiguration:
+              issuer: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${ReceiptUserPool}"
+              audience:
+                - !Ref ReceiptUserPoolClient
 
   DashboardApiFunction:
     Type: AWS::Serverless::Function
@@ -162,12 +261,16 @@ Resources:
             ApiId: !Ref ReceiptApi
             Method: GET
             Path: /
+            Auth:
+              Authorizer: NONE
         HealthRoute:
           Type: HttpApi
           Properties:
             ApiId: !Ref ReceiptApi
             Method: GET
             Path: /health
+            Auth:
+              Authorizer: NONE
         ReceiptsRoute:
           Type: HttpApi
           Properties:
@@ -236,3 +339,9 @@ Outputs:
     Value: !Sub "https://${ReceiptApi}.execute-api.${AWS::Region}.amazonaws.com"
   DashboardApiHealthUrl:
     Value: !Sub "https://${ReceiptApi}.execute-api.${AWS::Region}.amazonaws.com/health"
+  ReceiptUserPoolId:
+    Value: !Ref ReceiptUserPool
+  ReceiptUserPoolClientId:
+    Value: !Ref ReceiptUserPoolClient
+  ReceiptHostedUiBaseUrl:
+    Value: !Sub "https://${CognitoDomainPrefix}.auth.${AWS::Region}.amazoncognito.com"

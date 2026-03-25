@@ -17,7 +17,7 @@ confirm_changeset = true
 resolve_s3 = true
 region = "ap-south-1"
 s3_prefix = "receiptpulse"
-parameter_overrides = "SesSenderEmail=agarwalujala3@gmail.com SesDefaultRecipientEmail=agarwalujala3@gmail.com ConfidenceThreshold=85"
+parameter_overrides = "SesSenderEmail=agarwalujala3@gmail.com SesDefaultRecipientEmail=agarwalujala3@gmail.com ConfidenceThreshold=85 CognitoDomainPrefix=receiptpulse-demo FrontendCallbackUrl=https://your-dashboard.example.com FrontendLogoutUrl=https://your-dashboard.example.com"
 
 [default.sync.parameters]
 watch = true

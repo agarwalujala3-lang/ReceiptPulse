@@ -98,8 +98,6 @@ Resources:
           AttributeType: S
         - AttributeName: processed_timestamp
           AttributeType: S
-        - AttributeName: user_duplicate_key
-          AttributeType: S
       KeySchema:
         - AttributeName: receipt_id
           KeyType: HASH
@@ -122,12 +120,6 @@ Resources:
               KeyType: HASH
             - AttributeName: processed_timestamp
               KeyType: RANGE
-          Projection:
-            ProjectionType: ALL
-        - IndexName: UserDuplicateKeyIndex
-          KeySchema:
-            - AttributeName: user_duplicate_key
-              KeyType: HASH
           Projection:
             ProjectionType: ALL
 

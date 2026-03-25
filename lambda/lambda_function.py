@@ -369,17 +369,34 @@ def determine_review_status(receipt_data):
 
 
 def find_duplicate_receipt(user_duplicate_key):
+    user_id, _, duplicate_key = user_duplicate_key.partition("#")
     table = dynamodb.Table(DYNAMODB_TABLE)
     response = table.query(
-        IndexName="UserDuplicateKeyIndex",
-        KeyConditionExpression=Key("user_duplicate_key").eq(user_duplicate_key),
+        IndexName="DuplicateKeyIndex",
+        KeyConditionExpression=Key("duplicate_key").eq(duplicate_key),
         ProjectionExpression=(
-            "receipt_id, user_duplicate_key, processed_timestamp, review_status, user_id"
+            "receipt_id, duplicate_key, processed_timestamp, review_status, user_id"
         ),
-        Limit=1,
     )
     items = response.get("Items", [])
-    return items[0] if items else None
+
+    while True:
+        for item in items:
+            if item.get("user_id") == user_id:
+                return item
+
+        if "LastEvaluatedKey" not in response:
+            return None
+
+        response = table.query(
+            IndexName="DuplicateKeyIndex",
+            KeyConditionExpression=Key("duplicate_key").eq(duplicate_key),
+            ProjectionExpression=(
+                "receipt_id, duplicate_key, processed_timestamp, review_status, user_id"
+            ),
+            ExclusiveStartKey=response["LastEvaluatedKey"],
+        )
+        items = response.get("Items", [])
 
 
 def store_receipt_in_dynamodb(receipt_data):

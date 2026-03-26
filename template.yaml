@@ -123,14 +123,12 @@ Resources:
           Projection:
             ProjectionType: ALL
 
-  ReceiptUserPool:
+  ReceiptIdentityUserPool:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Sub "${AWS::StackName}-users"
-      AutoVerifiedAttributes:
-        - email
-      UsernameAttributes:
-        - email
+      UsernameConfiguration:
+        CaseSensitive: false
       Policies:
         PasswordPolicy:
           MinimumLength: 8
@@ -140,22 +138,20 @@ Resources:
           RequireUppercase: true
       Schema:
         - Name: email
-          Required: true
+          Required: false
           Mutable: true
         - Name: name
           Required: false
           Mutable: true
-      VerificationMessageTemplate:
-        DefaultEmailOption: CONFIRM_WITH_CODE
       AccountRecoverySetting:
         RecoveryMechanisms:
-          - Name: verified_email
+          - Name: admin_only
             Priority: 1
 
-  ReceiptUserPoolClient:
+  ReceiptIdentityUserPoolClient:
     Type: AWS::Cognito::UserPoolClient
     Properties:
-      UserPoolId: !Ref ReceiptUserPool
+      UserPoolId: !Ref ReceiptIdentityUserPool
       ClientName: receiptpulse-dashboard
       GenerateSecret: false
       PreventUserExistenceErrors: ENABLED
@@ -177,11 +173,11 @@ Resources:
       LogoutURLs:
         - !Ref FrontendLogoutUrl
 
-  ReceiptUserPoolDomain:
+  ReceiptIdentityUserPoolDomain:
     Type: AWS::Cognito::UserPoolDomain
     Properties:
       Domain: !Ref CognitoDomainPrefix
-      UserPoolId: !Ref ReceiptUserPool
+      UserPoolId: !Ref ReceiptIdentityUserPool
 
   ReceiptProcessorFunction:
     Type: AWS::Serverless::Function
@@ -237,9 +233,9 @@ Resources:
           ReceiptJwtAuthorizer:
             IdentitySource: "$request.header.Authorization"
             JwtConfiguration:
-              issuer: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${ReceiptUserPool}"
+              issuer: !Sub "https://cognito-idp.${AWS::Region}.amazonaws.com/${ReceiptIdentityUserPool}"
               audience:
-                - !Ref ReceiptUserPoolClient
+                - !Ref ReceiptIdentityUserPoolClient
 
   DashboardApiFunction:
     Type: AWS::Serverless::Function
@@ -332,8 +328,8 @@ Outputs:
   DashboardApiHealthUrl:
     Value: !Sub "https://${ReceiptApi}.execute-api.${AWS::Region}.amazonaws.com/health"
   ReceiptUserPoolId:
-    Value: !Ref ReceiptUserPool
+    Value: !Ref ReceiptIdentityUserPool
   ReceiptUserPoolClientId:
-    Value: !Ref ReceiptUserPoolClient
+    Value: !Ref ReceiptIdentityUserPoolClient
   ReceiptHostedUiBaseUrl:
     Value: !Sub "https://${CognitoDomainPrefix}.auth.${AWS::Region}.amazoncognito.com"

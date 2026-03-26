@@ -139,7 +139,7 @@ def require_identity(event):
 
 
 def resolve_identity_email(claims):
-    for key in ("email", "cognito:username", "username", "preferred_username"):
+    for key in ("email",):
         candidate = normalize_email(claims.get(key))
         if candidate:
             return candidate
@@ -226,16 +226,11 @@ def create_upload_session(payload, identity):
         or payload.get("uploaderName")
         or ""
     ).strip()
-    account_email = normalize_email(identity.get("user_email"))
-    if not account_email:
-        raise ApiError(
-            400,
-            "The signed-in account does not expose a valid email address. Sign in again and try another upload.",
-        )
     stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
     user_key = sanitize_path_segment(identity["user_id"])
     object_key = f"users/{user_key}/{stamp}/{uuid.uuid4().hex[:12]}-{file_name}"
-    metadata = {
+    account_email = normalize_email(identity.get("user_email"))
+    metadata = compact_metadata({
         "user-id": identity["user_id"][:120],
         "account-email": account_email[:120],
         "user-email": account_email[:120],
@@ -243,7 +238,7 @@ def create_upload_session(payload, identity):
         "uploader-email": account_email[:120],
         "uploader-name": identity["user_name"][:120],
         "receipt-label": receipt_label[:120],
-    }
+    })
 
     upload_url = s3.generate_presigned_url(
         "put_object",
@@ -261,18 +256,22 @@ def create_upload_session(payload, identity):
         "objectKey": object_key,
         "s3Path": f"s3://{RECEIPT_BUCKET}/{object_key}",
         "expiresIn": UPLOAD_URL_EXPIRES_IN,
-        "headers": {
+        "headers": compact_metadata({
             "Content-Type": content_type,
-            "x-amz-meta-account-email": metadata["account-email"],
+            "x-amz-meta-account-email": metadata.get("account-email", ""),
             "x-amz-meta-user-id": metadata["user-id"],
-            "x-amz-meta-user-email": metadata["user-email"],
+            "x-amz-meta-user-email": metadata.get("user-email", ""),
             "x-amz-meta-user-name": metadata["user-name"],
-            "x-amz-meta-uploader-email": metadata["uploader-email"],
+            "x-amz-meta-uploader-email": metadata.get("uploader-email", ""),
             "x-amz-meta-uploader-name": metadata["uploader-name"],
             "x-amz-meta-receipt-label": metadata["receipt-label"],
-        },
+        }),
         "pollAfterMs": 2200,
     }
+
+
+def compact_metadata(values):
+    return {key: value for key, value in values.items() if value not in ("", None)}
 
 
 def get_upload_status(object_key, identity):

@@ -581,10 +581,11 @@ function buildUserFromTokens(tokens) {
   const claims = decodeJwtPayload(tokens?.idToken || tokens?.accessToken || "");
   return {
     id: claims.sub || claims.username || claims["cognito:username"] || "",
-    email: claims.email || claims["cognito:username"] || "",
+    email: claims.email || "",
     name:
       claims.name ||
       claims.given_name ||
+      claims.preferred_username ||
       claims.email ||
       claims["cognito:username"] ||
       "Workspace user",
@@ -898,7 +899,7 @@ function updateAuthUI() {
 
   if (elements.authSummary) {
     elements.authSummary.textContent = signedIn
-      ? authState.user.email || "Signed In"
+      ? authState.user.name || "Signed In"
       : configured
         ? "Project Demo"
         : "Config Needed";
@@ -930,7 +931,7 @@ function updateAuthUI() {
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Files uploaded from this browser are stored under the signed-in account, and any receipt updates use that same sign-in email automatically."
+      ? "Files uploaded from this browser are stored under the signed-in account and shown in the dashboard."
       : configured
         ? "Sign in first. After that, uploads, history, analytics, and delete actions stay tied to your account."
         : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";

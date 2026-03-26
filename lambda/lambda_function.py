@@ -115,6 +115,7 @@ def process_record(record):
         metadata.get("user-name")
         or metadata.get("uploader-name")
         or user_email.split("@")[0]
+        or "workspace-user"
     ).strip()
     receipt_label = (
         metadata.get("receipt-label")
@@ -228,7 +229,7 @@ def process_receipt_with_textract(
         "user_id": user_id,
         "user_email": user_email,
         "user_name": user_name[:120],
-        "uploaded_by": user_email,
+        "uploaded_by": (user_email or user_name)[:120],
         "receipt_label": receipt_label[:120],
         "created_at": now.isoformat(),
         "processed_timestamp": now.isoformat(),

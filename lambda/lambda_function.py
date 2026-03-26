@@ -54,6 +54,7 @@ DATE_FORMATS = (
     "%dnd %b %Y",
     "%drd %b %Y",
 )
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def lambda_handler(event, context):
@@ -104,12 +105,7 @@ def process_record(record):
             metadata = head.get("Metadata", {})
         except Exception as exc:
             print(f"Unable to read S3 object metadata for {key}: {exc}")
-    user_email = (
-        metadata.get("user-email")
-        or metadata.get("uploader-email")
-        or metadata.get("owner-email")
-        or DEFAULT_RECIPIENT_EMAIL
-    )
+    user_email = resolve_receipt_email(metadata)
     user_id = (
         metadata.get("user-id")
         or metadata.get("owner-id")
@@ -407,10 +403,12 @@ def store_receipt_in_dynamodb(receipt_data):
 
 def send_email_notification(receipt_data):
     destination = (
-        receipt_data.get("user_email")
-        or receipt_data.get("uploaded_by")
-        or DEFAULT_RECIPIENT_EMAIL
+        normalize_email(receipt_data.get("user_email"))
+        or normalize_email(receipt_data.get("uploaded_by"))
+        or normalize_email(DEFAULT_RECIPIENT_EMAIL)
     )
+    if not destination:
+        raise ValueError("No valid notification email address is available for this receipt.")
     items_html = "".join(
         (
             "<li>"
@@ -460,6 +458,21 @@ def send_email_notification(receipt_data):
         },
     )
     print(f"Sent email notification to {destination}.")
+
+
+def resolve_receipt_email(metadata):
+    for key in ("account-email", "user-email", "uploader-email", "owner-email"):
+        candidate = normalize_email(metadata.get(key))
+        if candidate:
+            return candidate
+    return normalize_email(DEFAULT_RECIPIENT_EMAIL)
+
+
+def normalize_email(value):
+    candidate = str(value or "").strip().lower()
+    if not candidate or not EMAIL_PATTERN.match(candidate):
+        return ""
+    return candidate
 
 
 def build_duplicate_key(receipt_data):

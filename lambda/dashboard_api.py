@@ -22,6 +22,7 @@ CACHE_TTL_SECONDS = int(os.environ.get("SNAPSHOT_CACHE_TTL_SECONDS", "15"))
 UPLOAD_URL_EXPIRES_IN = int(os.environ.get("UPLOAD_URL_EXPIRES_IN", "900"))
 ALLOWED_UPLOAD_TYPES = {"application/pdf", "image/png", "image/jpeg"}
 _SNAPSHOT_CACHE = {}
+EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 class ApiError(Exception):
@@ -123,7 +124,7 @@ def require_identity(event):
     if not user_id:
         raise ApiError(401, "Authentication is required for this workspace route.")
 
-    user_email = (claims.get("email") or claims.get("cognito:username") or "").strip()
+    user_email = resolve_identity_email(claims)
     user_name = (
         claims.get("name")
         or claims.get("given_name")
@@ -135,6 +136,21 @@ def require_identity(event):
         "user_email": user_email,
         "user_name": user_name,
     }
+
+
+def resolve_identity_email(claims):
+    for key in ("email", "cognito:username", "username", "preferred_username"):
+        candidate = normalize_email(claims.get(key))
+        if candidate:
+            return candidate
+    return ""
+
+
+def normalize_email(value):
+    candidate = str(value or "").strip().lower()
+    if not candidate or not EMAIL_PATTERN.match(candidate):
+        return ""
+    return candidate
 
 
 def parse_json_body(event):
@@ -210,14 +226,21 @@ def create_upload_session(payload, identity):
         or payload.get("uploaderName")
         or ""
     ).strip()
+    account_email = normalize_email(identity.get("user_email"))
+    if not account_email:
+        raise ApiError(
+            400,
+            "The signed-in account does not expose a valid email address. Sign in again and try another upload.",
+        )
     stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
     user_key = sanitize_path_segment(identity["user_id"])
     object_key = f"users/{user_key}/{stamp}/{uuid.uuid4().hex[:12]}-{file_name}"
     metadata = {
         "user-id": identity["user_id"][:120],
-        "user-email": identity["user_email"][:120],
+        "account-email": account_email[:120],
+        "user-email": account_email[:120],
         "user-name": identity["user_name"][:120],
-        "uploader-email": identity["user_email"][:120],
+        "uploader-email": account_email[:120],
         "uploader-name": identity["user_name"][:120],
         "receipt-label": receipt_label[:120],
     }
@@ -240,6 +263,7 @@ def create_upload_session(payload, identity):
         "expiresIn": UPLOAD_URL_EXPIRES_IN,
         "headers": {
             "Content-Type": content_type,
+            "x-amz-meta-account-email": metadata["account-email"],
             "x-amz-meta-user-id": metadata["user-id"],
             "x-amz-meta-user-email": metadata["user-email"],
             "x-amz-meta-user-name": metadata["user-name"],

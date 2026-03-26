@@ -930,7 +930,7 @@ function updateAuthUI() {
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Files uploaded from this browser are stored under the signed-in account and shown in the dashboard."
+      ? "Files uploaded from this browser are stored under the signed-in account, and any receipt updates use that same sign-in email automatically."
       : configured
         ? "Sign in first. After that, uploads, history, analytics, and delete actions stay tied to your account."
         : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";

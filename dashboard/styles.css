@@ -4427,6 +4427,39 @@ body.cursor-active .cursor-drips {
   opacity: 1;
 }
 
+/* Tone down the interface so it reads like a portfolio project instead of a product landing page. */
+.aurora,
+.grid-sheen,
+.success-burst,
+.cursor-orb,
+.cursor-ring,
+.cursor-drips {
+  display: none !important;
+}
+
+body.cursor-active,
+body.cursor-active a,
+body.cursor-active button {
+  cursor: auto !important;
+}
+
+.hero::before,
+.panel::after {
+  display: none !important;
+}
+
+.panel,
+.glass-card,
+.vendor-row,
+.queue-item,
+.workflow-node,
+.ops-card,
+.spotlight-stat,
+.timeline-step,
+.metric-card {
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.22);
+}
+
 .cursor-orb {
   width: 24px;
   height: 32px;

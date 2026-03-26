@@ -1,22 +1,21 @@
 # ReceiptPulse
 
-ReceiptPulse is a serverless receipt intelligence platform built on AWS. It turns uploaded receipts into structured expense records, flags risky submissions for review, detects duplicates, stores analytics-ready data in DynamoDB, exposes review and export APIs, and includes a polished expense-tracker dashboard for both portfolio demos and real operations.
+ReceiptPulse is a serverless AWS portfolio project for receipt processing. It accepts uploaded receipts, extracts structured fields with Textract, stores the results in DynamoDB, and shows the processed data in a dashboard with review states and user sign-in.
 
 ## Live Demo
 
-- Frontend: [https://d2ijsg7huf2h2p.cloudfront.net/?v=20260322n](https://d2ijsg7huf2h2p.cloudfront.net/?v=20260322n)
+- Frontend: [https://d2ijsg7huf2h2p.cloudfront.net/](https://d2ijsg7huf2h2p.cloudfront.net/)
 - API root: [https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/](https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/)
 - Health check: [https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/health](https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/health)
 
-## What Makes This Stronger
+## What This Project Shows
 
-The project now reads like a product instead of a single Lambda demo:
+This repository is meant to show a complete student or portfolio-grade cloud workflow rather than a single isolated Lambda:
 
-- smart receipt enrichment with category, confidence, review status, and duplicate keys
-- review and analytics API for operations workflows
-- Cognito-backed private workspaces so each user only sees their own receipts
-- expense-tracker dashboard UI for technical and non-technical viewers
-- live browser upload console with preview, history drawer, and processing timeline
+- receipt enrichment with category, confidence, review status, and duplicate keys
+- review and analytics API for stored receipts
+- Cognito-backed user accounts so each user only sees their own receipts
+- browser upload UI with preview, history drawer, and processing timeline
 - SAM template for backend deployment
 - Amplify build configuration for static frontend hosting
 - deployment docs for AWS launch and custom-domain finish
@@ -39,7 +38,7 @@ The project now reads like a product instead of a single Lambda demo:
 6. SES sends a receipt processing notification
 7. Cognito authenticates each dashboard user and issues JWTs for private API access
 8. A second Lambda exposes user-scoped analytics, review, upload, and export endpoints through HTTP API
-9. The static dashboard reads from the live API and renders a private receipt console
+9. The static dashboard reads from the live API and renders the project view
 
 ## AWS Services Used
 
@@ -67,7 +66,7 @@ The project now reads like a product instead of a single Lambda demo:
 
 ### API Layer
 
-- JWT-protected private workspace routes
+- JWT-protected user-scoped routes
 - `GET /health`
 - `GET /receipts`
 - `GET /analytics`
@@ -76,15 +75,14 @@ The project now reads like a product instead of a single Lambda demo:
 
 ### Dashboard
 
-The dashboard in [dashboard](./dashboard) is designed to feel like a real expense product instead of a study or architecture-only demo.
+The dashboard in [dashboard](./dashboard) is designed to present the backend clearly without overstating the scope of the project.
 
 It includes:
 
-- sign up, sign in, sign out, and session refresh for private workspaces
-- finance-style hero and overview
+- sign up, sign in, sign out, and session refresh for user accounts
+- project-style overview and status cards
 - receipt upload with live preview
 - saved browser-side upload history drawer scoped per signed-in account
-- success burst animation when a receipt clears the pipeline
 - animated metric counters
 - category spend bars and donut view
 - merchant spend overview
@@ -235,15 +233,15 @@ python -m py_compile lambda/*.py
 node --check dashboard/app.js
 ```
 
-## Why It Works Well For Portfolio Use
+## Why It Fits Portfolio Use
 
 - shows event-driven cloud design
 - demonstrates AI-assisted document extraction
 - includes review logic and analytics, not just OCR
-- has a strong visual layer for demos
+- has a clear frontend for demos without hiding the architecture
 - is deployable as a real cloud project
 
-## Future Extensions
+## Possible Extensions
 
 - MFA and stronger account recovery policies
 - Step Functions approval workflow

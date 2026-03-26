@@ -7,36 +7,36 @@ const AUTH_PKCE_STORAGE_KEY = "receiptpulse-auth-pkce";
 const MAX_HISTORY_ITEMS = 8;
 const HOW_IT_WORKS = [
   {
-    eyebrow: "Flip Card 01",
-    frontTitle: "Capture Expenses",
-    frontBody: "Upload receipt PDFs or images directly from the dashboard.",
-    backTitle: "Secure Intake",
+    eyebrow: "Stage 01",
+    frontTitle: "Upload File",
+    frontBody: "A signed-in user selects a PDF or image from the browser.",
+    backTitle: "S3 Intake",
     backBody:
-      "ReceiptPulse requests a presigned S3 upload URL so files move straight into storage without routing through a traditional web server.",
+      "The frontend requests a presigned URL so the file can be uploaded directly into S3.",
   },
   {
-    eyebrow: "Flip Card 02",
-    frontTitle: "Extract Key Fields",
-    frontBody: "Vendor, totals, dates, and receipt lines are read automatically.",
-    backTitle: "Expense Parsing",
+    eyebrow: "Stage 02",
+    frontTitle: "Extract Fields",
+    frontBody: "Textract reads vendor, amount, date, and visible line items.",
+    backTitle: "Lambda Processing",
     backBody:
-      "Textract converts unstructured receipt files into structured expense data that can feed dashboards, review lists, and export workflows.",
+      "A Lambda function calls Textract and normalizes the receipt into a structured record.",
   },
   {
-    eyebrow: "Flip Card 03",
-    frontTitle: "Review Exceptions",
-    frontBody: "Confidence checks and duplicate detection decide what needs a human look.",
-    backTitle: "Control Layer",
+    eyebrow: "Stage 03",
+    frontTitle: "Check Quality",
+    frontBody: "Simple rules mark low-confidence or duplicate receipts for review.",
+    backTitle: "Review Logic",
     backBody:
-      "Low-confidence or duplicate receipts are held in review states before they can distort totals or appear as clean expense history.",
+      "This keeps the dashboard from treating uncertain OCR output as clean data by default.",
   },
   {
-    eyebrow: "Flip Card 04",
-    frontTitle: "Track Spend",
-    frontBody: "Uploads, status, review, archive, and spend mix live in one place.",
-    backTitle: "Finance Workspace",
+    eyebrow: "Stage 04",
+    frontTitle: "Show Results",
+    frontBody: "The processed records appear in charts, tables, and review lists.",
+    backTitle: "Project Dashboard",
     backBody:
-      "That makes the project feel like a real expense product instead of a backend demo hidden behind technical infrastructure.",
+      "The goal is to demonstrate an end-to-end cloud workflow through a single dashboard view.",
   },
 ];
 const VISUAL_PRESETS = [
@@ -228,18 +228,18 @@ const FALLBACK_DASHBOARD = {
     },
     {
       step: "04",
-      title: "Expense Ledger",
+      title: "Store Results",
       description:
-        "DynamoDB stores analytics-ready expense records for dashboards, historical reporting, and cleanup actions.",
+        "DynamoDB stores the processed receipt records so the dashboard can load them later.",
     },
     {
       step: "05",
-      title: "Reporting Layer",
-      description: "API endpoints and exports turn the pipeline into an expense dashboard people can actually use.",
+      title: "Render Dashboard",
+      description: "The frontend reads the stored records and renders charts, tables, and review states.",
     },
   ],
   heroHeadline:
-    "Receipts that look risky are separated before they can affect spend reports or monthly totals.",
+    "Low-confidence and duplicate receipts are separated before they affect the summary cards.",
   receipts: [
     {
       receiptId: "rcpt-118",
@@ -832,7 +832,7 @@ async function initializeAuth() {
     console.error("Authentication bootstrap failed.", error);
     setSignedOutState();
     elements.statusNote.textContent =
-      error.message || "Authentication failed. Sign in again to open your workspace.";
+      error.message || "Authentication failed. Sign in again to continue.";
   }
 
   updateAuthUI();
@@ -844,7 +844,7 @@ async function ensureValidAccessToken() {
     throw new Error("Authentication is not configured for this dashboard.");
   }
   if (!authState.tokens?.accessToken) {
-    throw new Error("Sign in to open your private workspace.");
+    throw new Error("Sign in to open your account view.");
   }
 
   if (isTokenExpired()) {
@@ -898,10 +898,10 @@ function updateAuthUI() {
 
   if (elements.authSummary) {
     elements.authSummary.textContent = signedIn
-      ? authState.user.email || "Private Workspace"
+      ? authState.user.email || "Signed In"
       : configured
-        ? "Guest Preview"
-        : "Auth Setup Required";
+        ? "Project Demo"
+        : "Config Needed";
   }
 
   if (elements.authCta) {
@@ -924,16 +924,16 @@ function updateAuthUI() {
     elements.uploadAccount.value = signedIn
       ? `${authState.user.name}${authState.user.email ? ` (${authState.user.email})` : ""}`
       : configured
-        ? "Sign in to unlock your private receipt workspace."
-        : "Add Cognito config to enable private uploads.";
+        ? "Sign in to upload receipts under your account."
+        : "Add Cognito config to enable signed-in uploads.";
   }
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Every file you upload from this device is stored under your account, and only your receipts appear in this workspace."
+      ? "Files uploaded from this browser are stored under the signed-in account and shown in the dashboard."
       : configured
-        ? "Sign in first. After that, uploads, history, analytics, and delete actions stay scoped to your account."
-        : "Live private uploads need both an API URL and Cognito settings in dashboard/config.js.";
+        ? "Sign in first. After that, uploads, history, analytics, and delete actions stay tied to your account."
+        : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";
   }
 }
 
@@ -982,39 +982,39 @@ async function loadDashboard() {
   renderDashboard();
 
   if (!apiBase) {
-    elements.modeBadge.textContent = "Demo Dataset";
+    elements.modeBadge.textContent = "Project Demo";
     elements.statusNote.textContent =
-      "Live API is not configured yet, so the console is running from its built-in preview state.";
+      "The live API is not configured yet, so the page is showing built-in sample data.";
     return;
   }
 
   if (!isAuthConfigured()) {
-    elements.modeBadge.textContent = "Setup Needed";
+    elements.modeBadge.textContent = "Preview Mode";
     elements.statusNote.textContent =
-      "The API is configured, but Cognito settings are missing, so the dashboard is staying in preview mode.";
+      "The API is configured, but Cognito settings are missing, so the page stays in preview mode.";
     return;
   }
 
   if (!isSignedIn()) {
-    elements.modeBadge.textContent = "Private Workspace";
+    elements.modeBadge.textContent = "Sign In Required";
     elements.statusNote.textContent =
-      "Sign in to load your receipts, charts, and uploads from the live workspace.";
+      "Sign in to load your own receipts and dashboard data.";
     return;
   }
 
   elements.modeBadge.textContent = "Syncing";
   elements.statusNote.textContent =
-    "Console is ready. Pulling your private receipt data in the background.";
+    "Loading the latest receipts for the signed-in account.";
 
   try {
     await refreshLiveSnapshot();
-    elements.modeBadge.textContent = "Private Workspace";
-    elements.statusNote.textContent = "Connected to your private AWS receipt data.";
+    elements.modeBadge.textContent = "Signed In";
+    elements.statusNote.textContent = "Connected to live project data.";
   } catch (error) {
     console.error("Live API mode failed, falling back to demo data.", error);
-    elements.modeBadge.textContent = "Instant Preview";
+    elements.modeBadge.textContent = "Preview Mode";
     elements.statusNote.textContent =
-      error.message || "Live workspace sync failed, so the console is staying on its built-in preview state.";
+      error.message || "Live sync failed, so the page is staying on its built-in sample state.";
   }
 }
 
@@ -1028,7 +1028,7 @@ function mapReceipt(receipt) {
     totalAmount: receipt.totalAmount || receipt.total_amount || "0.00",
     confidenceScore: receipt.confidenceScore || receipt.confidence_score || "0.00",
     expenseMonth: receipt.expenseMonth || receipt.expense_month || "--",
-    uploadedBy: receipt.uploadedBy || receipt.uploaded_by || "ops@receiptpulse.dev",
+    uploadedBy: receipt.uploadedBy || receipt.uploaded_by || "demo@receiptpulse.dev",
     fileName: receipt.fileName || receipt.file_name || "receipt",
     objectKey: receipt.objectKey || receipt.key || "",
     currencySymbol: receipt.currencySymbol || receipt.currency_symbol || "$",
@@ -1222,17 +1222,17 @@ function adaptApiPayload(analytics, receipts) {
       },
       {
         step: "04",
-        title: "Expense Ledger",
-        description: "Structured records are stored in DynamoDB with analytics-ready finance fields.",
+        title: "Store Results",
+        description: "Structured records are stored in DynamoDB for later queries and charts.",
       },
       {
         step: "05",
-        title: "Reporting Layer",
-        description: "API endpoints power dashboards, exports, cleanup, and review updates.",
+        title: "Render Dashboard",
+        description: "API endpoints return the stored records to the dashboard and review controls.",
       },
     ],
     heroHeadline:
-      "Low-confidence or duplicate receipts are surfaced before they become accounting noise.",
+      "Low-confidence and duplicate receipts are flagged before they affect the dashboard summary.",
   };
 }
 
@@ -1451,35 +1451,35 @@ function renderOpsStrip() {
   const total = Math.max(Number(summary.receiptCount || 0), 1);
   const cards = [
     {
-      label: "Posted automatically",
+      label: "Auto Approved",
       value: `${Math.round((Number(summary.autoApprovedCount || 0) / total) * 100)}%`,
-      detail: `${summary.autoApprovedCount || 0} receipts were clean enough to flow straight into tracked spend.`,
+      detail: `${summary.autoApprovedCount || 0} receipts passed the rules without manual review.`,
     },
     {
-      label: "Needs review",
+      label: "Needs Review",
       value: `${Math.round((Number(summary.needsReviewCount || 0) / total) * 100)}%`,
-      detail: `${summary.needsReviewCount || 0} receipts still need a finance decision.`,
+      detail: `${summary.needsReviewCount || 0} receipts were flagged by confidence or missing-field checks.`,
     },
     {
-      label: "Duplicate alerts",
+      label: "Duplicate Alerts",
       value: `${summary.duplicateCount || 0}`,
-      detail: "Potential repeats were caught before they inflated the expense history.",
+      detail: "Potential repeats were detected before they could be counted twice.",
     },
     {
-      label: "Dashboard freshness",
+      label: "Data Freshness",
       value: formatFreshness(dashboardData.generatedAt),
-      detail: "How current the numbers and archive view are right now.",
+      detail: "How recent the current dashboard snapshot is.",
     },
     {
-      label: "Last receipt cycle",
+      label: "Last Upload Cycle",
       value: formatProcessingDuration(uploadState.durationMs),
       detail:
         uploadState.phase === "success"
-          ? "Measured from upload start to the receipt appearing inside the dashboard."
-          : "Timing appears after the next uploaded receipt finishes processing.",
+          ? "Measured from upload start to the receipt appearing in the dashboard."
+          : "Timing appears after the next receipt finishes processing.",
     },
     {
-      label: "Upload status",
+      label: "Upload Status",
       value: formatUploadPhase(uploadState.phase),
       detail: uploadState.message,
     },
@@ -1508,7 +1508,7 @@ function renderUploadTimeline() {
     ["transfer", "Store In S3", "Move the selected file into the intake bucket."],
     ["textract", "Extract Fields", "Read merchant, total, date, and line items."],
     ["quality", "Run Review Rules", "Check confidence and screen for duplicates."],
-    ["stored", "Update Dashboard", "Show the processed receipt in the live expense view."],
+    ["stored", "Update Dashboard", "Show the processed receipt in the dashboard view."],
   ];
   const order = steps.map((step) => step[0]);
   const activeIndex =
@@ -1553,7 +1553,7 @@ function renderUploadTimeline() {
             ? "Upload And Process"
             : isAuthConfigured()
               ? "Sign In To Upload"
-              : "Auth Setup Required";
+              : "Config Needed";
   }
 }
 
@@ -1581,7 +1581,7 @@ function getUploadMotionCopy() {
         detail:
           uploadState.phase === "idle"
             ? "AI extraction begins after the cloud upload completes."
-            : "ReceiptPulse is opening a signed cloud path for your file.",
+            : "The app is opening a signed cloud path for your file.",
         scene:
           uploadState.phase === "idle"
             ? "Pick a file to preview its upload path."
@@ -1614,7 +1614,7 @@ function getUploadMotionCopy() {
     default:
       return {
         title: "Preparing receipt flow",
-        detail: "ReceiptPulse is lining up the next upload stages.",
+        detail: "The app is lining up the next upload stages.",
         scene: uploadState.message,
       };
   }
@@ -1675,11 +1675,11 @@ function renderSpotlight() {
     elements.spotlightKicker.textContent = "Current upload";
     elements.spotlightTitle.textContent = isSignedIn()
       ? "No receipt from this browser session yet."
-      : "Sign in to process receipts into your private workspace.";
+      : "Sign in to process receipts for your account.";
     elements.spotlightNarrative.textContent =
       isSignedIn()
-        ? "Select a file from your device, upload it to S3, and this area will switch into the latest processed expense summary for your own upload."
-        : "Once you sign in, uploads from this device are tied to your account and this area will show the latest processed result from your workspace.";
+        ? "Select a file from your device and this panel will show the latest processed receipt from the current session."
+        : "After sign-in, uploads from this device are tied to your account and this panel shows the latest processed result.";
     elements.spotlightFacts.innerHTML = "";
     elements.spotlightPanel?.style.removeProperty("--theme-accent");
     elements.spotlightPanel?.style.removeProperty("--theme-soft");
@@ -1690,21 +1690,21 @@ function renderSpotlight() {
   const theme = getReceiptTheme(receipt);
   const displayLabel = getReceiptDisplayLabel(receipt);
   elements.spotlightPanel?.setAttribute("style", getRowThemeVars(theme));
-  elements.spotlightKicker.textContent = "Latest processed expense";
+  elements.spotlightKicker.textContent = "Latest processed receipt";
   elements.spotlightTitle.innerHTML = `<span class="receipt-icon-badge">${theme.icon}</span>${escapeHtml(
     displayLabel
   )} · ${escapeHtml(formatLabel(receipt.reviewStatus))}`;
   elements.spotlightNarrative.textContent = buildSpotlightNarrative(receipt);
 
   const facts = [
-    ["Visual tag", displayLabel],
+    ["Receipt Label", displayLabel],
     ["Total", `${receipt.currencySymbol || "$"}${Number(receipt.totalAmount || 0).toFixed(2)}`],
     ["Confidence", `${Number(receipt.confidenceScore || 0).toFixed(1)}%`],
     ["Category", receipt.category],
     ["Month", receipt.expenseMonth],
     ["Items", `${receipt.itemCount || 0}`],
     ["Process Time", formatProcessingDuration(uploadState.durationMs)],
-    ["Operator", receipt.uploadedBy || "ops@receiptpulse.dev"],
+    ["Uploaded By", receipt.uploadedBy || "demo@receiptpulse.dev"],
     ["File", receipt.fileName || "receipt"],
     ["Duplicate Of", receipt.duplicateOf || "No prior match"],
   ];
@@ -1712,7 +1712,7 @@ function renderSpotlight() {
   elements.spotlightFacts.innerHTML = facts
     .map(
       ([label, value]) => `
-        <article class="spotlight-stat${label === "Operator" || label === "File" ? " spotlight-stat--wrap" : ""}">
+        <article class="spotlight-stat${label === "Uploaded By" || label === "File" ? " spotlight-stat--wrap" : ""}">
           <span>${escapeHtml(label)}</span>
           <strong>${escapeHtml(String(value))}</strong>
         </article>
@@ -1789,7 +1789,7 @@ function renderUploadHistory() {
         ${
           signedIn
             ? "No uploads have been saved in this browser for your account yet. Process a receipt once and this drawer turns into a running activity log with status, amount, and preview context."
-            : "Sign in and process a receipt to start a private upload history for this account."
+            : "Sign in and process a receipt to start upload history for this account."
         }
       </article>
     `;
@@ -2160,17 +2160,17 @@ function animateCounters() {
 function metricDescription(label) {
   switch (label) {
     case "Receipts Processed":
-      return "Multi-file ingestion with analytics-ready enrichment fields.";
+      return "Uploaded files that made it through extraction and storage.";
     case "Total Spend Captured":
-      return "Structured totals ready for monthly reporting and cleanup decisions.";
+      return "Total value captured from the processed receipt set.";
     case "OCR Confidence":
-      return "Extraction quality score used to decide whether receipts need review.";
+      return "Average extraction confidence from the OCR step.";
     case "Posted Cleanly":
-      return "Receipts that cleared the rule engine without manual intervention.";
+      return "Receipts that passed the rule checks without review.";
     case "Needs Review":
-      return "Receipts flagged for low confidence, missing data, or exceptions.";
+      return "Receipts flagged for low confidence, missing data, or duplicates.";
     case "Duplicate Alerts":
-      return "Potential repeats detected before the same expense is counted twice.";
+      return "Potential repeat uploads detected by the duplicate check.";
     default:
       return "";
   }
@@ -2188,7 +2188,7 @@ function buildSpotlightNarrative(receipt) {
     receipt.confidenceScore || 0
   ).toFixed(1)}% confidence score and routed to ${formatLabel(
     receipt.reviewStatus
-  ).toLowerCase()} in the expense workflow.${labelText}${reasons}`;
+  ).toLowerCase()} by the review rules.${labelText}${reasons}`;
 }
 
 function formatLabel(value) {
@@ -2387,7 +2387,7 @@ async function handleUpload(event) {
   }
 
   if (!isSignedIn()) {
-    setUploadState("error", "slot", "Sign in to upload receipts into your private workspace.");
+    setUploadState("error", "slot", "Sign in to upload receipts for your account.");
     return;
   }
 
@@ -2414,7 +2414,7 @@ async function handleUpload(event) {
       startedAt: Date.now(),
       durationMs: null,
     };
-    setUploadState("preparing", "slot", "Requesting a secure upload slot for your private workspace.");
+    setUploadState("preparing", "slot", "Requesting a secure upload slot for your account.");
 
     const session = await requestUploadSession(file, receiptLabel);
     uploadState.objectKey = session.objectKey;
@@ -3149,90 +3149,11 @@ function scrollToProcessedResult() {
 }
 
 function triggerSuccessBurst(sourceElement) {
-  if (!elements.successBurst) {
-    return;
-  }
-
-  const palette = ["#98f6ff", "#35d9ea", "#7ef0b5", "#f6c76f"];
-  const bounds = sourceElement?.getBoundingClientRect();
-  const originX = bounds ? bounds.left + bounds.width / 2 : window.innerWidth / 2;
-  const originY = bounds ? bounds.top + bounds.height / 2 : window.innerHeight / 2;
-
-  elements.successBurst.innerHTML = "";
-  for (let index = 0; index < 22; index += 1) {
-    const particle = document.createElement("span");
-    particle.className = "confetti-piece";
-    particle.style.left = `${originX}px`;
-    particle.style.top = `${originY}px`;
-    particle.style.background = palette[index % palette.length];
-    particle.style.setProperty("--burst-x", `${(Math.random() - 0.5) * 320}px`);
-    particle.style.setProperty("--burst-y", `${-120 - Math.random() * 180}px`);
-    particle.style.setProperty("--burst-rotate", `${(Math.random() - 0.5) * 720}deg`);
-    particle.style.animationDelay = `${index * 14}ms`;
-    elements.successBurst.appendChild(particle);
-  }
-
-  window.setTimeout(() => {
-    if (elements.successBurst) {
-      elements.successBurst.innerHTML = "";
-    }
-  }, 1500);
+  void sourceElement;
 }
 
 function initCursorFX() {
-  if (!window.matchMedia("(pointer:fine)").matches) {
-    return;
-  }
-
-  const { cursorOrb, cursorRing, cursorDrips } = elements;
-  if (!cursorOrb || !cursorRing || !cursorDrips) {
-    return;
-  }
-
-  document.body.classList.add("cursor-active");
-
-  let pointerX = window.innerWidth / 2;
-  let pointerY = window.innerHeight / 2;
-  let ringX = pointerX;
-  let ringY = pointerY;
-
-  const positionDroplet = (x, y) => {
-    cursorOrb.style.left = `${x}px`;
-    cursorOrb.style.top = `${y}px`;
-    cursorDrips.style.left = `${x}px`;
-    cursorDrips.style.top = `${y}px`;
-  };
-
-  const positionRing = (x, y) => {
-    cursorRing.style.left = `${x}px`;
-    cursorRing.style.top = `${y}px`;
-  };
-
-  positionDroplet(pointerX, pointerY);
-  positionRing(ringX, ringY);
-
-  document.addEventListener("pointermove", (event) => {
-    pointerX = event.clientX;
-    pointerY = event.clientY;
-    positionDroplet(pointerX, pointerY);
-  });
-
-  document.addEventListener("pointerdown", () => {
-    document.body.classList.add("cursor-hover");
-  });
-
-  document.addEventListener("pointerup", () => {
-    document.body.classList.remove("cursor-hover");
-  });
-
-  const tick = () => {
-    ringX += (pointerX - ringX) * 0.18;
-    ringY += (pointerY - ringY) * 0.18;
-    positionRing(ringX, ringY);
-    requestAnimationFrame(tick);
-  };
-
-  requestAnimationFrame(tick);
+  return;
 }
 
 function initTopbarScrollFX() {

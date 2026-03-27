@@ -757,25 +757,28 @@ function updateAuthUI() {
   const configured = isAuthConfigured();
   const signedIn = isSignedIn();
   const authBusy = ["refreshing", "restoring"].includes(authState.status);
+  const authRestoring = authState.status === "restoring";
 
   document.body.classList.toggle("workspace-signed-in", signedIn);
 
   if (elements.authSummary) {
     elements.authSummary.textContent = signedIn
       ? authState.user.name || "Signed In"
-      : configured
-        ? "Sign In Required"
-        : "Config Needed";
+      : authRestoring
+        ? "Opening Workspace"
+        : configured
+          ? "Sign In Required"
+          : "Config Needed";
   }
 
   if (elements.authCta) {
-    elements.authCta.hidden = signedIn || !configured;
+    elements.authCta.hidden = signedIn || !configured || authRestoring;
     elements.authCta.disabled = authBusy;
     elements.authCta.textContent = "Sign In";
   }
 
   if (elements.authSecondaryCta) {
-    elements.authSecondaryCta.hidden = signedIn || !configured;
+    elements.authSecondaryCta.hidden = signedIn || !configured || authRestoring;
     elements.authSecondaryCta.disabled = authBusy;
     elements.authSecondaryCta.textContent = "Create Account";
   }

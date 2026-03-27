@@ -190,6 +190,29 @@
     });
   }
 
+  function scheduleFieldReset(fields) {
+    clearAuthFields(fields);
+    window.requestAnimationFrame(() => clearAuthFields(fields));
+    window.setTimeout(() => clearAuthFields(fields), 0);
+    window.setTimeout(() => clearAuthFields(fields), 180);
+  }
+
+  function guardSignupFields(fields) {
+    [fields.name, fields.username, fields.password, fields.confirmPassword]
+      .filter(Boolean)
+      .forEach((field) => {
+        field.setAttribute("readonly", "readonly");
+
+        const unlock = () => {
+          field.removeAttribute("readonly");
+        };
+
+        field.addEventListener("focus", unlock, { once: true });
+        field.addEventListener("pointerdown", unlock, { once: true });
+        field.addEventListener("keydown", unlock, { once: true });
+      });
+  }
+
   function consumeSignedOutFlag() {
     const url = new URL(window.location.href);
     const hasFlag = url.searchParams.get(SIGNED_OUT_FLAG) === "1";
@@ -358,9 +381,10 @@
     }
 
     if (pageType === "signup") {
-      clearAuthFields(fields);
+      guardSignupFields(fields);
+      scheduleFieldReset(fields);
       window.addEventListener("pageshow", () => {
-        clearAuthFields(fields);
+        scheduleFieldReset(fields);
       });
     } else if (cameFromSignOut) {
       clearAuthFields(fields);

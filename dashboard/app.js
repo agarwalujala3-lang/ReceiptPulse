@@ -793,6 +793,7 @@ function updateAuthUI() {
     elements.signOutButton.hidden = !signedIn;
     elements.signOutButton.style.display = signedIn ? "" : "none";
     elements.signOutButton.disabled = authBusy;
+    elements.signOutButton.textContent = signedIn ? "Switch Account" : "Sign Out";
   }
 
   if (elements.uploadAccount) {
@@ -892,13 +893,12 @@ async function loadDashboard() {
   }
 
   elements.modeBadge.textContent = "Syncing";
-  elements.statusNote.textContent =
-    "Loading the latest receipts for the signed-in account.";
+  elements.statusNote.textContent = "Opening your workspace.";
 
   try {
     await refreshLiveSnapshot();
-    elements.modeBadge.textContent = "Signed In";
-    elements.statusNote.textContent = "Connected to live project data.";
+    elements.modeBadge.textContent = "Workspace";
+    elements.statusNote.textContent = "Private upload space.";
   } catch (error) {
     console.error("Live API mode failed, falling back to demo data.", error);
     elements.modeBadge.textContent = "Preview Mode";

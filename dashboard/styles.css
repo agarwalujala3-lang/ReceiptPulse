@@ -5539,3 +5539,100 @@ body.workspace-signed-in.topbar-condensed .topbar {
     opacity: 1;
   }
 }
+
+/* Final auth/header polish */
+
+body.workspace-signed-in .topbar {
+  gap: 0.26rem;
+  margin-bottom: 0.22rem;
+  padding: 0.38rem clamp(0.8rem, 2.2vw, 1.35rem) 0.4rem;
+  border-radius: 24px;
+}
+
+body.workspace-signed-in .topbar-row {
+  gap: 0.4rem 0.7rem;
+}
+
+body.workspace-signed-in .topbar-row-main {
+  align-items: center;
+}
+
+body.workspace-signed-in .brand-mark {
+  padding: 0.54rem 0.82rem;
+  font-size: clamp(0.82rem, 0.94vw, 0.98rem);
+  letter-spacing: 0.2em;
+}
+
+body.workspace-signed-in .topbar-actions {
+  gap: 0.42rem;
+  max-width: none;
+}
+
+body.workspace-signed-in .status-pill,
+body.workspace-signed-in .ghost-link,
+body.workspace-signed-in .ghost-button,
+body.workspace-signed-in .topbar-primary-button {
+  min-height: 34px;
+  padding: 0.42rem 0.72rem;
+  font-size: 0.88rem;
+}
+
+body.workspace-signed-in .status-note {
+  max-width: 16ch;
+  font-size: 0.8rem;
+  line-height: 1.18;
+}
+
+body.workspace-signed-in .auth-summary-pill {
+  max-width: min(14rem, 36vw);
+}
+
+body.workspace-signed-in .topbar-range .select-shell span {
+  font-size: 0.72rem;
+  letter-spacing: 0.15em;
+}
+
+body.workspace-signed-in .topbar-range .month-select,
+body.workspace-signed-in .topbar-range .period-select {
+  min-height: 34px;
+  padding-top: 1.2rem;
+}
+
+body.workspace-signed-in.topbar-condensed .topbar {
+  margin-bottom: clamp(-1.05rem, -1.5vw, -0.72rem);
+}
+
+@media (max-width: 1040px) {
+  body.workspace-signed-in .status-note {
+    display: none;
+  }
+}
+
+@media (max-width: 760px) {
+  body.workspace-signed-in .topbar {
+    padding: 0.34rem 0.62rem 0.36rem;
+    margin-bottom: 0.18rem;
+  }
+
+  body.workspace-signed-in .brand-mark {
+    padding: 0.48rem 0.68rem;
+    font-size: 0.78rem;
+  }
+
+  body.workspace-signed-in .topbar-actions {
+    gap: 0.32rem;
+  }
+
+  body.workspace-signed-in .status-pill,
+  body.workspace-signed-in .ghost-link,
+  body.workspace-signed-in .ghost-button,
+  body.workspace-signed-in .topbar-primary-button {
+    min-height: 32px;
+    padding: 0.38rem 0.62rem;
+    font-size: 0.82rem;
+  }
+
+  body.workspace-signed-in.topbar-condensed .topbar {
+    margin-bottom: -0.2rem;
+  }
+}

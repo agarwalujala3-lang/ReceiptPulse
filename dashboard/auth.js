@@ -225,11 +225,26 @@
     });
   }
 
+  function randomizeFieldNames(fields, pageType) {
+    Object.entries(fields).forEach(([key, field]) => {
+      if (!field) {
+        return;
+      }
+
+      field.setAttribute("name", `${pageType}-${key}-${Math.random().toString(36).slice(2, 10)}`);
+      field.setAttribute("data-form-type", "other");
+      field.setAttribute("data-lpignore", "true");
+      field.setAttribute("data-1p-ignore", "true");
+    });
+  }
+
   function scheduleFieldReset(fields) {
     clearAuthFields(fields);
     window.requestAnimationFrame(() => clearAuthFields(fields));
     window.setTimeout(() => clearAuthFields(fields), 0);
     window.setTimeout(() => clearAuthFields(fields), 180);
+    window.setTimeout(() => clearAuthFields(fields), 700);
+    window.setTimeout(() => clearAuthFields(fields), 1400);
   }
 
   function guardSignupFields(fields) {
@@ -266,6 +281,37 @@
         field.addEventListener("pointerdown", unlock, { once: true });
         field.addEventListener("keydown", unlock, { once: true });
       });
+  }
+
+  function installAutofillScrubber(form, fields) {
+    if (!form) {
+      return;
+    }
+
+    let manualEntryStarted = false;
+    const clearIfIdle = () => {
+      if (!manualEntryStarted) {
+        clearAuthFields(fields);
+      }
+    };
+
+    const activateManualEntry = () => {
+      manualEntryStarted = true;
+    };
+
+    ["pointerdown", "focusin", "keydown", "input"].forEach((eventName) => {
+      form.addEventListener(eventName, activateManualEntry, { once: true, capture: true });
+    });
+
+    [120, 320, 650, 1100, 1800].forEach((delay) => {
+      window.setTimeout(clearIfIdle, delay);
+    });
+
+    document.addEventListener("visibilitychange", () => {
+      if (document.visibilityState === "visible") {
+        clearIfIdle();
+      }
+    });
   }
 
   function consumeSignedOutFlag() {
@@ -420,6 +466,9 @@
       setFormBusy(true);
       return;
     }
+
+    randomizeFieldNames(fields, pageType || "auth");
+    installAutofillScrubber(form, fields);
 
     const cameFromSignOut = consumeSignedOutFlag();
 

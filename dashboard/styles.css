@@ -5249,3 +5249,142 @@ body.workspace-signed-in.topbar-condensed .topbar {
     margin-bottom: -0.36rem;
   }
 }
+
+/* Final upload motion connector cleanup */
+
+.upload-motion-scene {
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  grid-template-areas:
+    "cloud cloud"
+    "receipt processing"
+    ". ledger";
+  gap: 1rem;
+  min-height: 292px;
+  align-items: start;
+}
+
+.upload-motion-scene::before {
+  display: none;
+}
+
+.upload-motion-scene::after {
+  content: "";
+  position: absolute;
+  left: 29%;
+  right: 23%;
+  top: 56.5%;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.03),
+    var(--motion-ring),
+    rgba(255, 255, 255, 0.03)
+  );
+  opacity: 0.95;
+  pointer-events: none;
+}
+
+.motion-cloud {
+  grid-area: cloud;
+  justify-self: center;
+  min-height: auto;
+  margin-bottom: 0.2rem;
+}
+
+.motion-cloud::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 0.1rem);
+  width: 2px;
+  height: 3.45rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    var(--motion-ring) 45%,
+    rgba(255, 255, 255, 0.03)
+  );
+  opacity: 0.95;
+}
+
+.motion-receipt,
+.motion-processing,
+.motion-ledger {
+  position: relative;
+  min-width: 0;
+  width: 100%;
+  max-width: none;
+}
+
+.motion-receipt {
+  grid-area: receipt;
+  align-self: center;
+}
+
+.motion-processing {
+  grid-area: processing;
+  align-self: center;
+  margin-left: 0;
+}
+
+.motion-processing::after {
+  content: "";
+  position: absolute;
+  left: 50%;
+  top: calc(100% - 0.1rem);
+  width: 2px;
+  height: 1.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    var(--motion-ring),
+    rgba(255, 255, 255, 0.03)
+  );
+  opacity: 0.95;
+}
+
+.motion-ledger {
+  grid-area: ledger;
+  justify-self: stretch;
+  align-self: start;
+}
+
+.motion-ledger::before {
+  content: "";
+  position: absolute;
+  left: 50%;
+  bottom: calc(100% - 0.1rem);
+  width: 2px;
+  height: 1.9rem;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.03),
+    var(--motion-ring)
+  );
+  opacity: 0.95;
+}
+
+@media (max-width: 900px) {
+  .upload-motion-scene {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "cloud"
+      "processing"
+      "receipt"
+      "ledger";
+    min-height: auto;
+  }
+
+  .upload-motion-scene::after,
+  .motion-cloud::after,
+  .motion-processing::after,
+  .motion-ledger::before {
+    display: none;
+  }
+}

@@ -5181,3 +5181,63 @@ body.topbar-condensed .topbar {
     gap: 0.75rem;
   }
 }
+
+.auth-decoy-group {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
+  opacity: 0;
+}
+
+.auth-decoy {
+  width: 0;
+  height: 0;
+  margin: 0;
+  padding: 0;
+  border: 0;
+}
+
+body.workspace-signed-in .topbar {
+  min-height: clamp(7.5rem, 16vh, 9.6rem);
+  gap: 0.52rem;
+  margin-bottom: 0.62rem;
+  padding-top: 0.7rem;
+  padding-bottom: 0.72rem;
+}
+
+body.workspace-signed-in .topbar-copy {
+  gap: 0.28rem;
+}
+
+body.workspace-signed-in .topbar-text {
+  font-size: 0.85rem;
+  line-height: 1.34;
+}
+
+body.workspace-signed-in .topbar-pills span {
+  min-height: 30px;
+  font-size: 0.75rem;
+}
+
+body.workspace-signed-in .topbar-range .month-select,
+body.workspace-signed-in .topbar-range .period-select {
+  min-height: 44px;
+}
+
+body.workspace-signed-in.topbar-condensed .topbar {
+  margin-bottom: clamp(-3rem, -4vw, -2rem);
+}
+
+@media (max-width: 760px) {
+  body.workspace-signed-in .topbar {
+    padding-top: 0.62rem;
+    padding-bottom: 0.64rem;
+    margin-bottom: 0.44rem;
+  }
+
+  body.workspace-signed-in.topbar-condensed .topbar {
+    margin-bottom: -0.7rem;
+  }
+}

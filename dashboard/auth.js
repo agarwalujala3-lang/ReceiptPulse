@@ -1,6 +1,7 @@
 (function () {
   const AUTH_STORAGE_KEY = "receiptpulse-auth-session";
   const DEFAULT_APP_PATH = "./app.html";
+  const SIGNED_OUT_FLAG = "signed_out";
 
   function normalizeConfig(raw, options = {}) {
     const fallbackUrl = String(options.fallbackUrl || `${window.location.origin}${window.location.pathname}`).trim();
@@ -181,6 +182,26 @@
     window.location.replace(target.toString());
   }
 
+  function clearAuthFields(fields) {
+    Object.values(fields).forEach((field) => {
+      if (field) {
+        field.value = "";
+      }
+    });
+  }
+
+  function consumeSignedOutFlag() {
+    const url = new URL(window.location.href);
+    const hasFlag = url.searchParams.get(SIGNED_OUT_FLAG) === "1";
+    if (!hasFlag) {
+      return false;
+    }
+
+    url.searchParams.delete(SIGNED_OUT_FLAG);
+    window.history.replaceState({}, document.title, url.toString());
+    return true;
+  }
+
   function toFriendlyErrorMessage(error) {
     const code = String(error?.code || "").trim();
     const message = String(error?.message || "").trim();
@@ -322,6 +343,8 @@
       return;
     }
 
+    const cameFromSignOut = consumeSignedOutFlag();
+
     try {
       const existingSession = await restoreExistingSession(config);
       if (existingSession && buildUserFromTokens(existingSession).id) {
@@ -332,6 +355,16 @@
     } catch (error) {
       clearTokens();
       setPageStatus("Previous session expired. Sign in again to continue.", "idle");
+    }
+
+    if (pageType === "signup") {
+      clearAuthFields(fields);
+      window.addEventListener("pageshow", () => {
+        clearAuthFields(fields);
+      });
+    } else if (cameFromSignOut) {
+      clearAuthFields(fields);
+      setPageStatus("Signed out. Sign in with this account or another one.", "idle");
     }
 
     form.addEventListener("submit", async (event) => {

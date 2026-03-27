@@ -758,6 +758,8 @@ function updateAuthUI() {
   const signedIn = isSignedIn();
   const authBusy = ["refreshing", "restoring"].includes(authState.status);
 
+  document.body.classList.toggle("workspace-signed-in", signedIn);
+
   if (elements.authSummary) {
     elements.authSummary.textContent = signedIn
       ? authState.user.name || "Signed In"
@@ -804,6 +806,10 @@ function goToSignInPage() {
   window.location.assign(AUTH_SIGNIN_PATH);
 }
 
+function goToSignedOutPage() {
+  window.location.assign(`${AUTH_SIGNIN_PATH}?signed_out=1`);
+}
+
 function goToSignUpPage() {
   window.location.assign(AUTH_SIGNUP_PATH);
 }
@@ -829,7 +835,7 @@ function bindAuthControls() {
       clearPreviewObjectUrl();
       setSignedOutState();
       updateAuthUI();
-      goToSignInPage();
+      goToSignedOutPage();
     });
   }
 }

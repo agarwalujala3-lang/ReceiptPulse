@@ -8,7 +8,7 @@
       name="description"
       content="Create a ReceiptPulse account to get a separate receipt upload workspace."
     />
-    <link rel="stylesheet" href="./styles.css?v=20260327a" />
+    <link rel="stylesheet" href="./styles.css?v=20260327b" />
   </head>
   <body class="auth-page auth-page-signup" data-auth-page="signup">
     <header class="topbar auth-topbar">
@@ -71,15 +71,20 @@
           <p>Pick a username and password. Display name is optional.</p>
         </div>
 
-        <form class="auth-form" id="authForm" novalidate>
+        <form class="auth-form" id="authForm" novalidate autocomplete="off">
+          <div class="auth-decoy-group" aria-hidden="true">
+            <input class="auth-decoy" type="text" name="signup-decoy-user" autocomplete="username" tabindex="-1" />
+            <input class="auth-decoy" type="password" name="signup-decoy-pass" autocomplete="new-password" tabindex="-1" />
+          </div>
+
           <label class="field">
             <span>Display name</span>
             <input
               class="text-input"
               id="authName"
-              name="name"
+              name="signupDisplayName"
               type="text"
-              autocomplete="nickname"
+              autocomplete="off"
               maxlength="64"
               placeholder="Optional name for the dashboard"
             />
@@ -90,9 +95,11 @@
             <input
               class="text-input"
               id="authUsername"
-              name="username"
+              name="signupUsername"
               type="text"
-              autocomplete="username"
+              autocomplete="off"
+              autocapitalize="off"
+              spellcheck="false"
               maxlength="64"
               placeholder="choose-a-username"
               required
@@ -104,7 +111,7 @@
             <input
               class="text-input"
               id="authPassword"
-              name="password"
+              name="signupPassword"
               type="password"
               autocomplete="new-password"
               minlength="8"
@@ -118,7 +125,7 @@
             <input
               class="text-input"
               id="authConfirmPassword"
-              name="confirmPassword"
+              name="signupConfirmPassword"
               type="password"
               autocomplete="new-password"
               minlength="8"
@@ -142,6 +149,6 @@
     </main>
 
     <script src="./config.js?v=20260327a"></script>
-    <script src="./auth.js?v=20260327a" defer></script>
+    <script src="./auth.js?v=20260327b" defer></script>
   </body>
 </html>

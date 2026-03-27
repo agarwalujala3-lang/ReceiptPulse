@@ -758,6 +758,7 @@ function updateAuthUI() {
   const signedIn = isSignedIn();
   const authBusy = ["refreshing", "restoring"].includes(authState.status);
   const authRestoring = authState.status === "restoring";
+  const hideAuthEntry = signedIn || !configured || authRestoring;
 
   document.body.classList.toggle("workspace-signed-in", signedIn);
 
@@ -772,19 +773,22 @@ function updateAuthUI() {
   }
 
   if (elements.authCta) {
-    elements.authCta.hidden = signedIn || !configured || authRestoring;
+    elements.authCta.hidden = hideAuthEntry;
+    elements.authCta.style.display = hideAuthEntry ? "none" : "";
     elements.authCta.disabled = authBusy;
     elements.authCta.textContent = "Sign In";
   }
 
   if (elements.authSecondaryCta) {
-    elements.authSecondaryCta.hidden = signedIn || !configured || authRestoring;
+    elements.authSecondaryCta.hidden = hideAuthEntry;
+    elements.authSecondaryCta.style.display = hideAuthEntry ? "none" : "";
     elements.authSecondaryCta.disabled = authBusy;
     elements.authSecondaryCta.textContent = "Create Account";
   }
 
   if (elements.signOutButton) {
     elements.signOutButton.hidden = !signedIn;
+    elements.signOutButton.style.display = signedIn ? "" : "none";
     elements.signOutButton.disabled = authBusy;
   }
 

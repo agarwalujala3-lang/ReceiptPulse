@@ -213,6 +213,26 @@
       });
   }
 
+  function guardAuthFields(fields, includeName = false) {
+    const targets = includeName
+      ? [fields.name, fields.username, fields.password, fields.confirmPassword]
+      : [fields.username, fields.password, fields.confirmPassword];
+
+    targets
+      .filter(Boolean)
+      .forEach((field) => {
+        field.setAttribute("readonly", "readonly");
+
+        const unlock = () => {
+          field.removeAttribute("readonly");
+        };
+
+        field.addEventListener("focus", unlock, { once: true });
+        field.addEventListener("pointerdown", unlock, { once: true });
+        field.addEventListener("keydown", unlock, { once: true });
+      });
+  }
+
   function consumeSignedOutFlag() {
     const url = new URL(window.location.href);
     const hasFlag = url.searchParams.get(SIGNED_OUT_FLAG) === "1";
@@ -381,14 +401,20 @@
     }
 
     if (pageType === "signup") {
-      guardSignupFields(fields);
+      guardAuthFields(fields, true);
       scheduleFieldReset(fields);
       window.addEventListener("pageshow", () => {
         scheduleFieldReset(fields);
       });
-    } else if (cameFromSignOut) {
-      clearAuthFields(fields);
-      setPageStatus("Signed out. Sign in with this account or another one.", "idle");
+    } else {
+      guardAuthFields(fields, false);
+      scheduleFieldReset(fields);
+      window.addEventListener("pageshow", () => {
+        scheduleFieldReset(fields);
+      });
+      if (cameFromSignOut) {
+        setPageStatus("Signed out. Sign in with this account or another one.", "idle");
+      }
     }
 
     form.addEventListener("submit", async (event) => {

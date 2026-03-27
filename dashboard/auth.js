@@ -3,6 +3,18 @@
   const DEFAULT_APP_PATH = "./app.html";
   const SIGNED_OUT_FLAG = "signed_out";
 
+  function getSessionStore() {
+    return window.sessionStorage;
+  }
+
+  function clearLegacyPersistentTokens() {
+    try {
+      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    } catch (error) {
+      console.warn("Unable to clear legacy persistent auth session.", error);
+    }
+  }
+
   function normalizeConfig(raw, options = {}) {
     const fallbackUrl = String(options.fallbackUrl || `${window.location.origin}${window.location.pathname}`).trim();
     const hostedUiDomain = String(raw?.hostedUiDomain || "").trim().replace(/\/$/, "");
@@ -23,8 +35,10 @@
   }
 
   function loadStoredTokens() {
+    clearLegacyPersistentTokens();
+
     try {
-      const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+      const raw = getSessionStore().getItem(AUTH_STORAGE_KEY);
       if (!raw) {
         return null;
       }
@@ -38,8 +52,10 @@
   }
 
   function persistTokens(tokens) {
+    clearLegacyPersistentTokens();
+
     try {
-      window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
+      getSessionStore().setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
     } catch (error) {
       console.warn("Unable to persist auth session.", error);
     }
@@ -47,10 +63,12 @@
 
   function clearTokens() {
     try {
-      window.localStorage.removeItem(AUTH_STORAGE_KEY);
+      getSessionStore().removeItem(AUTH_STORAGE_KEY);
     } catch (error) {
       console.warn("Unable to clear auth session.", error);
     }
+
+    clearLegacyPersistentTokens();
   }
 
   function decodeJwtPayload(token) {
@@ -175,6 +193,23 @@
       },
     });
     return buildTokenSet(payload.AuthenticationResult, previousTokens || { refreshToken });
+  }
+
+  async function globalSignOut(config, accessToken) {
+    if (!accessToken) {
+      return;
+    }
+
+    try {
+      await cognitoRequest(config, "GlobalSignOut", {
+        AccessToken: accessToken,
+      });
+    } catch (error) {
+      const code = String(error?.code || "").trim();
+      if (code && code !== "NotAuthorizedException") {
+        throw error;
+      }
+    }
   }
 
   function redirectToApp(config) {
@@ -460,6 +495,7 @@
     signIn,
     signUp,
     refreshSession,
+    globalSignOut,
     redirectToApp,
     toFriendlyErrorMessage,
   };

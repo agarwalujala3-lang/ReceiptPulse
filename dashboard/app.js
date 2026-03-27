@@ -512,7 +512,8 @@ function loadStoredTokens() {
   }
 
   try {
-    const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    const raw = window.sessionStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) {
       return null;
     }
@@ -534,7 +535,8 @@ function persistAuthTokens(tokens) {
   }
 
   try {
-    window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
+    window.localStorage.removeItem(AUTH_STORAGE_KEY);
+    window.sessionStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
   } catch (error) {
     console.warn("Unable to persist auth session.", error);
   }
@@ -549,6 +551,7 @@ function clearStoredTokens() {
   }
 
   try {
+    window.sessionStorage.removeItem(AUTH_STORAGE_KEY);
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
   } catch (error) {
     console.warn("Unable to clear auth session.", error);
@@ -838,7 +841,15 @@ function bindAuthControls() {
 
   if (elements.signOutButton && elements.signOutButton.dataset.bound !== "true") {
     elements.signOutButton.dataset.bound = "true";
-    elements.signOutButton.addEventListener("click", () => {
+    elements.signOutButton.addEventListener("click", async () => {
+      try {
+        if (authClient?.globalSignOut && authState.tokens?.accessToken) {
+          await authClient.globalSignOut(authConfig, authState.tokens.accessToken);
+        }
+      } catch (error) {
+        console.warn("Unable to revoke the active session cleanly.", error);
+      }
+
       clearPreviewObjectUrl();
       setSignedOutState();
       updateAuthUI();

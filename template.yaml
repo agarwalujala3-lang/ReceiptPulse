@@ -127,6 +127,8 @@ Resources:
     Type: AWS::Cognito::UserPool
     Properties:
       UserPoolName: !Sub "${AWS::StackName}-users"
+      LambdaConfig:
+        PreSignUp: !GetAtt ReceiptPreSignupTriggerFunction.Arn
       UsernameConfiguration:
         CaseSensitive: false
       Policies:
@@ -178,6 +180,20 @@ Resources:
     Properties:
       Domain: !Ref CognitoDomainPrefix
       UserPoolId: !Ref ReceiptIdentityUserPool
+
+  ReceiptPreSignupTriggerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      CodeUri: lambda/
+      Handler: cognito_pre_signup.lambda_handler
+
+  ReceiptPreSignupTriggerPermission:
+    Type: AWS::Lambda::Permission
+    Properties:
+      Action: lambda:InvokeFunction
+      FunctionName: !Ref ReceiptPreSignupTriggerFunction
+      Principal: cognito-idp.amazonaws.com
+      SourceArn: !GetAtt ReceiptIdentityUserPool.Arn
 
   ReceiptProcessorFunction:
     Type: AWS::Serverless::Function

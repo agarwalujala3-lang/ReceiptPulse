@@ -1,7 +1,12 @@
 __pycache__/
 *.pyc
 .aws-sam/
+.aws-sam-live/
+.aws-sam-build-auth/
+.aws-sam-build-auth2/
 .deploy-dashboard/
+.deploy-dashboard-auth-*/
 .venv/
 .DS_Store
 Thumbs.db
+build.toml

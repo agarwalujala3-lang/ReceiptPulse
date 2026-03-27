@@ -3,8 +3,10 @@ const POLL_INTERVAL_MS = 2500;
 const MAX_POLL_ATTEMPTS = 30;
 const HISTORY_STORAGE_KEY_PREFIX = "receiptpulse-upload-history";
 const AUTH_STORAGE_KEY = "receiptpulse-auth-session";
-const AUTH_PKCE_STORAGE_KEY = "receiptpulse-auth-pkce";
+const AUTH_SIGNIN_PATH = "./index.html";
+const AUTH_SIGNUP_PATH = "./signup.html";
 const MAX_HISTORY_ITEMS = 8;
+const authClient = window.ReceiptPulseAuth || null;
 const HOW_IT_WORKS = [
   {
     eyebrow: "Stage 01",
@@ -472,23 +474,32 @@ let authState = {
 };
 
 function normalizeAuthConfig(raw) {
+  if (authClient?.normalizeConfig) {
+    return authClient.normalizeConfig(raw, {
+      fallbackUrl: `${window.location.origin}${window.location.pathname}`,
+    });
+  }
+
   const fallbackUrl = `${window.location.origin}${window.location.pathname}`;
-  const scopes =
-    Array.isArray(raw?.scopes) && raw.scopes.length
-      ? raw.scopes.map((scope) => String(scope).trim()).filter(Boolean)
-      : ["openid", "email", "profile"];
+  const hostedUiDomain = String(raw?.hostedUiDomain || "").trim().replace(/\/$/, "");
+  const regionFromDomain = hostedUiDomain.match(/\.auth\.([a-z0-9-]+)\.amazoncognito\.com$/i)?.[1] || "";
 
   return {
-    hostedUiDomain: String(raw?.hostedUiDomain || "").trim().replace(/\/$/, ""),
+    hostedUiDomain,
     clientId: String(raw?.clientId || "").trim(),
+    region: String(raw?.region || regionFromDomain).trim(),
     redirectSignIn: String(raw?.redirectSignIn || fallbackUrl).trim(),
     redirectSignOut: String(raw?.redirectSignOut || fallbackUrl).trim(),
-    scopes,
+    appPath: "./app.html",
   };
 }
 
 function isAuthConfigured() {
-  return Boolean(authConfig.hostedUiDomain && authConfig.clientId);
+  if (authClient?.isConfigured) {
+    return authClient.isConfigured(authConfig);
+  }
+
+  return Boolean(authConfig.clientId && authConfig.region);
 }
 
 function isSignedIn() {
@@ -496,6 +507,10 @@ function isSignedIn() {
 }
 
 function loadStoredTokens() {
+  if (authClient?.loadStoredTokens) {
+    return authClient.loadStoredTokens();
+  }
+
   try {
     const raw = window.localStorage.getItem(AUTH_STORAGE_KEY);
     if (!raw) {
@@ -512,6 +527,12 @@ function loadStoredTokens() {
 
 function persistAuthTokens(tokens) {
   authState.tokens = tokens;
+
+  if (authClient?.persistTokens) {
+    authClient.persistTokens(tokens);
+    return;
+  }
+
   try {
     window.localStorage.setItem(AUTH_STORAGE_KEY, JSON.stringify(tokens));
   } catch (error) {
@@ -521,6 +542,12 @@ function persistAuthTokens(tokens) {
 
 function clearStoredTokens() {
   authState.tokens = null;
+
+  if (authClient?.clearTokens) {
+    authClient.clearTokens();
+    return;
+  }
+
   try {
     window.localStorage.removeItem(AUTH_STORAGE_KEY);
   } catch (error) {
@@ -528,38 +555,11 @@ function clearStoredTokens() {
   }
 }
 
-function loadPkceState() {
-  try {
-    const raw = window.sessionStorage.getItem(AUTH_PKCE_STORAGE_KEY);
-    if (!raw) {
-      return null;
-    }
-
-    const parsed = JSON.parse(raw);
-    return parsed && typeof parsed === "object" ? parsed : null;
-  } catch (error) {
-    console.warn("Unable to read PKCE state.", error);
-    return null;
-  }
-}
-
-function persistPkceState(payload) {
-  try {
-    window.sessionStorage.setItem(AUTH_PKCE_STORAGE_KEY, JSON.stringify(payload));
-  } catch (error) {
-    console.warn("Unable to persist PKCE state.", error);
-  }
-}
-
-function clearPkceState() {
-  try {
-    window.sessionStorage.removeItem(AUTH_PKCE_STORAGE_KEY);
-  } catch (error) {
-    console.warn("Unable to clear PKCE state.", error);
-  }
-}
-
 function decodeJwtPayload(token) {
+  if (authClient?.decodeJwtPayload) {
+    return authClient.decodeJwtPayload(token);
+  }
+
   if (!token || !token.includes(".")) {
     return {};
   }
@@ -578,21 +578,29 @@ function decodeJwtPayload(token) {
 }
 
 function buildUserFromTokens(tokens) {
+  if (authClient?.buildUserFromTokens) {
+    return authClient.buildUserFromTokens(tokens);
+  }
+
   const claims = decodeJwtPayload(tokens?.idToken || tokens?.accessToken || "");
   return {
-    id: claims.sub || claims.username || claims["cognito:username"] || "",
+    id: claims.sub || claims["cognito:username"] || claims.username || "",
     email: claims.email || "",
     name:
       claims.name ||
-      claims.given_name ||
       claims.preferred_username ||
-      claims.email ||
       claims["cognito:username"] ||
+      claims.username ||
+      claims.email ||
       "Workspace user",
   };
 }
 
 function isTokenExpired(bufferMs = 60000) {
+  if (authClient?.isTokenExpired) {
+    return authClient.isTokenExpired(authState.tokens, bufferMs);
+  }
+
   const expiresAt = Number(authState.tokens?.expiresAt || 0);
   if (!expiresAt) {
     return true;
@@ -602,7 +610,6 @@ function isTokenExpired(bufferMs = 60000) {
 }
 
 function setSignedOutState() {
-  clearPkceState();
   clearStoredTokens();
   authState = {
     ...authState,
@@ -628,95 +635,12 @@ function updateAuthFromTokens(tokens) {
   updateAuthUI();
 }
 
-function getAuthTokenEndpoint() {
-  return `${authConfig.hostedUiDomain}/oauth2/token`;
-}
-
-function buildAuthStartUrl(pathname, state, codeChallenge) {
-  const url = new URL(`${authConfig.hostedUiDomain}/${pathname}`);
-  url.searchParams.set("client_id", authConfig.clientId);
-  url.searchParams.set("response_type", "code");
-  url.searchParams.set("scope", authConfig.scopes.join(" "));
-  url.searchParams.set("redirect_uri", authConfig.redirectSignIn);
-  url.searchParams.set("code_challenge_method", "S256");
-  url.searchParams.set("code_challenge", codeChallenge);
-  url.searchParams.set("state", state);
-  return url.toString();
-}
-
-function buildLogoutUrl() {
-  const url = new URL(`${authConfig.hostedUiDomain}/logout`);
-  url.searchParams.set("client_id", authConfig.clientId);
-  url.searchParams.set("logout_uri", authConfig.redirectSignOut);
-  return url.toString();
-}
-
-function createRandomToken(length = 64) {
-  const alphabet = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789-._~";
-  const bytes = new Uint8Array(length);
-  window.crypto.getRandomValues(bytes);
-  return Array.from(bytes, (value) => alphabet[value % alphabet.length]).join("");
-}
-
-async function sha256Base64Url(value) {
-  const encoded = new TextEncoder().encode(value);
-  const digest = await window.crypto.subtle.digest("SHA-256", encoded);
-  const bytes = new Uint8Array(digest);
-  const binary = Array.from(bytes, (byte) => String.fromCharCode(byte)).join("");
-  return btoa(binary).replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/g, "");
-}
-
-async function beginAuthFlow(pathname) {
-  if (!isAuthConfigured()) {
-    throw new Error("Cognito authentication is not configured for this dashboard.");
-  }
-
-  authState = {
-    ...authState,
-    status: "redirecting",
-  };
-  updateAuthUI();
-
-  const verifier = createRandomToken(96);
-  const state = createRandomToken(48);
-  const codeChallenge = await sha256Base64Url(verifier);
-  persistPkceState({ verifier, state });
-  window.location.assign(buildAuthStartUrl(pathname, state, codeChallenge));
-}
-
-async function exchangeCodeForTokens(code, verifier) {
-  const body = new URLSearchParams({
-    grant_type: "authorization_code",
-    client_id: authConfig.clientId,
-    code,
-    redirect_uri: authConfig.redirectSignIn,
-    code_verifier: verifier,
-  });
-
-  const response = await fetch(getAuthTokenEndpoint(), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Sign-in exchange failed (${response.status}).`);
-  }
-
-  const payload = await response.json();
-  return {
-    accessToken: payload.access_token || "",
-    idToken: payload.id_token || "",
-    refreshToken: payload.refresh_token || "",
-    expiresAt: Date.now() + Number(payload.expires_in || 3600) * 1000,
-  };
-}
-
 async function refreshAuthSession() {
   if (!authState.tokens?.refreshToken) {
     throw new Error("No refresh token is available for this session.");
+  }
+  if (!authClient?.refreshSession) {
+    throw new Error("Front-end auth helper did not load.");
   }
 
   authState = {
@@ -725,73 +649,12 @@ async function refreshAuthSession() {
   };
   updateAuthUI();
 
-  const body = new URLSearchParams({
-    grant_type: "refresh_token",
-    client_id: authConfig.clientId,
-    refresh_token: authState.tokens.refreshToken,
-  });
-  const response = await fetch(getAuthTokenEndpoint(), {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body,
-  });
-
-  if (!response.ok) {
-    throw new Error(`Session refresh failed (${response.status}).`);
-  }
-
-  const payload = await response.json();
-  const refreshed = {
-    ...authState.tokens,
-    accessToken: payload.access_token || authState.tokens.accessToken,
-    idToken: payload.id_token || authState.tokens.idToken,
-    expiresAt: Date.now() + Number(payload.expires_in || 3600) * 1000,
-  };
+  const refreshed = await authClient.refreshSession(
+    authConfig,
+    authState.tokens.refreshToken,
+    authState.tokens
+  );
   updateAuthFromTokens(refreshed);
-}
-
-async function handleAuthRedirect() {
-  const url = new URL(window.location.href);
-  const error = url.searchParams.get("error");
-  const errorDescription = url.searchParams.get("error_description");
-  const code = url.searchParams.get("code");
-
-  if (!error && !code) {
-    return;
-  }
-
-  const cleanUrl = new URL(window.location.href);
-  ["code", "state", "error", "error_description"].forEach((key) => cleanUrl.searchParams.delete(key));
-
-  if (error) {
-    window.history.replaceState({}, document.title, cleanUrl.toString());
-    setSignedOutState();
-    updateAuthUI();
-    throw new Error(errorDescription || error);
-  }
-
-  const pkceState = loadPkceState();
-  const returnedState = url.searchParams.get("state") || "";
-  if (!pkceState?.verifier || !pkceState?.state || pkceState.state !== returnedState) {
-    window.history.replaceState({}, document.title, cleanUrl.toString());
-    clearPkceState();
-    setSignedOutState();
-    updateAuthUI();
-    throw new Error("Sign-in state verification failed. Try signing in again.");
-  }
-
-  authState = {
-    ...authState,
-    status: "exchanging",
-  };
-  updateAuthUI();
-
-  const tokens = await exchangeCodeForTokens(code, pkceState.verifier);
-  clearPkceState();
-  updateAuthFromTokens(tokens);
-  window.history.replaceState({}, document.title, cleanUrl.toString());
 }
 
 async function initializeAuth() {
@@ -814,8 +677,6 @@ async function initializeAuth() {
   updateAuthUI();
 
   try {
-    await handleAuthRedirect();
-
     if (authState.tokens) {
       if (isTokenExpired()) {
         await refreshAuthSession();
@@ -895,25 +756,26 @@ function reloadUploadHistory() {
 function updateAuthUI() {
   const configured = isAuthConfigured();
   const signedIn = isSignedIn();
-  const authBusy = ["redirecting", "exchanging", "refreshing", "restoring"].includes(authState.status);
+  const authBusy = ["refreshing", "restoring"].includes(authState.status);
 
   if (elements.authSummary) {
     elements.authSummary.textContent = signedIn
       ? authState.user.name || "Signed In"
       : configured
-        ? "Project Demo"
+        ? "Sign In Required"
         : "Config Needed";
   }
 
   if (elements.authCta) {
     elements.authCta.hidden = signedIn || !configured;
     elements.authCta.disabled = authBusy;
-    elements.authCta.textContent = authBusy ? "Opening..." : "Sign In";
+    elements.authCta.textContent = "Sign In";
   }
 
   if (elements.authSecondaryCta) {
     elements.authSecondaryCta.hidden = signedIn || !configured;
     elements.authSecondaryCta.disabled = authBusy;
+    elements.authSecondaryCta.textContent = "Create Account";
   }
 
   if (elements.signOutButton) {
@@ -925,37 +787,39 @@ function updateAuthUI() {
     elements.uploadAccount.value = signedIn
       ? `${authState.user.name}${authState.user.email ? ` (${authState.user.email})` : ""}`
       : configured
-        ? "Sign in to upload receipts under your account."
+        ? "Sign in to upload under your own workspace."
         : "Add Cognito config to enable signed-in uploads.";
   }
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Files uploaded from this browser are stored under the signed-in account and shown in the dashboard."
+      ? "Files uploaded from this browser are stored under your signed-in workspace and shown only in your dashboard."
       : configured
-        ? "Sign in first. After that, uploads, history, analytics, and delete actions stay tied to your account."
+        ? "Sign in or create an account first. Uploads, history, analytics, and delete actions stay tied to that user."
         : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";
   }
+}
+
+function goToSignInPage() {
+  window.location.assign(AUTH_SIGNIN_PATH);
+}
+
+function goToSignUpPage() {
+  window.location.assign(AUTH_SIGNUP_PATH);
 }
 
 function bindAuthControls() {
   if (elements.authCta && elements.authCta.dataset.bound !== "true") {
     elements.authCta.dataset.bound = "true";
     elements.authCta.addEventListener("click", () => {
-      void beginAuthFlow("login").catch((error) => {
-        console.error("Unable to start sign-in.", error);
-        elements.statusNote.textContent = error.message || "Unable to start sign-in.";
-      });
+      goToSignInPage();
     });
   }
 
   if (elements.authSecondaryCta && elements.authSecondaryCta.dataset.bound !== "true") {
     elements.authSecondaryCta.dataset.bound = "true";
     elements.authSecondaryCta.addEventListener("click", () => {
-      void beginAuthFlow("signup").catch((error) => {
-        console.error("Unable to start sign-up.", error);
-        elements.statusNote.textContent = error.message || "Unable to start sign-up.";
-      });
+      goToSignUpPage();
     });
   }
 
@@ -965,7 +829,7 @@ function bindAuthControls() {
       clearPreviewObjectUrl();
       setSignedOutState();
       updateAuthUI();
-      window.location.assign(buildLogoutUrl());
+      goToSignInPage();
     });
   }
 }
@@ -2324,10 +2188,7 @@ function bindUploadControls() {
 
   elements.heroUploadTrigger?.addEventListener("click", () => {
     if (isAuthConfigured() && !isSignedIn()) {
-      void beginAuthFlow("login").catch((error) => {
-        console.error("Unable to start sign-in.", error);
-        elements.statusNote.textContent = error.message || "Unable to start sign-in.";
-      });
+      goToSignInPage();
       return;
     }
     document.querySelector("#uploadLab")?.scrollIntoView({ behavior: "smooth", block: "start" });

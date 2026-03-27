@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReceiptPulse | Create Account</title>
+    <meta
+      name="description"
+      content="Create a ReceiptPulse account to get a separate receipt upload workspace."
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260327a" />
+  </head>
+  <body class="auth-page auth-page-signup" data-auth-page="signup">
+    <header class="topbar auth-topbar">
+      <div class="topbar-row topbar-row-main">
+        <div class="brand-lockup">
+          <a class="brand-mark brand-mark-link" href="./index.html">ReceiptPulse</a>
+        </div>
+        <div class="topbar-actions auth-topbar-actions">
+          <span class="status-pill">Portfolio Project</span>
+          <a class="ghost-link" href="./index.html">Sign In</a>
+          <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noreferrer">Source Code</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="auth-shell">
+      <section class="panel auth-stage">
+        <div class="auth-stage-copy">
+          <p class="eyebrow">Create Account</p>
+          <h1>Make a username once, then use that workspace for your own receipt uploads.</h1>
+          <p class="auth-lead">
+            This project no longer depends on email during authentication. We create a username-based
+            account and keep each signed-in user's uploaded files separate.
+          </p>
+        </div>
+
+        <div class="auth-highlight-grid">
+          <article class="auth-info-card">
+            <span class="mini-label">Why separate accounts</span>
+            <strong>Each user sees only their own receipts.</strong>
+            <p>The app stores uploads under a user-specific path and reads only that user back.</p>
+          </article>
+          <article class="auth-info-card">
+            <span class="mini-label">What happens next</span>
+            <strong>We sign you in right after account creation.</strong>
+            <p>You land on the main app page with the uploader ready for your files.</p>
+          </article>
+        </div>
+
+        <div class="auth-project-strip">
+          <article>
+            <span>Account</span>
+            <strong>Username Based</strong>
+          </article>
+          <article>
+            <span>Uploads</span>
+            <strong>Your PC Files</strong>
+          </article>
+          <article>
+            <span>Results</span>
+            <strong>Private Dashboard</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel auth-panel">
+        <div class="auth-panel-head">
+          <p class="eyebrow">Sign Up</p>
+          <h2>Create your account</h2>
+          <p>Pick a username and password. Display name is optional.</p>
+        </div>
+
+        <form class="auth-form" id="authForm" novalidate>
+          <label class="field">
+            <span>Display name</span>
+            <input
+              class="text-input"
+              id="authName"
+              name="name"
+              type="text"
+              autocomplete="nickname"
+              maxlength="64"
+              placeholder="Optional name for the dashboard"
+            />
+          </label>
+
+          <label class="field">
+            <span>Username</span>
+            <input
+              class="text-input"
+              id="authUsername"
+              name="username"
+              type="text"
+              autocomplete="username"
+              maxlength="64"
+              placeholder="choose-a-username"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>Password</span>
+            <input
+              class="text-input"
+              id="authPassword"
+              name="password"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              placeholder="At least 8 characters"
+              required
+            />
+          </label>
+
+          <label class="field">
+            <span>Confirm password</span>
+            <input
+              class="text-input"
+              id="authConfirmPassword"
+              name="confirmPassword"
+              type="password"
+              autocomplete="new-password"
+              minlength="8"
+              placeholder="Re-enter the same password"
+              required
+            />
+          </label>
+
+          <button class="primary-button auth-submit" id="authSubmit" type="submit">Create Account</button>
+        </form>
+
+        <p class="auth-status" id="authStatus" data-state="idle">
+          Create an account, then we will take you straight to the main app page.
+        </p>
+
+        <div class="auth-switch">
+          <span>Already created one?</span>
+          <a href="./index.html">Go to sign in</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="./config.js?v=20260327a"></script>
+    <script src="./auth.js?v=20260327a" defer></script>
+  </body>
+</html>

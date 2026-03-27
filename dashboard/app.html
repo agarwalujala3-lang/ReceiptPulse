@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ReceiptPulse</title>
+    <meta
+      name="description"
+      content="ReceiptPulse is a portfolio project for receipt upload, OCR extraction, and basic expense analysis."
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260325b" />
+  </head>
+  <body>
+    <header class="topbar">
+      <div class="topbar-row topbar-row-main">
+        <div class="brand-lockup">
+          <p class="brand-mark">ReceiptPulse</p>
+        </div>
+        <div class="topbar-actions">
+          <span class="status-pill" id="modeBadge">Project Demo</span>
+          <span class="status-note" id="statusNote">Booting dashboard.</span>
+          <span class="status-pill auth-summary-pill" id="authSummary">Portfolio Project</span>
+          <button class="ghost-link ghost-button" id="authSecondaryCta" type="button">Create Account</button>
+          <button class="primary-button topbar-primary-button" id="authCta" type="button">Sign In</button>
+          <button class="ghost-link ghost-button" id="signOutButton" type="button" hidden>Sign Out</button>
+          <button class="ghost-link ghost-button" id="historyToggle" type="button">Past Uploads</button>
+          <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noreferrer">Source Code</a>
+        </div>
+      </div>
+      <div class="topbar-copy">
+        <p class="topbar-text">
+          ReceiptPulse is a cloud-based portfolio project that uploads receipt files, extracts key
+          fields with AWS, and stores them for a simple analytics dashboard.
+        </p>
+        <div class="topbar-pills">
+          <span>AWS Textract</span>
+          <span>Cognito Auth</span>
+          <span>DynamoDB Storage</span>
+        </div>
+      </div>
+      <div class="topbar-row topbar-row-range">
+        <div class="topbar-range">
+          <label class="select-shell">
+            <span>Dashboard Range</span>
+            <select class="month-select period-select" id="dashboardPeriodSelect" aria-label="Dashboard time range">
+              <option value="all">All time</option>
+              <option value="month">This month</option>
+              <option value="quarter">Last 3 months</option>
+              <option value="half">Last 6 months</option>
+              <option value="year">This year</option>
+            </select>
+          </label>
+        </div>
+      </div>
+    </header>
+
+    <main class="shell">
+      <section class="control-grid">
+        <section class="hero panel">
+          <div class="hero-copy">
+            <p class="eyebrow">Portfolio Project</p>
+            <h2>Upload receipts and review the extracted expense data.</h2>
+            <p class="hero-text">
+              The project connects S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito. After
+              sign-in, a user can upload a receipt and inspect the parsed result in the dashboard.
+            </p>
+            <div class="fun-tags">
+              <span>PDF / Image Uploads</span>
+              <span>OCR Extraction</span>
+              <span>User Accounts</span>
+              <span>Summary Charts</span>
+            </div>
+            <div class="hero-actions">
+              <button class="primary-button" id="heroUploadTrigger" type="button">Open Uploader</button>
+              <button class="secondary-button" id="archiveToggle" type="button">Open Archive</button>
+            </div>
+          </div>
+          <div class="hero-grid">
+            <article class="glass-card spotlight">
+              <span class="mini-label">Project Goal</span>
+              <strong id="riskHeadline">Receipts are parsed and flagged when the extracted data looks weak.</strong>
+              <p>The focus is on showing a real backend workflow instead of only a static frontend.</p>
+            </article>
+            <article class="glass-card">
+              <span class="mini-label">Pipeline Summary</span>
+              <div class="pipeline">
+                <span>Upload</span>
+                <span>Read</span>
+                <span>Store</span>
+                <span>Review</span>
+                <span>Chart</span>
+              </div>
+            </article>
+            <article class="glass-card">
+              <span class="mini-label">Manual Labels</span>
+              <p>Users can add a label before upload so the stored receipt is easier to identify during demos and testing.</p>
+            </article>
+            <article class="glass-card">
+              <span class="mini-label">User Accounts</span>
+              <p>Authentication keeps uploaded receipts and dashboard data scoped to the signed-in account.</p>
+            </article>
+          </div>
+        </section>
+
+        <aside class="panel upload-lab" id="uploadLab">
+          <div class="section-heading section-heading-tight">
+            <div>
+              <p class="eyebrow">Upload Module</p>
+              <h3>Upload a receipt file</h3>
+            </div>
+            <span class="status-tag status-auto-approved upload-ready-pill">Project Demo</span>
+          </div>
+
+          <form class="upload-form" id="uploadForm">
+            <label class="dropzone" id="dropzone" for="fileInput">
+              <input id="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" hidden />
+              <span class="drop-kicker">Drop receipt or browse</span>
+              <strong class="drop-title">PDF, PNG, JPG, or JPEG</strong>
+              <span class="drop-copy" id="fileMeta">No receipt selected yet.</span>
+            </label>
+
+            <div class="upload-preview-shell">
+              <div class="upload-preview-frame" id="previewFrame">
+                <div class="preview-empty">
+                  <span class="mini-label">Preview</span>
+                  <strong>Receipt preview will appear here</strong>
+                  <p>Image receipts show a thumbnail. PDFs show a simple document preview card.</p>
+                </div>
+              </div>
+              <div class="preview-meta" id="previewMeta">
+                <article class="preview-stat">
+                  <span>Status</span>
+                  <strong>Awaiting file</strong>
+                </article>
+                <article class="preview-stat">
+                  <span>Type</span>
+                  <strong>Receipt</strong>
+                </article>
+                <article class="preview-stat">
+                  <span>Visibility</span>
+                  <strong>Browser-side preview</strong>
+                </article>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Receipt label</span>
+                <input class="text-input" id="uploadName" type="text" placeholder="Groceries, Electricity, Travel..." />
+              </label>
+              <label class="field">
+                <span>Signed-in account</span>
+                <input class="text-input" id="uploadAccount" type="text" placeholder="Sign in to upload receipts" readonly />
+              </label>
+            </div>
+
+            <div class="upload-actions-row">
+              <button class="primary-button upload-submit" id="uploadSubmit" type="submit">
+                Upload And Process
+              </button>
+              <span class="upload-helper" id="uploadHelper">Adding a label is optional. If provided, it is used as the display tag in the dashboard.</span>
+            </div>
+          </form>
+
+          <div class="upload-status-card">
+            <div class="upload-status-head">
+              <p class="eyebrow">Processing Timeline</p>
+              <span class="muted" id="uploadMessage">Ready for the next upload.</span>
+            </div>
+            <div class="upload-motion-scene" id="uploadMotionScene" data-phase="idle" data-stage="slot" aria-hidden="true">
+              <div class="motion-cloud">
+                <span class="motion-cloud-glow"></span>
+                <div class="motion-cloud-core">
+                  <span class="motion-cloud-icon"></span>
+                  <div class="motion-cloud-copy">
+                    <strong>Cloud intake</strong>
+                    <span>S3 upload stage</span>
+                  </div>
+                </div>
+              </div>
+              <div class="motion-receipt" id="uploadMotionReceipt">
+                <span class="motion-receipt-mark" id="uploadMotionIcon">&#9635;</span>
+                <div class="motion-receipt-copy">
+                  <strong id="uploadMotionLabel">Next receipt</strong>
+                  <span id="uploadMotionDetail">Pick a file to preview it.</span>
+                </div>
+              </div>
+              <div class="motion-orbit" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="motion-processing">
+                <div class="motion-processing-core">
+                  <span class="motion-processing-beam"></span>
+                  <span class="motion-processing-dot"></span>
+                </div>
+                <div class="motion-processing-copy">
+                  <strong id="uploadMotionStage">Waiting for upload</strong>
+                  <span id="uploadMotionStageCopy">Extraction starts after the file reaches S3.</span>
+                </div>
+              </div>
+              <div class="motion-ledger">
+                <span class="motion-ledger-ring"></span>
+                <div class="motion-ledger-copy">
+                  <strong>Dashboard sync</strong>
+                  <span>Charts and tables refresh after processing.</span>
+                </div>
+              </div>
+            </div>
+            <div class="timeline-list" id="uploadTimeline"></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="ops-strip" id="opsStrip"></section>
+
+      <section class="mission-grid">
+        <article class="panel spotlight-panel">
+          <div class="section-heading section-heading-tight">
+            <div>
+              <p class="eyebrow">Latest Result</p>
+              <h3>Most recent processed receipt</h3>
+            </div>
+          </div>
+          <div class="spotlight-shell">
+            <div class="spotlight-copy">
+              <p class="spotlight-kicker" id="spotlightKicker">Current upload</p>
+              <h3 class="spotlight-title" id="spotlightTitle">No receipt from this browser session yet.</h3>
+              <p class="spotlight-narrative" id="spotlightNarrative">
+                Upload a receipt and this panel will show the extracted summary, review state, and file details.
+              </p>
+            </div>
+            <div class="spotlight-facts" id="spotlightFacts"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading section-heading-tight">
+            <div>
+              <p class="eyebrow">Project Stages</p>
+              <h3>Open a card to see each step</h3>
+            </div>
+          </div>
+          <div class="flip-grid" id="flipGrid"></div>
+        </article>
+      </section>
+
+      <section class="metrics-grid" id="metricsGrid"></section>
+
+      <section class="insight-layout">
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Category Summary</p>
+              <h3>Receipt totals grouped by category</h3>
+            </div>
+          </div>
+          <div id="categoryChart" class="stack-chart"></div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Vendor Summary</p>
+              <h3>Top vendors from the stored receipts</h3>
+            </div>
+          </div>
+          <div id="vendorList" class="vendor-list"></div>
+        </article>
+      </section>
+
+      <section class="panel">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Architecture Flow</p>
+            <h3>What happens after a file is uploaded</h3>
+          </div>
+        </div>
+        <div class="architecture-track" id="workflowTrack"></div>
+      </section>
+
+      <section class="insight-layout">
+        <article class="panel" id="reviewQueue">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Review Queue</p>
+              <h3>Receipts that need manual attention</h3>
+            </div>
+          </div>
+          <div id="queueList" class="queue-list"></div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Monthly View</p>
+              <h3>Spend totals and receipt count over time</h3>
+            </div>
+            <label class="select-shell chart-select-shell">
+              <span>Chart Range</span>
+              <select class="month-select" id="expenseMonthSelect" aria-label="Expense month selector"></select>
+            </label>
+          </div>
+          <div class="trend-shell">
+            <div id="trendBars" class="trend-bars"></div>
+            <div class="expense-donut-shell">
+              <div class="expense-donut" id="expenseDonut"></div>
+              <div class="expense-legend" id="expenseLegend"></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel table-panel archive-collapsed" id="receiptsTable">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Stored Receipts</p>
+            <h3>Records currently saved in the project database</h3>
+          </div>
+          <div class="archive-actions">
+            <div class="filter-row" id="filterRow"></div>
+            <button class="ghost-link ghost-button" id="archiveClose" type="button">Hide Archive</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Receipt</th>
+                <th>Vendor</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Confidence</th>
+                <th>Month</th>
+              </tr>
+            </thead>
+            <tbody id="receiptsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+
+    <div class="history-scrim" id="historyScrim" hidden></div>
+    <aside class="history-drawer" id="historyDrawer" aria-hidden="true">
+      <div class="history-head">
+        <div>
+          <p class="eyebrow">Recent Uploads</p>
+          <h3>Uploads from this browser</h3>
+        </div>
+        <div class="history-head-actions">
+          <button class="ghost-link ghost-button" id="historyDelete" type="button">Delete Period Data</button>
+          <button class="ghost-link ghost-button" id="historyClose" type="button">Close</button>
+        </div>
+      </div>
+      <p class="history-copy">
+        This drawer keeps a local record of uploads from this browser and lets you clear local or stored data during testing.
+      </p>
+      <div class="history-range-shell">
+        <label class="field history-field">
+          <span>From</span>
+          <input class="text-input" id="historyRangeStart" type="date" />
+        </label>
+        <label class="field history-field">
+          <span>To</span>
+          <input class="text-input" id="historyRangeEnd" type="date" />
+        </label>
+      </div>
+      <p class="history-note">
+        Delete stored receipts by date range to remove them from the archive, review queue, totals, and charts.
+      </p>
+      <div class="history-toolbar">
+        <button class="primary-button history-delete-button" id="historyDeleteAction" type="button">
+          Delete Stored Receipts
+        </button>
+        <button class="ghost-link ghost-button" id="historyClearLocal" type="button">Clear Local Only</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </aside>
+
+    <div class="confirm-scrim" id="confirmScrim" hidden></div>
+    <section class="confirm-modal" id="confirmModal" aria-hidden="true" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <p class="eyebrow">Confirm action</p>
+      <h3 id="confirmTitle">Delete stored receipts?</h3>
+      <p class="confirm-copy" id="confirmBody">
+        This action will remove matching receipts from the archive, charts, totals, and review queue.
+      </p>
+      <div class="confirm-actions">
+        <button class="ghost-link ghost-button" id="confirmCancel" type="button">Cancel</button>
+        <button class="primary-button confirm-danger" id="confirmAccept" type="button">Delete</button>
+      </div>
+    </section>
+
+    <script src="./config.js?v=20260327a"></script>
+    <script src="./auth.js?v=20260327a" defer></script>
+    <script src="./app.js?v=20260327a" defer></script>
+  </body>
+</html>

@@ -3,6 +3,8 @@ window.RECEIPTPULSE_CONFIG = {
   auth: {
     hostedUiDomain: "",
     clientId: "",
+    region: "",
+    appPath: "./app.html",
     redirectSignIn: "",
     redirectSignOut: "",
     scopes: ["openid", "email", "profile"],

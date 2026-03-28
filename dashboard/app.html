@@ -8,7 +8,7 @@
       name="description"
       content="ReceiptPulse is a portfolio project for receipt upload, OCR extraction, and basic expense analysis."
     />
-    <link rel="stylesheet" href="./styles.css?v=20260328h" />
+    <link rel="stylesheet" href="./styles.css?v=20260328i" />
   </head>
   <body>
     <header class="topbar">
@@ -407,7 +407,7 @@
       <span class="duplicate-decision-aura duplicate-decision-aura--one" aria-hidden="true"></span>
       <span class="duplicate-decision-aura duplicate-decision-aura--two" aria-hidden="true"></span>
       <div class="duplicate-decision-head">
-        <p class="eyebrow">Duplicate Receipt Warning</p>
+        <p class="eyebrow" id="duplicateDecisionEyebrow">Duplicate Receipt Warning</p>
         <h3 id="duplicateDecisionTitle">Possible duplicate upload detected.</h3>
         <p class="duplicate-decision-body" id="duplicateDecisionBody">
           This file looks like a receipt that already exists in your workspace. Choose whether to keep it as a separate receipt with a new name or reject it from uploads.
@@ -418,17 +418,17 @@
         <div class="duplicate-decision-signal" aria-hidden="true">
           <span class="duplicate-signal-ring duplicate-signal-ring--outer"></span>
           <span class="duplicate-signal-ring duplicate-signal-ring--inner"></span>
-          <span class="duplicate-signal-core">!</span>
+          <span class="duplicate-signal-core" id="duplicateDecisionSignalCore">!</span>
         </div>
 
         <div class="duplicate-decision-copy">
-          <div class="duplicate-decision-pills">
+          <div class="duplicate-decision-pills" id="duplicateDecisionPills">
             <span>Decision Needed</span>
             <span>Not Final Yet</span>
             <span>Choose One Path</span>
           </div>
 
-          <label class="field duplicate-decision-field">
+          <label class="field duplicate-decision-field" id="duplicateDecisionField">
             <span>New separate receipt name</span>
             <input
               class="text-input duplicate-decision-input"
@@ -443,7 +443,7 @@
             Give this duplicate a different name if you want to keep it as a separate receipt.
           </p>
 
-          <div class="duplicate-decision-actions">
+          <div class="duplicate-decision-actions" id="duplicateDecisionActions">
             <button class="primary-button duplicate-keep-button" id="duplicateDecisionKeep" type="button">
               Keep As Separate Receipt
             </button>
@@ -457,6 +457,6 @@
 
     <script src="./config.js?v=20260328b"></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260328k" defer></script>
+    <script src="./app.js?v=20260328m" defer></script>
   </body>
 </html>

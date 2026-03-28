@@ -6,6 +6,7 @@ const AUTH_STORAGE_KEY = "receiptpulse-auth-session";
 const AUTH_SIGNIN_PATH = "./index.html";
 const AUTH_SIGNUP_PATH = "./signup.html";
 const MAX_HISTORY_ITEMS = 8;
+const DUPLICATE_DECISION_OUTCOME_DELAY_MS = 2400;
 const RECEIPT_UPLOAD_TYPE_MAP = {
   "application/pdf": [".pdf"],
   "image/png": [".png"],
@@ -611,12 +612,17 @@ const elements = {
   confirmCancel: document.querySelector("#confirmCancel"),
   duplicateDecisionModal: document.querySelector("#duplicateDecisionModal"),
   duplicateDecisionScrim: document.querySelector("#duplicateDecisionScrim"),
+  duplicateDecisionEyebrow: document.querySelector("#duplicateDecisionEyebrow"),
   duplicateDecisionTitle: document.querySelector("#duplicateDecisionTitle"),
   duplicateDecisionBody: document.querySelector("#duplicateDecisionBody"),
+  duplicateDecisionPills: document.querySelector("#duplicateDecisionPills"),
+  duplicateDecisionField: document.querySelector("#duplicateDecisionField"),
   duplicateDecisionLabel: document.querySelector("#duplicateDecisionLabel"),
   duplicateDecisionNote: document.querySelector("#duplicateDecisionNote"),
+  duplicateDecisionActions: document.querySelector("#duplicateDecisionActions"),
   duplicateDecisionKeep: document.querySelector("#duplicateDecisionKeep"),
   duplicateDecisionReject: document.querySelector("#duplicateDecisionReject"),
+  duplicateDecisionSignalCore: document.querySelector("#duplicateDecisionSignalCore"),
   successBurst: document.querySelector("#successBurst"),
 };
 
@@ -656,6 +662,8 @@ let duplicateDecisionState = {
   receipt: null,
   currentLabel: "",
   busy: false,
+  pendingAction: "",
+  outcomeTimer: 0,
 };
 let authState = {
   status: "idle",
@@ -1813,7 +1821,9 @@ function renderOpsStrip() {
       detail:
         uploadState.phase === "success"
           ? "Measured from upload start to the receipt appearing in the dashboard."
-          : "Timing appears after the next receipt finishes processing.",
+          : uploadState.phase === "discarded"
+            ? "Measured until the duplicate receipt was detected and discarded."
+            : "Timing appears after the next receipt finishes processing.",
     },
     {
       label: "Upload Status",
@@ -1902,6 +1912,14 @@ function getUploadMotionCopy() {
       title: "Upload interrupted",
       detail: uploadState.message || "Receipt processing hit an error before the dashboard could update.",
       scene: "Check the message, then try the upload again.",
+    };
+  }
+
+  if (uploadState.phase === "discarded") {
+    return {
+      title: "Duplicate discarded",
+      detail: "You chose not to keep the repeated receipt, so it was removed before the dashboard updated.",
+      scene: uploadState.message,
     };
   }
 
@@ -2551,7 +2569,10 @@ function getUploadWarningState() {
 
   const message = String(uploadState.message || "").trim();
   const rejected = /^rejected\b/i.test(message);
-  const duplicate = /duplicate/i.test(message);
+  const duplicateResolved =
+    /duplicate/i.test(message)
+    && /(kept as a separate receipt|rejected and removed|discarded|already handled)/i.test(message);
+  const duplicate = /duplicate/i.test(message) && !duplicateResolved;
 
   return {
     rejected,
@@ -2609,6 +2630,7 @@ function formatUploadPhase(phase) {
   if (phase === "uploading") return "Uploading";
   if (phase === "processing") return "Processing";
   if (phase === "success") return "Complete";
+  if (phase === "discarded") return "Discarded";
   if (phase === "error") {
     const warning = getUploadWarningState();
     if (warning?.rejected) return "Rejected";
@@ -2923,10 +2945,11 @@ async function handleUpload(event) {
         clearSelectedReceiptFile();
         await refreshLiveSnapshot();
         setUploadState(
-          "error",
+          "discarded",
           "quality",
-          duplicateOutcome.message || "Duplicate upload rejected and removed from your workspace."
+          "Duplicate upload discarded. Nothing new was added to your dashboard."
         );
+        document.querySelector("#uploadLab")?.scrollIntoView({ behavior: "smooth", block: "start" });
         return;
       }
 
@@ -2987,6 +3010,7 @@ async function handleDuplicateReceiptDecision(receipt) {
   const decision = await openDuplicateDecisionDialog(receipt);
 
   if (!decision || decision.action === "reject") {
+    duplicateDecisionState.pendingAction = "reject";
     setDuplicateDecisionBusy(true);
     try {
       const response = await apiFetch(`/receipts/${encodeURIComponent(receipt.receiptId)}/review`, {
@@ -3004,16 +3028,32 @@ async function handleDuplicateReceiptDecision(receipt) {
       }
 
       const payload = await response.json();
+      await showDuplicateDecisionOutcome({
+        tone: "reject",
+        eyebrow: "Upload Discarded",
+        title: "Duplicate receipt was discarded.",
+        body: "This repeated receipt was removed and will not change your dashboard totals, history, or results.",
+        pills: ["Discarded", "Not Stored", "Back To Upload"],
+        note: "Returning you to the upload module now.",
+        noteTone: "error",
+        icon: "X",
+      });
       return {
         action: "reject",
         message:
           payload.message || "Duplicate upload rejected and removed from your workspace.",
       };
+    } catch (error) {
+      closeDuplicateDecisionDialog();
+      throw error;
     } finally {
-      setDuplicateDecisionBusy(false);
+      if (!elements.duplicateDecisionModal?.hidden) {
+        closeDuplicateDecisionDialog();
+      }
     }
   }
 
+  duplicateDecisionState.pendingAction = "keep";
   setDuplicateDecisionBusy(true);
   try {
     const response = await apiFetch(`/receipts/${encodeURIComponent(receipt.receiptId)}/review`, {
@@ -3035,12 +3075,27 @@ async function handleDuplicateReceiptDecision(receipt) {
     }
 
     const payload = await response.json();
+    await showDuplicateDecisionOutcome({
+      tone: "keep",
+      eyebrow: "Separate Receipt Saved",
+      title: "Duplicate kept as its own receipt.",
+      body: "Your new receipt name was saved, and this upload will stay in the dashboard as a separate record.",
+      pills: ["Saved", "Separate Entry", "Opening Result"],
+      note: "Loading the updated result view now.",
+      noteTone: "ready",
+      icon: "+",
+    });
     return {
       action: "keep",
       receipt: mapReceipt(payload.receipt || receipt),
     };
+  } catch (error) {
+    closeDuplicateDecisionDialog();
+    throw error;
   } finally {
-    setDuplicateDecisionBusy(false);
+    if (!elements.duplicateDecisionModal?.hidden) {
+      closeDuplicateDecisionDialog();
+    }
   }
 }
 
@@ -3405,7 +3460,7 @@ function bindHistoryControls() {
       updateDuplicateDecisionNote();
       return;
     }
-    closeDuplicateDecisionDialog({
+    resolveDuplicateDecision({
       action: "keep",
       receiptLabel: elements.duplicateDecisionLabel.value.trim(),
     });
@@ -3414,14 +3469,14 @@ function bindHistoryControls() {
     if (duplicateDecisionState.busy) {
       return;
     }
-    closeDuplicateDecisionDialog({ action: "reject" });
+    resolveDuplicateDecision({ action: "reject" });
   });
   document.addEventListener("keydown", (event) => {
     if (!elements.duplicateDecisionModal?.hidden) {
       if (event.key === "Enter" && event.target === elements.duplicateDecisionLabel) {
         event.preventDefault();
         if (canKeepDuplicateAsSeparate() && !duplicateDecisionState.busy) {
-          closeDuplicateDecisionDialog({
+          resolveDuplicateDecision({
             action: "keep",
             receiptLabel: elements.duplicateDecisionLabel.value.trim(),
           });
@@ -3495,15 +3550,70 @@ function setDuplicateDecisionBusy(isBusy) {
     elements.duplicateDecisionKeep.disabled =
       isBusy || !canKeepDuplicateAsSeparate();
     elements.duplicateDecisionKeep.textContent = isBusy
-      ? "Saving Separate Receipt..."
+      ? duplicateDecisionState.pendingAction === "reject"
+        ? "Please Wait..."
+        : "Saving Separate Receipt..."
       : "Keep As Separate Receipt";
   }
   if (elements.duplicateDecisionReject) {
     elements.duplicateDecisionReject.disabled = isBusy;
     elements.duplicateDecisionReject.textContent = isBusy
-      ? "Working..."
+      ? duplicateDecisionState.pendingAction === "reject"
+        ? "Discarding Upload..."
+        : "Please Wait..."
       : "Reject Upload";
   }
+}
+
+function renderDuplicateDecisionPills(pills = []) {
+  if (!elements.duplicateDecisionPills) {
+    return;
+  }
+
+  elements.duplicateDecisionPills.innerHTML = pills
+    .map((pill) => `<span>${escapeHtml(pill)}</span>`)
+    .join("");
+}
+
+function setDuplicateDecisionPresentation({
+  mode = "choice",
+  tone = "warning",
+  eyebrow = "Duplicate Receipt Warning",
+  title = "Possible duplicate upload detected.",
+  body = "",
+  pills = ["Decision Needed", "Not Final Yet", "Choose One Path"],
+  note = "",
+  noteTone = "hint",
+  icon = "!",
+} = {}) {
+  if (elements.duplicateDecisionModal) {
+    elements.duplicateDecisionModal.dataset.mode = mode;
+    elements.duplicateDecisionModal.dataset.tone = tone;
+  }
+  if (elements.duplicateDecisionEyebrow) {
+    elements.duplicateDecisionEyebrow.textContent = eyebrow;
+  }
+  if (elements.duplicateDecisionTitle) {
+    elements.duplicateDecisionTitle.textContent = title;
+  }
+  if (elements.duplicateDecisionBody) {
+    elements.duplicateDecisionBody.textContent = body;
+  }
+  if (elements.duplicateDecisionSignalCore) {
+    elements.duplicateDecisionSignalCore.textContent = icon;
+  }
+  if (elements.duplicateDecisionField) {
+    elements.duplicateDecisionField.hidden = mode === "outcome";
+  }
+  if (elements.duplicateDecisionActions) {
+    elements.duplicateDecisionActions.hidden = mode === "outcome";
+  }
+  if (elements.duplicateDecisionNote) {
+    elements.duplicateDecisionNote.textContent = note;
+    elements.duplicateDecisionNote.dataset.tone = noteTone;
+  }
+
+  renderDuplicateDecisionPills(pills);
 }
 
 function canKeepDuplicateAsSeparate() {
@@ -3516,6 +3626,9 @@ function canKeepDuplicateAsSeparate() {
 
 function updateDuplicateDecisionNote() {
   if (!elements.duplicateDecisionNote) {
+    return;
+  }
+  if (elements.duplicateDecisionModal?.dataset.mode === "outcome") {
     return;
   }
 
@@ -3567,6 +3680,45 @@ function buildDuplicateDecisionMessage(receipt) {
   return `This upload looks like a duplicate.${duplicateHint} Rename it to keep it as a separate receipt, or reject it and remove it from uploads.`;
 }
 
+function resolveDuplicateDecision(result) {
+  const resolve = duplicateDecisionState.resolve;
+  duplicateDecisionState.resolve = null;
+  if (resolve) {
+    resolve(result);
+  }
+}
+
+async function showDuplicateDecisionOutcome({
+  tone = "warning",
+  eyebrow,
+  title,
+  body,
+  pills,
+  note,
+  noteTone,
+  icon,
+} = {}) {
+  window.clearTimeout(duplicateDecisionState.outcomeTimer);
+  setDuplicateDecisionPresentation({
+    mode: "outcome",
+    tone,
+    eyebrow,
+    title,
+    body,
+    pills,
+    note,
+    noteTone,
+    icon,
+  });
+
+  await new Promise((resolve) => {
+    duplicateDecisionState.outcomeTimer = window.setTimeout(
+      resolve,
+      DUPLICATE_DECISION_OUTCOME_DELAY_MS
+    );
+  });
+}
+
 function closeDuplicateDecisionDialog(result = null) {
   const { duplicateDecisionModal, duplicateDecisionScrim } = elements;
   if (!duplicateDecisionModal || !duplicateDecisionScrim) {
@@ -3582,6 +3734,7 @@ function closeDuplicateDecisionDialog(result = null) {
   duplicateDecisionScrim.classList.remove("is-open");
   duplicateDecisionModal.setAttribute("aria-hidden", "true");
   document.body.classList.remove("duplicate-decision-open");
+  window.clearTimeout(duplicateDecisionState.outcomeTimer);
 
   const resolve = duplicateDecisionState.resolve;
   const previousFocus = duplicateDecisionState.previousFocus;
@@ -3590,18 +3743,30 @@ function closeDuplicateDecisionDialog(result = null) {
   duplicateDecisionState.receipt = null;
   duplicateDecisionState.currentLabel = "";
   duplicateDecisionState.busy = false;
+  duplicateDecisionState.pendingAction = "";
+  duplicateDecisionState.outcomeTimer = 0;
 
   window.setTimeout(() => {
     duplicateDecisionModal.hidden = true;
     duplicateDecisionScrim.hidden = true;
   }, 220);
 
+  setDuplicateDecisionPresentation({
+    mode: "choice",
+    tone: "warning",
+    eyebrow: "Duplicate Receipt Warning",
+    title: "Possible duplicate upload detected.",
+    body:
+      "This file looks like a receipt that already exists in your workspace. Choose whether to keep it as a separate receipt with a new name or reject it from uploads.",
+    pills: ["Decision Needed", "Not Final Yet", "Choose One Path"],
+    note:
+      "Give this duplicate a different name if you want to keep it as a separate receipt.",
+    noteTone: "hint",
+    icon: "!",
+  });
   if (elements.duplicateDecisionLabel) {
     elements.duplicateDecisionLabel.value = "";
     elements.duplicateDecisionLabel.disabled = false;
-  }
-  if (elements.duplicateDecisionNote) {
-    elements.duplicateDecisionNote.dataset.tone = "hint";
   }
   setDuplicateDecisionBusy(false);
 
@@ -3635,14 +3800,26 @@ function openDuplicateDecisionDialog(receipt) {
   }
 
   if (duplicateDecisionState.resolve) {
-    closeDuplicateDecisionDialog({ action: "reject" });
+    resolveDuplicateDecision({ action: "reject" });
+    closeDuplicateDecisionDialog();
   }
 
   duplicateDecisionState.previousFocus = document.activeElement;
   duplicateDecisionState.receipt = receipt;
   duplicateDecisionState.currentLabel = getReceiptDisplayLabel(receipt);
-  duplicateDecisionTitle.textContent = "Possible duplicate upload detected.";
-  duplicateDecisionBody.textContent = buildDuplicateDecisionMessage(receipt);
+  duplicateDecisionState.pendingAction = "";
+  setDuplicateDecisionPresentation({
+    mode: "choice",
+    tone: "warning",
+    eyebrow: "Duplicate Receipt Warning",
+    title: "Possible duplicate upload detected.",
+    body: buildDuplicateDecisionMessage(receipt),
+    pills: ["Decision Needed", "Not Final Yet", "Choose One Path"],
+    note:
+      "Give this duplicate a different name if you want to keep it as a separate receipt.",
+    noteTone: "hint",
+    icon: "!",
+  });
   duplicateDecisionLabel.value = suggestSeparateReceiptLabel(receipt);
   duplicateDecisionModal.hidden = false;
   duplicateDecisionScrim.hidden = false;

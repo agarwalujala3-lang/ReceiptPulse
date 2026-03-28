@@ -5247,6 +5247,91 @@ body.cursor-cta .cursor-orb {
   transform: translate(-50%, -50%) scale(1);
 }
 
+.duplicate-decision-modal[data-tone="keep"] {
+  border-color: rgba(122, 218, 255, 0.32);
+  background:
+    radial-gradient(circle at 18% 16%, rgba(126, 222, 255, 0.14), transparent 24%),
+    radial-gradient(circle at 84% 20%, rgba(109, 173, 255, 0.18), transparent 24%),
+    linear-gradient(180deg, rgba(14, 18, 28, 0.98), rgba(8, 15, 26, 0.98));
+  box-shadow:
+    0 36px 90px rgba(2, 8, 16, 0.52),
+    0 0 0 1px rgba(216, 245, 255, 0.08),
+    0 0 88px rgba(84, 196, 255, 0.16);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-aura--one {
+  background: radial-gradient(circle, rgba(126, 222, 255, 0.24), transparent 68%);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-aura--two {
+  background: radial-gradient(circle, rgba(108, 168, 255, 0.22), transparent 70%);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-shell {
+  border-color: rgba(132, 212, 255, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)),
+    linear-gradient(160deg, rgba(14, 28, 42, 0.84), rgba(8, 18, 32, 0.8));
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-head h3 {
+  color: #ebfbff;
+  text-shadow: 0 0 24px rgba(118, 224, 255, 0.16);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-body {
+  color: rgba(225, 241, 247, 0.86);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-signal-ring {
+  border-color: rgba(136, 220, 255, 0.22);
+  box-shadow: 0 0 36px rgba(92, 198, 255, 0.12);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-signal-ring--inner {
+  border-color: rgba(132, 187, 255, 0.32);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-signal-core {
+  border-color: rgba(196, 243, 255, 0.3);
+  background:
+    linear-gradient(160deg, rgba(122, 218, 255, 0.2), rgba(102, 152, 255, 0.22)),
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.18), transparent 40%);
+  color: #f0fbff;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 36px rgba(96, 202, 255, 0.24);
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-pills span {
+  border-color: rgba(144, 222, 255, 0.22);
+  color: #dff7ff;
+}
+
+.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-input {
+  border-color: rgba(126, 208, 255, 0.22);
+  background:
+    linear-gradient(180deg, rgba(18, 26, 40, 0.96), rgba(13, 22, 34, 0.96)),
+    radial-gradient(circle at 16% 18%, rgba(126, 222, 255, 0.08), transparent 26%);
+}
+
+.duplicate-decision-modal[data-tone="reject"] {
+  box-shadow:
+    0 36px 90px rgba(2, 8, 16, 0.52),
+    0 0 0 1px rgba(255, 222, 176, 0.06),
+    0 0 88px rgba(255, 114, 90, 0.16);
+}
+
+.duplicate-decision-modal[data-mode="outcome"] .duplicate-decision-copy {
+  align-content: center;
+  min-height: 180px;
+}
+
+.duplicate-decision-modal[data-mode="outcome"] .duplicate-decision-note {
+  font-size: 0.97rem;
+  line-height: 1.6;
+}
+
 .duplicate-decision-aura {
   position: absolute;
   border-radius: 50%;

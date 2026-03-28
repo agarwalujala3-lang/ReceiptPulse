@@ -1539,7 +1539,9 @@ function buildSummaryFromReceipts(receipts) {
     : 0;
   const autoApprovedCount = receipts.filter((receipt) => receipt.reviewStatus === "AUTO_APPROVED").length;
   const needsReviewCount = receipts.filter((receipt) => receipt.reviewStatus === "NEEDS_REVIEW").length;
-  const duplicateCount = receipts.filter((receipt) => receipt.reviewStatus === "DUPLICATE").length;
+  const duplicateCount = receipts.filter(
+    (receipt) => receipt.isDuplicate || receipt.reviewStatus === "DUPLICATE"
+  ).length;
 
   return {
     receiptCount,
@@ -1806,9 +1808,9 @@ function renderOpsStrip() {
       detail: `${summary.needsReviewCount || 0} receipts were flagged by confidence or missing-field checks.`,
     },
     {
-      label: "Duplicate Alerts",
+      label: "Repeat Receipts",
       value: `${summary.duplicateCount || 0}`,
-      detail: "Potential repeats were detected before they could be counted twice.",
+      detail: "Receipts kept after matching an earlier upload still count here as repeat visits.",
     },
     {
       label: "Data Freshness",
@@ -2138,12 +2140,33 @@ function renderFlipCards() {
   });
 }
 
+function buildVendorHistorySummary(vendor, receipts = dashboardData?.receipts || []) {
+  const vendorKey = normalizeVisualText(vendor || "");
+  if (!vendorKey) {
+    return {
+      visitCount: 0,
+      totalSpend: 0,
+      currencySymbol: "$",
+    };
+  }
+
+  const matches = receipts.filter(
+    (receipt) => normalizeVisualText(receipt.vendor || "Unknown Vendor") === vendorKey
+  );
+  return {
+    visitCount: matches.length,
+    totalSpend: matches.reduce((sum, receipt) => sum + Number(receipt.totalAmount || 0), 0),
+    currencySymbol: matches[0]?.currencySymbol || "$",
+  };
+}
+
 function renderUploadHistory() {
   if (!elements.historyList) {
     return;
   }
 
   const signedIn = isSignedIn();
+  const liveReceipts = dashboardData?.receipts || [];
 
   if (elements.historyToggle) {
     elements.historyToggle.textContent = `Past Uploads (${uploadHistory.length})`;
@@ -2176,14 +2199,27 @@ function renderUploadHistory() {
 
   elements.historyList.innerHTML = uploadHistory
     .map((entry) => {
-      const fauxReceipt = {
+      const receiptDeleteId = entry.receiptId || entry.id || "";
+      const liveReceipt = liveReceipts.find((receipt) => receipt.receiptId === receiptDeleteId);
+      const resolvedReceipt = liveReceipt || {
+        receiptId: receiptDeleteId,
         category: entry.category || "Uncategorized",
         receiptLabel: entry.receiptLabel || "",
         vendor: entry.vendor || "Unknown Vendor",
+        totalAmount: entry.totalAmount || "0.00",
+        currencySymbol: entry.currencySymbol || "$",
+        reviewStatus: entry.reviewStatus || "UNKNOWN",
+        isDuplicate: Boolean(entry.isDuplicate),
+        duplicateOf: entry.duplicateOf || "",
       };
-      const theme = getReceiptTheme(fauxReceipt);
-      const displayLabel = getReceiptDisplayLabel(fauxReceipt);
-      const receiptDeleteId = entry.receiptId || entry.id || "";
+      const theme = getReceiptTheme(resolvedReceipt);
+      const displayLabel = getReceiptDisplayLabel(resolvedReceipt);
+      const duplicateSummary =
+        resolvedReceipt.isDuplicate || resolvedReceipt.duplicateOf
+          ? getDuplicateVisitSummary(resolvedReceipt, liveReceipts)
+          : null;
+      const vendorSummary = buildVendorHistorySummary(resolvedReceipt.vendor, liveReceipts);
+      const currencySymbol = resolvedReceipt.currencySymbol || entry.currencySymbol || "$";
 
       return `
         <article class="history-item panel" style="${getRowThemeVars(theme)}">
@@ -2195,17 +2231,44 @@ function renderUploadHistory() {
           <div class="history-meta">
             <div class="history-topline">
               <span class="history-name"><span class="receipt-icon-badge">${theme.icon}</span>${escapeHtml(entry.fileName)}</span>
-              <span class="status-tag status-${entry.reviewStatus.toLowerCase().replace(/_/g, "-")}">${formatLabel(entry.reviewStatus)}</span>
+              <div class="history-badges">
+                <span class="status-tag status-${resolvedReceipt.reviewStatus.toLowerCase().replace(/_/g, "-")}">${formatLabel(resolvedReceipt.reviewStatus)}</span>
+                ${
+                  duplicateSummary
+                    ? `<span class="history-repeat-pill">Repeat receipt</span>`
+                    : ""
+                }
+              </div>
             </div>
             <div class="history-subline">
               <strong>${escapeHtml(displayLabel)}</strong>
-              <span class="muted">${entry.currencySymbol}${Number(entry.totalAmount || 0).toFixed(2)}</span>
+              <span class="muted">${currencySymbol}${Number(resolvedReceipt.totalAmount || 0).toFixed(2)}</span>
             </div>
+            ${
+              duplicateSummary
+                ? `
+                  <div class="history-subline history-repeat-summary">
+                    <span class="history-repeat-pill history-repeat-pill-soft">Visit ${duplicateSummary.visitIndex} of ${duplicateSummary.visitCount}</span>
+                    <span class="muted">Matched with an earlier receipt in your workspace.</span>
+                  </div>
+                `
+                : ""
+            }
             <div class="history-subline">
-              <span class="receipt-mini-pill">${theme.icon} ${escapeHtml(entry.vendor)}</span>
+              <span class="receipt-mini-pill">${theme.icon} ${escapeHtml(resolvedReceipt.vendor)}</span>
               <span class="muted">${formatRelativeTime(entry.processedAt)}</span>
               <span class="muted">${formatProcessingDuration(entry.durationMs)}</span>
             </div>
+            ${
+              vendorSummary.visitCount > 1
+                ? `
+                  <div class="history-subline history-store-summary">
+                    <span class="history-visit-pill">${vendorSummary.visitCount} store visits</span>
+                    <span class="muted">Store spend ${vendorSummary.currencySymbol}${vendorSummary.totalSpend.toFixed(2)}</span>
+                  </div>
+                `
+                : ""
+            }
             <div class="history-actions">
               <button
                 class="ghost-link ghost-button receipt-delete-button history-item-delete-button"
@@ -2264,7 +2327,7 @@ function renderMetrics() {
       suffix: "",
     },
     {
-      label: "Duplicate Alerts",
+      label: "Repeat Receipts",
       value: summary.duplicateCount,
       suffix: "",
     },
@@ -2585,8 +2648,8 @@ function metricDescription(label) {
       return "Receipts that passed the rule checks without review.";
     case "Needs Review":
       return "Receipts flagged for low confidence, missing data, or duplicates.";
-    case "Duplicate Alerts":
-      return "Potential repeat uploads detected by the duplicate check.";
+    case "Repeat Receipts":
+      return "Receipts that matched an earlier upload but were kept as separate repeat records.";
     default:
       return "";
   }
@@ -2600,6 +2663,11 @@ function buildSpotlightNarrative(receipt) {
   const labelText = labelOverride
     ? ` It is being styled as ${labelOverride} because you overrode the detected category.`
     : "";
+  if (receipt.isDuplicate) {
+    return `${receipt.vendor} matched an earlier receipt and was kept as a separate repeat record with a ${Number(
+      receipt.confidenceScore || 0
+    ).toFixed(1)}% confidence score.${labelText}${reasons}`;
+  }
   return `${receipt.vendor} was classified as ${receipt.category} with a ${Number(
     receipt.confidenceScore || 0
   ).toFixed(1)}% confidence score and routed to ${formatLabel(
@@ -3014,6 +3082,7 @@ async function handleUpload(event) {
         duplicateOutcome.receipt,
         duplicateOutcome.receipt.receiptLabel || receiptLabel
       );
+      clearSelectedReceiptFile();
       triggerSuccessBurst(elements.uploadSubmit);
       scrollToProcessedResult();
       return;
@@ -3028,6 +3097,7 @@ async function handleUpload(event) {
     clearUploadDraft({ clearInputLabel: true });
     setUploadState("success", "stored", "Receipt processed and added to the console.");
     addUploadHistoryEntry(file, processedReceipt, receiptLabel);
+    clearSelectedReceiptFile();
     triggerSuccessBurst(elements.uploadSubmit);
     scrollToProcessedResult();
   } catch (error) {
@@ -3104,7 +3174,7 @@ async function handleDuplicateReceiptDecision(receipt) {
       body: JSON.stringify({
         action: "keep_separate",
         receiptLabel: decision.receiptLabel,
-        note: "User kept this duplicate as a separate receipt with a new name.",
+        note: "User kept this duplicate as a separate receipt.",
       }),
     });
     if (!response.ok) {
@@ -3117,18 +3187,21 @@ async function handleDuplicateReceiptDecision(receipt) {
     }
 
     const payload = await response.json();
+    const keptReceipt = mapReceipt(payload.receipt || receipt);
     await showDuplicateDecisionOutcome({
       tone: "keep",
       eyebrow: "Separate Receipt Saved",
       title: "Duplicate kept as its own receipt.",
-      body: "Your new receipt name was saved, and this upload will stay in the dashboard as a separate record.",
+      body: payload.autoGeneratedLabel
+        ? `ReceiptPulse created "${getReceiptDisplayLabel(keptReceipt)}" and kept this repeat receipt as a separate record.`
+        : `This repeat receipt was saved separately as "${getReceiptDisplayLabel(keptReceipt)}".`,
       note: "Loading the updated result view now.",
       noteTone: "ready",
       icon: "+",
     });
     return {
       action: "keep",
-      receipt: mapReceipt(payload.receipt || receipt),
+      receipt: keptReceipt,
     };
   } catch (error) {
     closeDuplicateDecisionDialog();
@@ -3334,6 +3407,8 @@ function loadUploadHistory() {
         ...entry,
         id: entry?.id || receiptId,
         receiptId,
+        isDuplicate: Boolean(entry?.isDuplicate),
+        duplicateOf: entry?.duplicateOf || "",
       };
     });
   } catch (error) {
@@ -3367,6 +3442,8 @@ function addUploadHistoryEntry(file, receipt, receiptLabel = "") {
     durationMs: uploadState.durationMs || 0,
     previewType,
     previewDataUrl: latestPreview?.previewDataUrl || "",
+    isDuplicate: Boolean(receipt.isDuplicate),
+    duplicateOf: receipt.duplicateOf || "",
   };
 
   uploadHistory = [entry, ...uploadHistory.filter((item) => item.id !== entry.id)].slice(
@@ -3692,8 +3769,46 @@ function setDuplicateDecisionPresentation({
   }
 }
 
-function canKeepDuplicateAsSeparate() {
+function getDuplicateClusterReceipts(receipt, receipts = dashboardData?.receipts || []) {
+  if (!receipt) {
+    return [];
+  }
+
+  const rootId = receipt.duplicateOf || receipt.receiptId || "";
+  if (!rootId) {
+    return [];
+  }
+
+  return receipts.filter(
+    (item) => item.receiptId === rootId || item.duplicateOf === rootId
+  );
+}
+
+function getDuplicateVisitSummary(receipt, receipts = dashboardData?.receipts || []) {
+  const related = getDuplicateClusterReceipts(receipt, receipts);
+  if (!related.length) {
+    return null;
+  }
+
+  const ordered = related
+    .slice()
+    .sort((left, right) => getReceiptDate(left) - getReceiptDate(right));
+  const visitIndex = ordered.findIndex((item) => item.receiptId === receipt.receiptId);
+
+  return {
+    visitIndex: visitIndex >= 0 ? visitIndex + 1 : related.length,
+    visitCount: related.length,
+    rootId: receipt.duplicateOf || receipt.receiptId || "",
+  };
+}
+
+function getResolvedSeparateReceiptLabel(receipt = duplicateDecisionState.receipt) {
   const candidate = elements.duplicateDecisionLabel?.value.trim() || "";
+  return candidate || suggestSeparateReceiptLabel(receipt);
+}
+
+function canKeepDuplicateAsSeparate() {
+  const candidate = getResolvedSeparateReceiptLabel();
   if (!candidate) {
     return false;
   }
@@ -3708,18 +3823,20 @@ function updateDuplicateDecisionNote() {
     return;
   }
 
-  const candidate = elements.duplicateDecisionLabel?.value.trim() || "";
-  if (!candidate) {
-    elements.duplicateDecisionNote.textContent =
-      "Give this duplicate a different name if you want to keep it as a separate receipt.";
+  const typedLabel = elements.duplicateDecisionLabel?.value.trim() || "";
+  const suggestedLabel = suggestSeparateReceiptLabel(duplicateDecisionState.receipt);
+  if (!typedLabel) {
+    elements.duplicateDecisionNote.textContent = suggestedLabel
+      ? `Leave it blank and ReceiptPulse will save it as "${suggestedLabel}".`
+      : "Leave it blank and ReceiptPulse will generate a unique repeat label for this receipt.";
     elements.duplicateDecisionNote.dataset.tone = "hint";
   } else if (!canKeepDuplicateAsSeparate()) {
     elements.duplicateDecisionNote.textContent =
-      "Use a different receipt name so this duplicate stays separate from the original.";
+      "That name still matches the original receipt. Leave it blank for an automatic label or type a different name.";
     elements.duplicateDecisionNote.dataset.tone = "error";
   } else {
     elements.duplicateDecisionNote.textContent =
-      "This new name will keep the duplicate in your dashboard as its own separate receipt.";
+      `This repeat receipt will be saved separately as "${typedLabel}".`;
     elements.duplicateDecisionNote.dataset.tone = "ready";
   }
 
@@ -3729,17 +3846,14 @@ function updateDuplicateDecisionNote() {
 }
 
 function suggestSeparateReceiptLabel(receipt) {
-  const baseLabel = getReceiptDisplayLabel(receipt);
-  const suffix = receipt.expenseMonth && receipt.expenseMonth !== "--"
-    ? ` Separate ${receipt.expenseMonth}`
-    : " Separate Copy";
-  const suggestion = `${baseLabel}${suffix}`.trim();
-
-  if (normalizeVisualText(suggestion) !== normalizeVisualText(baseLabel)) {
-    return suggestion.slice(0, 120);
+  if (!receipt) {
+    return "Receipt Visit 2";
   }
 
-  return `${baseLabel} Alternate`.slice(0, 120);
+  const baseLabel = getReceiptDisplayLabel(receipt).replace(/\s+visit\s+\d+$/i, "").trim();
+  const duplicateSummary = getDuplicateVisitSummary(receipt);
+  const visitNumber = Math.max(2, duplicateSummary?.visitCount || 2);
+  return `${baseLabel} Visit ${visitNumber}`.trim().slice(0, 120);
 }
 
 function buildDuplicateDecisionMessage(receipt) {
@@ -3753,7 +3867,7 @@ function buildDuplicateDecisionMessage(receipt) {
       ? ` It matches receipt ${receipt.duplicateOf}.`
       : "";
 
-  return `This upload looks like a duplicate.${duplicateHint} Rename it to keep it as a separate receipt, or reject it and remove it from uploads.`;
+  return `This upload looks like a duplicate.${duplicateHint} Keep it as a separate receipt with your own name or let ReceiptPulse create a unique repeat label for you.`;
 }
 
 function resolveDuplicateDecision(result) {
@@ -3831,9 +3945,9 @@ function closeDuplicateDecisionDialog(result = null) {
     eyebrow: "Duplicate Receipt Warning",
     title: "Possible duplicate upload detected.",
     body:
-      "This file looks like a receipt that already exists in your workspace. Choose whether to keep it as a separate receipt with a new name or reject it from uploads.",
+      "This file looks like a receipt that already exists in your workspace. Keep it with your own name or let ReceiptPulse create a unique repeat label for you.",
     note:
-      "Give this duplicate a different name if you want to keep it as a separate receipt.",
+      "Leave the name blank to let ReceiptPulse create a unique repeat label, or type your own separate name.",
     noteTone: "hint",
     icon: "!",
   });
@@ -3888,11 +4002,12 @@ function openDuplicateDecisionDialog(receipt) {
     title: "Possible duplicate upload detected.",
     body: buildDuplicateDecisionMessage(receipt),
     note:
-      "Give this duplicate a different name if you want to keep it as a separate receipt.",
+      "Leave the name blank to let ReceiptPulse create a unique repeat label, or type your own separate name.",
     noteTone: "hint",
     icon: "!",
   });
-  duplicateDecisionLabel.value = suggestSeparateReceiptLabel(receipt);
+  duplicateDecisionLabel.value = "";
+  duplicateDecisionLabel.placeholder = suggestSeparateReceiptLabel(receipt);
   duplicateDecisionModal.hidden = false;
   duplicateDecisionScrim.hidden = false;
   duplicateDecisionModal.setAttribute("aria-hidden", "false");

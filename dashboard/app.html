@@ -8,7 +8,7 @@
       name="description"
       content="ReceiptPulse is a portfolio project for receipt upload, OCR extraction, and basic expense analysis."
     />
-    <link rel="stylesheet" href="./styles.css?v=20260328m" />
+    <link rel="stylesheet" href="./styles.css?v=20260328n" />
   </head>
   <body>
     <header class="topbar">
@@ -412,7 +412,7 @@
         <p class="eyebrow" id="duplicateDecisionEyebrow">Duplicate Receipt Warning</p>
         <h3 id="duplicateDecisionTitle">Possible duplicate upload detected.</h3>
         <p class="duplicate-decision-body" id="duplicateDecisionBody">
-          This file looks like a receipt that already exists in your workspace. Choose whether to keep it as a separate receipt with a new name or reject it from uploads.
+          This file looks like a receipt that already exists in your workspace. Keep it with your own name or let ReceiptPulse create a unique repeat label for you.
         </p>
       </div>
 
@@ -430,13 +430,13 @@
               class="text-input duplicate-decision-input"
               id="duplicateDecisionLabel"
               type="text"
-              placeholder="Rename this duplicate before keeping it"
+              placeholder="Optional: type your own separate name"
               maxlength="120"
             />
           </label>
 
           <p class="duplicate-decision-note" id="duplicateDecisionNote">
-            Give this duplicate a different name if you want to keep it as a separate receipt.
+            Leave this blank and ReceiptPulse will generate a unique repeat label.
           </p>
 
           <div class="duplicate-decision-actions" id="duplicateDecisionActions">
@@ -453,6 +453,6 @@
 
     <script src="./config.js?v=20260328b"></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260328r" defer></script>
+    <script src="./app.js?v=20260328s" defer></script>
   </body>
 </html>

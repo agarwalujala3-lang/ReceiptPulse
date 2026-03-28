@@ -1627,6 +1627,41 @@ table {
   overflow-wrap: anywhere;
 }
 
+.history-badges {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 0.45rem;
+}
+
+.history-repeat-pill,
+.history-visit-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.35rem;
+  min-height: 2rem;
+  padding: 0.3rem 0.8rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 181, 115, 0.28);
+  background: rgba(255, 160, 82, 0.11);
+  color: #ffd7b2;
+  font-size: 0.82rem;
+  letter-spacing: 0.04em;
+}
+
+.history-repeat-pill-soft,
+.history-visit-pill {
+  border-color: rgba(110, 231, 247, 0.2);
+  background: rgba(110, 231, 247, 0.09);
+  color: #c9faff;
+}
+
+.history-repeat-summary,
+.history-store-summary {
+  align-items: flex-start;
+}
+
 .history-actions {
   display: flex;
   justify-content: flex-end;

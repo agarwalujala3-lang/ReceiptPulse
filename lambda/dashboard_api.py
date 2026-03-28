@@ -592,32 +592,115 @@ def get_owned_receipt(table, receipt_id, user_id):
     return receipt
 
 
+def get_receipt_base_label(receipt):
+    current_label = str(receipt.get("receipt_label") or "").strip()
+    if current_label:
+        return re.sub(r"\s+visit\s+\d+$", "", current_label, flags=re.IGNORECASE).strip()
+
+    vendor = str(receipt.get("vendor") or "").strip()
+    if vendor and not vendor.lower().startswith("unknown"):
+        return vendor
+
+    category = str(receipt.get("category") or "").strip()
+    if category and category.lower() != "uncategorized":
+        return category
+
+    file_name = str(receipt.get("file_name") or "Receipt").rsplit(".", 1)[0].strip()
+    return file_name or "Receipt"
+
+
+def list_duplicate_cluster_receipts(table, receipt, user_id):
+    duplicate_key = str(receipt.get("duplicate_key") or "").strip()
+    if not duplicate_key:
+        return [receipt]
+
+    items = []
+    query_args = {
+        "IndexName": "DuplicateKeyIndex",
+        "KeyConditionExpression": Key("duplicate_key").eq(duplicate_key),
+    }
+    page = table.query(**query_args)
+    items.extend(page.get("Items", []))
+
+    while "LastEvaluatedKey" in page:
+        page = table.query(
+            ExclusiveStartKey=page["LastEvaluatedKey"],
+            **query_args,
+        )
+        items.extend(page.get("Items", []))
+
+    return [item for item in items if item.get("user_id") == user_id]
+
+
+def build_auto_duplicate_label(table, receipt, user_id):
+    duplicate_cluster = list_duplicate_cluster_receipts(table, receipt, user_id)
+    visit_number = max(2, len(duplicate_cluster))
+    base_label = get_receipt_base_label(receipt)
+    return f"{base_label} Visit {visit_number}".strip()[:120]
+
+
+def ensure_unique_receipt_label(user_id, candidate_label, skip_receipt_id=None):
+    existing_labels = {
+        normalize_label(item.get("receipt_label"))
+        for item in query_user_receipts(user_id)
+        if item.get("receipt_id") != skip_receipt_id
+    }
+    normalized_candidate = normalize_label(candidate_label)
+    if normalized_candidate and normalized_candidate not in existing_labels:
+        return candidate_label[:120]
+
+    base_label = candidate_label[:120].strip() or "Receipt"
+    counter = 2
+    while True:
+        suffix = f" ({counter})"
+        trimmed_base = base_label[: max(1, 120 - len(suffix))].rstrip()
+        candidate = f"{trimmed_base}{suffix}"
+        normalized_candidate = normalize_label(candidate)
+        if normalized_candidate not in existing_labels:
+            return candidate
+        counter += 1
+
+
+def resolve_kept_duplicate_label(table, receipt, user_id, requested_label):
+    current_label = get_receipt_base_label(receipt)
+    requested = str(requested_label or "").strip()
+    auto_generated = not requested or normalize_label(requested) == normalize_label(current_label)
+    candidate_label = (
+        build_auto_duplicate_label(table, receipt, user_id)
+        if auto_generated
+        else requested[:120]
+    )
+    final_label = ensure_unique_receipt_label(
+        user_id,
+        candidate_label,
+        skip_receipt_id=receipt.get("receipt_id"),
+    )
+    return final_label, auto_generated or normalize_label(final_label) != normalize_label(requested)
+
+
 def keep_duplicate_receipt(table, receipt_id, payload, identity):
     receipt = get_owned_receipt(table, receipt_id, identity["user_id"])
     if receipt.get("review_status") != "DUPLICATE":
         raise ApiError(400, "Only duplicate receipts can use this action.")
 
-    current_label = (
-        receipt.get("receipt_label")
-        or receipt.get("category")
-        or receipt.get("vendor")
-        or receipt.get("file_name")
-        or "Receipt"
+    receipt_label, auto_generated_label = resolve_kept_duplicate_label(
+        table,
+        receipt,
+        identity["user_id"],
+        payload.get("receiptLabel"),
     )
-    receipt_label = str(payload.get("receiptLabel") or "").strip()
-    if not receipt_label:
-        raise ApiError(400, "Add a new receipt name before keeping this duplicate.")
-    if normalize_label(receipt_label) == normalize_label(current_label):
-        raise ApiError(
-            400,
-            "Use a different receipt name so this duplicate can stay as a separate entry.",
-        )
 
     reviewer = identity["user_email"] or identity["user_name"] or "workspace-user"
     reviewed_at = datetime.now(timezone.utc).isoformat()
     note = (
         str(payload.get("note") or "").strip()
         or "User kept this duplicate as a separate receipt."
+    )
+    duplicate_reference = receipt.get("duplicate_of")
+    review_reasons = (
+        [f"Kept as a separate repeat receipt after matching {duplicate_reference}."]
+        if duplicate_reference
+        else ["Kept as a separate repeat receipt after duplicate detection."]
     )
 
     try:
@@ -631,8 +714,7 @@ def keep_duplicate_receipt(table, receipt_id, payload, identity):
                 "reviewer_note = :reviewer_note, "
                 "is_duplicate = :is_duplicate, "
                 "review_reasons = :review_reasons, "
-                "lifecycle_stage = :lifecycle_stage "
-                "REMOVE duplicate_of"
+                "lifecycle_stage = :lifecycle_stage"
             ),
             ConditionExpression="attribute_exists(receipt_id) AND user_id = :user_id",
             ExpressionAttributeValues={
@@ -641,8 +723,8 @@ def keep_duplicate_receipt(table, receipt_id, payload, identity):
                 ":reviewed_by": reviewer,
                 ":reviewed_at": reviewed_at,
                 ":reviewer_note": note,
-                ":is_duplicate": False,
-                ":review_reasons": [],
+                ":is_duplicate": True,
+                ":review_reasons": review_reasons,
                 ":lifecycle_stage": "ready-for-expense-sync",
                 ":user_id": identity["user_id"],
             },
@@ -657,6 +739,7 @@ def keep_duplicate_receipt(table, receipt_id, payload, identity):
     return {
         "receipt": serialize_receipt(response_payload.get("Attributes", {})),
         "message": "Duplicate kept as a separate receipt.",
+        "autoGeneratedLabel": auto_generated_label,
     }
 
 

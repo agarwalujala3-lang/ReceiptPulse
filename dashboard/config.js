@@ -7,6 +7,6 @@ window.RECEIPTPULSE_CONFIG = {
     appPath: "./app.html",
     redirectSignIn: "",
     redirectSignOut: "",
-    scopes: ["openid", "email", "profile"],
+    scopes: ["openid", "profile"],
   },
 };

@@ -10,7 +10,6 @@ This project is designed to go live in two parts:
 - AWS account
 - AWS CLI configured locally
 - AWS SAM CLI installed
-- A verified SES sender email in the same AWS Region where you deploy
 - A final dashboard URL for Cognito callbacks, or at minimum the URL you will use during first testing
 - A globally unique Cognito hosted UI domain prefix
 
@@ -26,11 +25,9 @@ ap-south-1
 
 The repo includes [samconfig.toml](../samconfig.toml) with sensible defaults for a first production-style deploy.
 
-Before deploying, update the email and auth placeholders in that file:
+Before deploying, update the auth placeholders in that file:
 
 ```toml
-SesSenderEmail=your-verified-sender@example.com
-SesDefaultRecipientEmail=finance@example.com
 CognitoDomainPrefix=your-unique-domain-prefix
 FrontendCallbackUrl=https://your-dashboard.example.com
 FrontendLogoutUrl=https://your-dashboard.example.com
@@ -64,17 +61,7 @@ After deployment, copy these output values:
 
 You will use them in the dashboard deployment.
 
-## Part 2: Make SES Actually Work
-
-New SES accounts usually start in the sandbox. In sandbox mode, you can only send to verified addresses and sending volume is limited.
-
-Before calling this live for public users:
-
-1. Verify the sender identity in SES
-2. If needed, verify the fallback recipient too
-3. Request production access for SES in your deployed AWS Region
-
-## Part 3: Deploy the Dashboard
+## Part 2: Deploy the Dashboard
 
 ### Option A: AWS Amplify Hosting
 
@@ -112,7 +99,7 @@ window.RECEIPTPULSE_CONFIG = {
     clientId: "your-cognito-app-client-id",
     redirectSignIn: "https://your-dashboard.example.com",
     redirectSignOut: "https://your-dashboard.example.com",
-    scopes: ["openid", "email", "profile"],
+    scopes: ["openid", "profile"],
   },
 };
 ```
@@ -138,6 +125,7 @@ GET /receipts (with Authorization header from a signed-in user)
 - analytics cards render only the signed-in user's data
 - receipt table fills from the private API
 - uploading a receipt from the browser stores it under the signed-in account
+- receipt progress and processed results appear inside the dashboard without any email step
 
 ## Recommended Production Follow-ups
 

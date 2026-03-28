@@ -35,7 +35,7 @@ This repository is meant to show a complete student or portfolio-grade cloud wor
    - duplicate key
    - review status
 5. The enriched record is stored in DynamoDB
-6. SES sends a receipt processing notification
+6. The dashboard reads the processed result back through the private API
 7. Cognito authenticates each dashboard user and issues JWTs for private API access
 8. A second Lambda exposes user-scoped analytics, review, upload, and export endpoints through HTTP API
 9. The static dashboard reads from the live API and renders the project view
@@ -46,7 +46,6 @@ This repository is meant to show a complete student or portfolio-grade cloud wor
 - AWS Lambda
 - Amazon Textract
 - Amazon DynamoDB
-- Amazon SES
 - Amazon API Gateway HTTP API
 - Amazon Cognito
 - Amazon SQS
@@ -62,7 +61,7 @@ This repository is meant to show a complete student or portfolio-grade cloud wor
 - category inference from vendors and items
 - confidence-based review routing
 - duplicate detection using hashed receipt signatures
-- uploader-aware notifications
+- in-app status updates scoped to each signed-in workspace
 
 ### API Layer
 
@@ -132,7 +131,7 @@ By default it loads demo data. In live mode it reads the backend API from:
 - infers categories
 - checks for duplicates
 - stores enriched records
-- sends SES notifications
+- stores receipt updates for in-app review and analytics
 
 ### [lambda/dashboard_api.py](./lambda/dashboard_api.py)
 
@@ -145,7 +144,7 @@ By default it loads demo data. In live mode it reads the backend API from:
 
 - provisions the backend with SAM
 - creates the bucket, DynamoDB table, Cognito user pool, DLQ, API, and Lambdas
-- accepts deploy-time parameters for SES sender, fallback recipient, confidence threshold, and Cognito callback URLs
+- accepts deploy-time parameters for confidence threshold, object metadata reads, and Cognito callback URLs
 
 ### [amplify.yml](./amplify.yml)
 
@@ -167,7 +166,7 @@ By default it loads demo data. In live mode it reads the backend API from:
   "confidence_score": "96.20",
   "review_status": "AUTO_APPROVED",
   "expense_month": "2026-03",
-  "uploaded_by": "finance@receiptpulse.dev"
+  "uploaded_by": "demo-user"
 }
 ```
 
@@ -180,7 +179,7 @@ This repo is ready for a two-part deployment:
 
 ### Backend
 
-Update the email and auth placeholders in [samconfig.toml](./samconfig.toml), then run:
+Update the auth placeholders in [samconfig.toml](./samconfig.toml), then run:
 
 ```bash
 sam build
@@ -215,9 +214,7 @@ The live frontend can be finished under a branded domain by attaching an ACM cer
 to the CloudFront distribution. The exact Route 53 / DNS steps are documented in
 [docs/deployment.md](./docs/deployment.md#custom-domain-on-cloudfront).
 
-## SES Note
-
-For public live email delivery, your SES account must be out of sandbox mode in the same AWS Region where you deploy. Otherwise email sending will be limited to verified addresses.
+Receipt updates now stay inside the app, so no outbound email provider is required for the default deployment.
 
 ## Validation
 

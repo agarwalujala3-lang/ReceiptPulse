@@ -132,6 +132,9 @@ def require_identity(event):
     user_name = (
         claims.get("name")
         or claims.get("given_name")
+        or claims.get("preferred_username")
+        or claims.get("cognito:username")
+        or claims.get("username")
         or user_email
         or user_id
     ).strip()
@@ -196,7 +199,6 @@ def query_user_receipts(user_id):
             "confidence_score, expense_month, uploaded_by, receipt_label, s3_path, "
             "processed_timestamp, is_duplicate, review_reasons, file_name, "
             "currency_symbol, duplicate_of, item_count, user_id, user_email, user_name, "
-            "notification_email, "
             "created_at, #receipt_key"
         ),
         "ExpressionAttributeNames": {"#receipt_key": "key"},
@@ -254,22 +256,13 @@ def create_upload_session(payload, identity):
         or payload.get("uploaderName")
         or ""
     ).strip()
-    raw_notification_email = str(payload.get("notificationEmail") or "").strip()
-    notification_email = normalize_email(raw_notification_email)
-    if raw_notification_email and not notification_email:
-        raise ApiError(400, "Notification email must be a valid email address.")
     stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
     user_key = sanitize_path_segment(identity["user_id"])
     object_key = f"users/{user_key}/{stamp}/{uuid.uuid4().hex[:12]}-{file_name}"
-    account_email = normalize_email(identity.get("user_email"))
     metadata = compact_metadata({
         "user-id": identity["user_id"][:120],
-        "account-email": account_email[:120],
-        "user-email": account_email[:120],
         "user-name": identity["user_name"][:120],
-        "uploader-email": account_email[:120],
         "uploader-name": identity["user_name"][:120],
-        "notification-email": notification_email[:120],
         "receipt-label": receipt_label[:120],
     })
 
@@ -291,13 +284,9 @@ def create_upload_session(payload, identity):
         "expiresIn": UPLOAD_URL_EXPIRES_IN,
         "headers": compact_metadata({
             "Content-Type": content_type,
-            "x-amz-meta-account-email": metadata.get("account-email", ""),
             "x-amz-meta-user-id": metadata["user-id"],
-            "x-amz-meta-user-email": metadata.get("user-email", ""),
             "x-amz-meta-user-name": metadata["user-name"],
-            "x-amz-meta-uploader-email": metadata.get("uploader-email", ""),
             "x-amz-meta-uploader-name": metadata["uploader-name"],
-            "x-amz-meta-notification-email": metadata.get("notification-email", ""),
             "x-amz-meta-receipt-label": metadata["receipt-label"],
         }),
         "pollAfterMs": 2200,
@@ -473,7 +462,6 @@ def export_csv(receipts):
             "confidence_score",
             "expense_month",
             "uploaded_by",
-            "notification_email",
             "receipt_label",
             "s3_path",
             "processed_timestamp",
@@ -491,7 +479,6 @@ def export_csv(receipts):
                 "confidence_score": receipt.get("confidence_score"),
                 "expense_month": receipt.get("expense_month"),
                 "uploaded_by": receipt.get("uploaded_by"),
-                "notification_email": receipt.get("notification_email"),
                 "receipt_label": receipt.get("receipt_label"),
                 "s3_path": receipt.get("s3_path"),
                 "processed_timestamp": receipt.get("processed_timestamp"),
@@ -595,7 +582,6 @@ def serialize_receipt(receipt):
         "confidenceScore": receipt.get("confidence_score", "0.00"),
         "expenseMonth": receipt.get("expense_month"),
         "uploadedBy": receipt.get("uploaded_by"),
-        "notificationEmail": receipt.get("notification_email"),
         "receiptLabel": receipt.get("receipt_label", ""),
         "s3Path": receipt.get("s3_path"),
         "processedAt": receipt.get("processed_timestamp"),

@@ -415,7 +415,6 @@ const elements = {
   previewFrame: document.querySelector("#previewFrame"),
   previewMeta: document.querySelector("#previewMeta"),
   uploadName: document.querySelector("#uploadName"),
-  uploadEmail: document.querySelector("#uploadEmail"),
   uploadAccount: document.querySelector("#uploadAccount"),
   uploadHelper: document.querySelector("#uploadHelper"),
   uploadSubmit: document.querySelector("#uploadSubmit"),
@@ -815,7 +814,7 @@ function updateAuthUI() {
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Files uploaded from this browser stay inside your signed-in workspace. Add a personal email only if you want receipt updates sent there."
+      ? "Files uploaded from this browser stay inside your signed-in workspace. Receipt progress and results are shown here in the app."
       : configured
         ? "Sign in or create an account first. Uploads, history, analytics, and delete actions stay tied to that user."
         : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";
@@ -927,7 +926,6 @@ function mapReceipt(receipt) {
     confidenceScore: receipt.confidenceScore || receipt.confidence_score || "0.00",
     expenseMonth: receipt.expenseMonth || receipt.expense_month || "--",
     uploadedBy: receipt.uploadedBy || receipt.uploaded_by || "demo@receiptpulse.dev",
-    notificationEmail: receipt.notificationEmail || receipt.notification_email || "",
     fileName: receipt.fileName || receipt.file_name || "receipt",
     objectKey: receipt.objectKey || receipt.key || "",
     currencySymbol: receipt.currencySymbol || receipt.currency_symbol || "$",
@@ -1603,7 +1601,7 @@ function renderSpotlight() {
     ["Month", receipt.expenseMonth],
     ["Items", `${receipt.itemCount || 0}`],
     ["Process Time", formatProcessingDuration(uploadState.durationMs)],
-    getUploadContactFact(receipt),
+    getUploadOwnerFact(receipt),
     ["File", receipt.fileName || "receipt"],
     ["Duplicate Of", receipt.duplicateOf || "No prior match"],
   ];
@@ -1611,7 +1609,7 @@ function renderSpotlight() {
   elements.spotlightFacts.innerHTML = facts
     .map(
       ([label, value]) => `
-        <article class="spotlight-stat${label === "Update Email" || label === "Workspace Owner" || label === "File" ? " spotlight-stat--wrap" : ""}">
+        <article class="spotlight-stat${label === "Workspace Owner" || label === "File" ? " spotlight-stat--wrap" : ""}">
           <span>${escapeHtml(label)}</span>
           <strong>${escapeHtml(String(value))}</strong>
         </article>
@@ -2174,20 +2172,7 @@ function isSupportedFile(file) {
   );
 }
 
-function normalizeEmail(value) {
-  const candidate = String(value || "").trim().toLowerCase();
-  if (!candidate) {
-    return "";
-  }
-
-  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(candidate) ? candidate : "";
-}
-
-function getUploadContactFact(receipt) {
-  if (receipt.notificationEmail) {
-    return ["Update Email", receipt.notificationEmail];
-  }
-
+function getUploadOwnerFact(receipt) {
   return ["Workspace Owner", receipt.uploadedBy || "Workspace user"];
 }
 
@@ -2366,16 +2351,6 @@ async function handleUpload(event) {
   }
 
   const receiptLabel = elements.uploadName.value.trim();
-  const rawNotificationEmail = String(elements.uploadEmail?.value || "").trim();
-  const notificationEmail = normalizeEmail(rawNotificationEmail);
-  if (rawNotificationEmail && !notificationEmail) {
-    setUploadState(
-      "error",
-      "slot",
-      "Enter a valid personal email address or leave that field blank."
-    );
-    return;
-  }
 
   try {
     uploadState = {
@@ -2389,7 +2364,7 @@ async function handleUpload(event) {
     };
     setUploadState("preparing", "slot", "Requesting a secure upload slot for your account.");
 
-    const session = await requestUploadSession(file, receiptLabel, notificationEmail);
+    const session = await requestUploadSession(file, receiptLabel);
     uploadState.objectKey = session.objectKey;
 
     setUploadState("uploading", "transfer", "Uploading the receipt into the S3 intake bucket.");
@@ -2420,7 +2395,7 @@ async function handleUpload(event) {
   }
 }
 
-async function requestUploadSession(file, receiptLabel, notificationEmail = "") {
+async function requestUploadSession(file, receiptLabel) {
   const response = await apiFetch("/uploads", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -2429,7 +2404,6 @@ async function requestUploadSession(file, receiptLabel, notificationEmail = "") 
       contentType: guessContentType(file),
       uploaderName: receiptLabel,
       receiptLabel,
-      notificationEmail,
     }),
   });
 

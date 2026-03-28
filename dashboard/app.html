@@ -8,7 +8,7 @@
       name="description"
       content="ReceiptPulse is a portfolio project for receipt upload, OCR extraction, and basic expense analysis."
     />
-    <link rel="stylesheet" href="./styles.css?v=20260328a" />
+    <link rel="stylesheet" href="./styles.css?v=20260328b" />
   </head>
   <body>
     <header class="topbar">
@@ -149,10 +149,6 @@
                 <input class="text-input" id="uploadName" type="text" placeholder="Groceries, Electricity, Travel..." />
               </label>
               <label class="field">
-                <span>Receipt update email</span>
-                <input class="text-input" id="uploadEmail" type="email" inputmode="email" placeholder="Optional personal email for receipt updates" />
-              </label>
-              <label class="field">
                 <span>Workspace owner</span>
                 <input class="text-input" id="uploadAccount" type="text" placeholder="Sign in to upload receipts" readonly />
               </label>
@@ -162,7 +158,7 @@
               <button class="primary-button upload-submit" id="uploadSubmit" type="submit">
                 Upload And Process
               </button>
-              <span class="upload-helper" id="uploadHelper">Add a label if you want, and optionally enter a personal email for receipt updates. Workspace ownership still stays with the signed-in account.</span>
+              <span class="upload-helper" id="uploadHelper">Add a label if you want. Receipt progress and results now stay inside the app for the signed-in workspace.</span>
             </div>
           </form>
 
@@ -396,8 +392,8 @@
       </div>
     </section>
 
-    <script src="./config.js?v=20260327a"></script>
+    <script src="./config.js?v=20260328b"></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260328a" defer></script>
+    <script src="./app.js?v=20260328b" defer></script>
   </body>
 </html>

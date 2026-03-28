@@ -83,7 +83,7 @@
     {
       "step": "05",
       "title": "Action Layer",
-      "description": "SES notifications and API endpoints deliver updates, review tooling, and downloadable reports."
+      "description": "In-app status updates and API endpoints deliver review tooling, dashboard refreshes, and downloadable reports."
     }
   ],
   "heroHeadline": "Low-confidence and duplicate receipts are intercepted before they distort finance reporting.",

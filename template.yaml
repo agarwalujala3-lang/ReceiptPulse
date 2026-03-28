@@ -3,12 +3,6 @@ Transform: AWS::Serverless-2016-10-31
 Description: ReceiptPulse serverless receipt intelligence platform
 
 Parameters:
-  SesSenderEmail:
-    Type: String
-    Description: Verified SES sender identity used for outgoing receipt notifications.
-  SesDefaultRecipientEmail:
-    Type: String
-    Description: Fallback recipient when uploader metadata does not contain an email.
   ConfidenceThreshold:
     Type: Number
     Default: 85
@@ -17,13 +11,6 @@ Parameters:
     Type: Number
     Default: 45
     Description: Warm cache TTL for dashboard snapshot responses.
-  SendEmailNotifications:
-    Type: String
-    Default: "false"
-    AllowedValues:
-      - "true"
-      - "false"
-    Description: Enable SES notification delivery after receipt processing.
   ReadObjectMetadata:
     Type: String
     Default: "true"
@@ -49,11 +36,8 @@ Globals:
     Environment:
       Variables:
         DYNAMODB_TABLE: !Ref ReceiptTable
-        SES_SENDER_EMAIL: !Ref SesSenderEmail
-        SES_RECIPIENT_EMAIL: !Ref SesDefaultRecipientEmail
         CONFIDENCE_THRESHOLD: !Ref ConfidenceThreshold
         SNAPSHOT_CACHE_TTL_SECONDS: !Ref SnapshotCacheTtlSeconds
-        SEND_EMAIL_NOTIFICATIONS: !Ref SendEmailNotifications
         READ_OBJECT_METADATA: !Ref ReadObjectMetadata
         RECEIPT_BUCKET: !Ref ReceiptBucket
 
@@ -166,7 +150,6 @@ Resources:
         - code
       AllowedOAuthScopes:
         - openid
-        - email
         - profile
       SupportedIdentityProviders:
         - COGNITO
@@ -225,8 +208,6 @@ Resources:
             - Effect: Allow
               Action:
                 - textract:AnalyzeExpense
-                - ses:SendEmail
-                - ses:SendRawEmail
               Resource: "*"
 
   ReceiptApi:

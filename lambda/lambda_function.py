@@ -13,20 +13,11 @@ from boto3.dynamodb.conditions import Key
 s3 = boto3.client("s3")
 textract = boto3.client("textract")
 dynamodb = boto3.resource("dynamodb")
-ses = boto3.client("ses")
 
 
 DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE", "ReceiptRecords")
-SES_SENDER_EMAIL = os.environ.get("SES_SENDER_EMAIL", "agarwalujala3@gmail.com")
-DEFAULT_RECIPIENT_EMAIL = os.environ.get(
-    "SES_RECIPIENT_EMAIL",
-    "agarwalujala3@gmail.com",
-)
 CONFIDENCE_THRESHOLD = float(os.environ.get("CONFIDENCE_THRESHOLD", "85"))
 ALLOW_DUPLICATES = os.environ.get("ALLOW_DUPLICATES", "false").lower() == "true"
-SEND_EMAIL_NOTIFICATIONS = (
-    os.environ.get("SEND_EMAIL_NOTIFICATIONS", "false").lower() == "true"
-)
 READ_OBJECT_METADATA = (
     os.environ.get("READ_OBJECT_METADATA", "false").lower() == "true"
 )
@@ -54,7 +45,6 @@ DATE_FORMATS = (
     "%dnd %b %Y",
     "%drd %b %Y",
 )
-EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
 
 def lambda_handler(event, context):
@@ -105,19 +95,16 @@ def process_record(record):
             metadata = head.get("Metadata", {})
         except Exception as exc:
             print(f"Unable to read S3 object metadata for {key}: {exc}")
-    account_email = resolve_account_email(metadata)
-    notification_email = resolve_notification_email(metadata)
-    user_id = (
-        metadata.get("user-id")
-        or metadata.get("owner-id")
-        or build_fallback_user_id(account_email or notification_email)
-    )
     user_name = (
         metadata.get("user-name")
         or metadata.get("uploader-name")
-        or account_email.split("@")[0]
-        or notification_email.split("@")[0]
         or "workspace-user"
+    ).strip()
+    user_id = (
+        metadata.get("user-id")
+        or metadata.get("owner-id")
+        or parse_user_id_from_key(key)
+        or build_fallback_user_id(user_name)
     ).strip()
     receipt_label = (
         metadata.get("receipt-label")
@@ -131,8 +118,6 @@ def process_record(record):
         object_size=object_size,
         etag=etag,
         user_id=user_id,
-        user_email=account_email,
-        notification_email=notification_email,
         user_name=user_name,
         receipt_label=receipt_label,
     )
@@ -149,13 +134,6 @@ def process_record(record):
             receipt_data["lifecycle_stage"] = "needs-attention"
 
     store_receipt_in_dynamodb(receipt_data)
-    if SEND_EMAIL_NOTIFICATIONS:
-        try:
-            send_email_notification(receipt_data)
-        except Exception as exc:
-            print(f"Email delivery failed for {receipt_data['receipt_id']}: {exc}")
-    else:
-        print("Email notifications are disabled for this stack.")
 
     return {
         "receiptId": receipt_data["receipt_id"],
@@ -207,8 +185,6 @@ def process_receipt_with_textract(
     object_size,
     etag,
     user_id,
-    user_email,
-    notification_email,
     user_name,
     receipt_label="",
 ):
@@ -231,12 +207,8 @@ def process_receipt_with_textract(
         "source_size": int(object_size or 0),
         "etag": etag,
         "user_id": user_id,
-        "user_email": user_email,
-        "notification_email": notification_email,
         "user_name": user_name[:120],
-        "uploaded_by": (user_name or user_email or notification_email or "workspace-user")[
-            :120
-        ],
+        "uploaded_by": (user_name or "workspace-user")[:120],
         "receipt_label": receipt_label[:120],
         "created_at": now.isoformat(),
         "processed_timestamp": now.isoformat(),
@@ -409,89 +381,6 @@ def store_receipt_in_dynamodb(receipt_data):
     print(f"Stored receipt {receipt_data['receipt_id']} in DynamoDB.")
 
 
-def send_email_notification(receipt_data):
-    destination = (
-        normalize_email(receipt_data.get("notification_email"))
-        or normalize_email(receipt_data.get("user_email"))
-        or normalize_email(receipt_data.get("uploaded_by"))
-        or normalize_email(DEFAULT_RECIPIENT_EMAIL)
-    )
-    if not destination:
-        raise ValueError("No valid notification email address is available for this receipt.")
-    items_html = "".join(
-        (
-            "<li>"
-            f"{item['name']} | Qty {item['quantity']} | "
-            f"{receipt_data['currency_symbol']}{item['price']}"
-            "</li>"
-        )
-        for item in receipt_data["items"]
-    )
-    if not items_html:
-        items_html = "<li>No line items detected</li>"
-
-    review_notes = "".join(f"<li>{reason}</li>" for reason in receipt_data["review_reasons"])
-    if not review_notes:
-        review_notes = "<li>Receipt auto-approved and ready for downstream workflows.</li>"
-
-    html_body = f"""
-    <html>
-      <body style="font-family: Arial, sans-serif; color: #0f172a;">
-        <h2>ReceiptPulse Processing Update</h2>
-        <p><strong>Receipt ID:</strong> {receipt_data['receipt_id']}</p>
-        <p><strong>Vendor:</strong> {receipt_data['vendor']}</p>
-        <p><strong>Category:</strong> {receipt_data['category']}</p>
-        <p><strong>Total:</strong> {receipt_data['currency_symbol']}{receipt_data['total_amount']}</p>
-        <p><strong>Confidence Score:</strong> {receipt_data['confidence_score']}%</p>
-        <p><strong>Review Status:</strong> {receipt_data['review_status']}</p>
-        <p><strong>Storage Path:</strong> {receipt_data['s3_path']}</p>
-        <h3>Line Items</h3>
-        <ul>{items_html}</ul>
-        <h3>Workflow Notes</h3>
-        <ul>{review_notes}</ul>
-      </body>
-    </html>
-    """
-
-    ses.send_email(
-        Source=SES_SENDER_EMAIL,
-        Destination={"ToAddresses": [destination]},
-        Message={
-            "Subject": {
-                "Data": (
-                    f"ReceiptPulse | {receipt_data['review_status']} | "
-                    f"{receipt_data['vendor']}"
-                )
-            },
-            "Body": {"Html": {"Data": html_body}},
-        },
-    )
-    print(f"Sent email notification to {destination}.")
-
-
-def resolve_account_email(metadata):
-    for key in ("account-email", "user-email", "uploader-email", "owner-email"):
-        candidate = normalize_email(metadata.get(key))
-        if candidate:
-            return candidate
-    return ""
-
-
-def resolve_notification_email(metadata):
-    for key in ("notification-email", "contact-email", "update-email"):
-        candidate = normalize_email(metadata.get(key))
-        if candidate:
-            return candidate
-    return ""
-
-
-def normalize_email(value):
-    candidate = str(value or "").strip().lower()
-    if not candidate or not EMAIL_PATTERN.match(candidate):
-        return ""
-    return candidate
-
-
 def build_duplicate_key(receipt_data):
     signature = "|".join(
         [
@@ -543,9 +432,16 @@ def normalize_text(value):
     return re.sub(r"\s+", " ", str(value).strip().lower())
 
 
-def build_fallback_user_id(email):
-    normalized = re.sub(r"[^a-z0-9._-]+", "-", normalize_text(email).replace(" ", ""))
+def build_fallback_user_id(value):
+    normalized = re.sub(r"[^a-z0-9._-]+", "-", normalize_text(value).replace(" ", ""))
     return normalized.strip("-") or "public-demo"
+
+
+def parse_user_id_from_key(key):
+    segments = [segment for segment in str(key or "").split("/") if segment]
+    if len(segments) >= 2 and segments[0] == "users":
+        return build_fallback_user_id(segments[1])
+    return ""
 
 
 def normalize_date(raw_value):

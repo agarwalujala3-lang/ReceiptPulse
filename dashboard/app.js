@@ -541,6 +541,7 @@ const elements = {
   cursorRing: document.querySelector("#cursorRing"),
   cursorDrips: document.querySelector("#cursorDrips"),
   dashboardPeriodSelect: document.querySelector("#dashboardPeriodSelect"),
+  rangeSummary: document.querySelector("#rangeSummary"),
   metricsGrid: document.querySelector("#metricsGrid"),
   categoryChart: document.querySelector("#categoryChart"),
   vendorList: document.querySelector("#vendorList"),
@@ -1585,6 +1586,78 @@ function formatDashboardPeriodLabel(period) {
   }
 }
 
+function formatDashboardPeriodTitle(period) {
+  switch (period) {
+    case "month":
+      return "This month";
+    case "quarter":
+      return "Last 3 months";
+    case "half":
+      return "Last 6 months";
+    case "year":
+      return "This year";
+    default:
+      return "All time";
+  }
+}
+
+function formatAbsoluteDate(value) {
+  const date = value instanceof Date ? value : new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  }).format(date);
+}
+
+function getDashboardPeriodWindow(period, referenceDate, receipts = []) {
+  if (period === "all") {
+    const datedReceipts = receipts
+      .map((receipt) => getReceiptDate(receipt))
+      .filter((date) => !Number.isNaN(date.getTime()) && date.getTime() > 0);
+
+    if (!datedReceipts.length) {
+      return {
+        start: null,
+        end: null,
+        label: "No dated receipts yet",
+      };
+    }
+
+    const timestamps = datedReceipts.map((date) => date.getTime());
+    const start = new Date(Math.min(...timestamps));
+    const end = new Date(Math.max(...timestamps));
+    return {
+      start,
+      end,
+      label: `${formatAbsoluteDate(start)} - ${formatAbsoluteDate(end)}`,
+    };
+  }
+
+  let start = new Date(referenceDate);
+  let end = new Date(referenceDate);
+
+  if (period === "month") {
+    start = new Date(referenceDate.getFullYear(), referenceDate.getMonth(), 1);
+  } else if (period === "quarter") {
+    start = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - 2, 1);
+  } else if (period === "half") {
+    start = new Date(referenceDate.getFullYear(), referenceDate.getMonth() - 5, 1);
+  } else if (period === "year") {
+    start = new Date(referenceDate.getFullYear(), 0, 1);
+  }
+
+  return {
+    start,
+    end,
+    label: `${formatAbsoluteDate(start)} - ${formatAbsoluteDate(end)}`,
+  };
+}
+
 function buildRiskHeadlineForPeriod(summary) {
   if (!summary.receiptCount) {
     return "No receipts match this time range yet, so the dashboard is waiting for fresh spend data.";
@@ -1620,6 +1693,7 @@ function renderDashboard() {
   if (elements.dashboardPeriodSelect) {
     elements.dashboardPeriodSelect.value = selectedDashboardPeriod;
   }
+  renderRangeSummary();
   renderOpsStrip();
   renderUploadTimeline();
   renderSpotlight();
@@ -1637,6 +1711,52 @@ function renderDashboard() {
   elements.riskHeadline.textContent = activeDashboardView?.heroHeadline || dashboardData.heroHeadline;
   syncUploadMotion();
   bindInteractiveFX();
+}
+
+function renderRangeSummary() {
+  if (!elements.rangeSummary) {
+    return;
+  }
+
+  const allReceipts = dashboardData?.receipts || [];
+  const scopedView = activeDashboardView || buildDashboardView();
+  const scopedSummary = scopedView.summary || buildSummaryFromReceipts([]);
+  const allSummary = buildSummaryFromReceipts(allReceipts);
+  const visibleCount = Number(scopedSummary.receiptCount || 0);
+  const totalCount = Number(allSummary.receiptCount || 0);
+  const hiddenCount = Math.max(totalCount - visibleCount, 0);
+  const spendShare = allSummary.totalSpend
+    ? Math.round((Number(scopedSummary.totalSpend || 0) / Number(allSummary.totalSpend || 1)) * 100)
+    : 0;
+  const periodTitle = formatDashboardPeriodTitle(selectedDashboardPeriod);
+  const windowInfo = getDashboardPeriodWindow(
+    selectedDashboardPeriod,
+    getReferenceDate(),
+    allReceipts
+  );
+  const hiddenText = hiddenCount
+    ? `${hiddenCount} receipt${hiddenCount === 1 ? "" : "s"} sit outside this scope.`
+    : totalCount
+      ? "Everything in your dashboard is already inside this scope."
+      : "Upload a receipt to start building a dashboard range.";
+
+  elements.rangeSummary.innerHTML = `
+    <article class="range-summary-card range-summary-card--primary">
+      <span class="range-summary-kicker">${escapeHtml(periodTitle)}</span>
+      <strong>${visibleCount} / ${totalCount || 0} receipts</strong>
+      <p>${escapeHtml(hiddenText)}</p>
+    </article>
+    <article class="range-summary-card">
+      <span class="range-summary-kicker">Spend In Scope</span>
+      <strong>$${Number(scopedSummary.totalSpend || 0).toFixed(2)}</strong>
+      <p>${spendShare}% of all captured spend is inside this range.</p>
+    </article>
+    <article class="range-summary-card">
+      <span class="range-summary-kicker">Date Window</span>
+      <strong>${escapeHtml(windowInfo.label)}</strong>
+      <p>The charts, queue, metrics, and table all follow this calendar window.</p>
+    </article>
+  `;
 }
 
 function renderOpsStrip() {

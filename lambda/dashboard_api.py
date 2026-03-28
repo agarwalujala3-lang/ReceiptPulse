@@ -291,7 +291,7 @@ def create_upload_session(payload, identity):
             "x-amz-meta-user-id": metadata["user-id"],
             "x-amz-meta-user-name": metadata["user-name"],
             "x-amz-meta-uploader-name": metadata["uploader-name"],
-            "x-amz-meta-receipt-label": metadata["receipt-label"],
+            "x-amz-meta-receipt-label": metadata.get("receipt-label", ""),
         }),
         "pollAfterMs": 2200,
     }

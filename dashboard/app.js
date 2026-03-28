@@ -1548,15 +1548,23 @@ function syncUploadMotion() {
   }
 
   const currentFile = elements.fileInput?.files?.[0] || null;
-  const receiptTheme = uploadState.receipt
+  const hasActiveDraft = Boolean(
+    currentFile || uploadState.customLabel || uploadState.fileName
+  );
+  const shouldUseStoredReceiptTheme = uploadState.phase === "success" && uploadState.receipt;
+  const receiptTheme = shouldUseStoredReceiptTheme
     ? getReceiptTheme(uploadState.receipt)
-    : getVisualTheme(uploadState.customLabel || currentFile?.name || uploadState.fileName || "receipt");
-  const primaryLabel =
-    uploadState.customLabel ||
-    uploadState.receipt?.receiptLabel ||
-    currentFile?.name ||
-    uploadState.fileName ||
-    "Next receipt";
+    : hasActiveDraft
+      ? getVisualTheme(
+          uploadState.customLabel || currentFile?.name || uploadState.fileName || "receipt"
+        )
+      : getVisualTheme("receipt");
+  const primaryLabel = shouldUseStoredReceiptTheme
+    ? uploadState.receipt?.receiptLabel || uploadState.receipt?.fileName || "Latest receipt"
+    : uploadState.customLabel ||
+      currentFile?.name ||
+      uploadState.fileName ||
+      "Next receipt";
   const motionCopy = getUploadMotionCopy();
 
   elements.uploadMotionScene.dataset.phase = uploadState.phase;
@@ -2208,6 +2216,20 @@ function clearSelectedReceiptFile() {
   syncSelectedReceiptFile(null);
 }
 
+function clearUploadDraft({ clearInputLabel = false } = {}) {
+  uploadState = {
+    ...uploadState,
+    customLabel: "",
+    fileName: "",
+    objectKey: "",
+    startedAt: 0,
+  };
+
+  if (clearInputLabel && elements.uploadName) {
+    elements.uploadName.value = "";
+  }
+}
+
 function syncSelectedReceiptFile(file) {
   if (!elements.fileMeta) {
     return;
@@ -2417,6 +2439,7 @@ async function handleUpload(event) {
     };
     setUploadState("processing", "stored", "Updating charts and history with your new receipt.");
     await refreshLiveSnapshot();
+    clearUploadDraft({ clearInputLabel: true });
     setUploadState("success", "stored", "Receipt processed and added to the console.");
     addUploadHistoryEntry(file, processedReceipt, receiptLabel);
     triggerSuccessBurst(elements.uploadSubmit);
@@ -2424,6 +2447,7 @@ async function handleUpload(event) {
   } catch (error) {
     console.error("Upload failed.", error);
     if (error?.code === "REJECTED" || error?.code === "FAILED") {
+      clearUploadDraft({ clearInputLabel: true });
       clearSelectedReceiptFile();
     }
     setUploadState(

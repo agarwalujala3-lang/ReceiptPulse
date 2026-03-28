@@ -111,11 +111,7 @@ def process_record(record):
         or parse_user_id_from_key(key)
         or build_fallback_user_id(user_name)
     ).strip()
-    receipt_label = (
-        metadata.get("receipt-label")
-        or metadata.get("uploader-name")
-        or ""
-    ).strip()
+    receipt_label = str(metadata.get("receipt-label") or "").strip()
     try:
         receipt_data = process_receipt_with_textract(
             bucket=bucket,
@@ -299,6 +295,7 @@ def process_receipt_with_textract(
         receipt_data["items"],
         receipt_data["file_name"],
     )
+    receipt_data["receipt_label"] = resolve_receipt_label(receipt_data)
     receipt_data["duplicate_key"] = build_duplicate_key(receipt_data)
     receipt_data["user_duplicate_key"] = build_user_duplicate_key(receipt_data)
     receipt_data["review_status"] = determine_review_status(receipt_data)
@@ -341,6 +338,27 @@ def validate_receipt_candidate(receipt_data):
         + "."
     )
     return False, reason
+
+
+def resolve_receipt_label(receipt_data):
+    existing_label = str(receipt_data.get("receipt_label") or "").strip()
+    if existing_label:
+        return existing_label[:120]
+
+    vendor = str(receipt_data.get("vendor") or "").strip()
+    category = str(receipt_data.get("category") or "").strip()
+    file_name = str(receipt_data.get("file_name") or "receipt").rsplit(".", 1)[0]
+    period = str(receipt_data.get("expense_month") or "").strip()
+
+    if vendor and not vendor.lower().startswith("unknown"):
+        primary = vendor
+    elif category and category.lower() != "uncategorized":
+        primary = category
+    else:
+        primary = re.sub(r"[-_]+", " ", file_name).strip() or "Receipt"
+
+    generated = f"{primary} {period}".strip()
+    return generated[:120]
 
 
 def extract_summary_fields(expense_document, receipt_data):

@@ -99,6 +99,10 @@ def lambda_handler(event, context):
             receipts = get_snapshot_payload(identity["user_id"])["receipts"]
             csv_text = export_csv(receipts)
             return response(200, csv_text, content_type="text/csv")
+        if method == "DELETE" and path.startswith("/receipts/"):
+            receipt_id = path.split("/")[2]
+            deleted = delete_single_receipt(receipt_id, identity)
+            return response(200, deleted)
         if method == "PATCH" and path.startswith("/receipts/") and path.endswith("/review"):
             receipt_id = path.split("/")[2]
             body = parse_json_body(event)
@@ -656,8 +660,10 @@ def keep_duplicate_receipt(table, receipt_id, payload, identity):
     }
 
 
-def reject_receipt_upload(table, receipt_id, identity):
+def delete_owned_receipt(table, receipt_id, identity, message, require_duplicate=False):
     receipt = get_owned_receipt(table, receipt_id, identity["user_id"])
+    if require_duplicate and receipt.get("review_status") != "DUPLICATE":
+        raise ApiError(400, "Only duplicate receipts can use this action.")
     key = receipt.get("key")
 
     try:
@@ -682,8 +688,28 @@ def reject_receipt_upload(table, receipt_id, identity):
     return {
         "deleted": True,
         "deletedS3Objects": deleted_objects,
-        "message": "Duplicate upload rejected and removed from your workspace.",
+        "message": message,
     }
+
+
+def reject_receipt_upload(table, receipt_id, identity):
+    return delete_owned_receipt(
+        table,
+        receipt_id,
+        identity,
+        "Duplicate upload rejected and removed from your workspace.",
+        require_duplicate=True,
+    )
+
+
+def delete_single_receipt(receipt_id, identity):
+    table = dynamodb.Table(RECEIPT_TABLE)
+    return delete_owned_receipt(
+        table,
+        receipt_id,
+        identity,
+        "Receipt deleted from your workspace.",
+    )
 
 
 def delete_receipt_object(bucket_name, object_key):
@@ -857,7 +883,7 @@ def response(status_code, payload, content_type="application/json"):
         "headers": {
             "Access-Control-Allow-Origin": "*",
             "Access-Control-Allow-Headers": "Content-Type, Authorization",
-            "Access-Control-Allow-Methods": "GET, POST, PATCH, OPTIONS",
+            "Access-Control-Allow-Methods": "GET, POST, PATCH, DELETE, OPTIONS",
             "Content-Type": content_type,
             "Cache-Control": cache_control,
         },

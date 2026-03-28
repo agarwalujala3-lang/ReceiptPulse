@@ -6348,12 +6348,61 @@ body.workspace-signed-in.topbar-condensed .topbar {
 
 .upload-motion-scene[data-phase="uploading"] .motion-receipt,
 .upload-motion-scene[data-phase="processing"] .motion-receipt {
-  transform: translate(0.35rem, -2.35rem) scale(0.9);
+  transform: none;
+  opacity: 1;
 }
 
 .upload-motion-scene[data-phase="success"] .motion-receipt {
-  transform: translate(0.35rem, -2.35rem) scale(0.88);
-  opacity: 0.42;
+  transform: none;
+  opacity: 1;
+}
+
+.motion-receipt-copy,
+.motion-processing-copy,
+.motion-ledger-copy {
+  min-width: 0;
+}
+
+.motion-receipt-copy strong,
+.motion-processing-copy strong,
+.motion-ledger-copy strong,
+.motion-receipt-copy span,
+.motion-processing-copy span,
+.motion-ledger-copy span {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+
+.motion-receipt-copy strong {
+  line-height: 1.32;
+}
+
+.table-wrap th:last-child,
+.table-wrap td:last-child {
+  width: 1%;
+  text-align: right;
+  white-space: nowrap;
+}
+
+.receipt-row-actions {
+  display: flex;
+  justify-content: flex-end;
+}
+
+.receipt-delete-button {
+  min-width: 6.2rem;
+  justify-content: center;
+  border-color: rgba(255, 124, 112, 0.22);
+  color: #ffd7cf;
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.receipt-delete-button:hover {
+  border-color: rgba(255, 150, 132, 0.42);
+  box-shadow:
+    0 14px 28px rgba(10, 1, 14, 0.2),
+    0 0 24px rgba(255, 124, 112, 0.14);
 }
 
 @media (max-width: 900px) {

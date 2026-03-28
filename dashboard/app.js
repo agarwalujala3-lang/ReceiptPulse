@@ -2452,7 +2452,7 @@ function renderReceipts() {
 
   if (!rows.length) {
     elements.receiptsBody.innerHTML =
-      '<tr><td colspan="7" class="muted receipt-empty">No receipts match this filter.</td></tr>';
+      '<tr><td colspan="8" class="muted receipt-empty">No receipts match this filter.</td></tr>';
     return;
   }
 
@@ -2490,10 +2490,27 @@ function renderReceipts() {
           <td>${receipt.currencySymbol || "$"}${Number(receipt.totalAmount).toFixed(2)}</td>
           <td>${Number(receipt.confidenceScore).toFixed(1)}%</td>
           <td>${receipt.expenseMonth}</td>
+          <td>
+            <div class="receipt-row-actions">
+              <button
+                class="ghost-link ghost-button receipt-delete-button"
+                type="button"
+                data-delete-receipt="${escapeHtml(receipt.receiptId)}"
+              >
+                Delete
+              </button>
+            </div>
+          </td>
         </tr>
       `;
     })
     .join("");
+
+  elements.receiptsBody.querySelectorAll("[data-delete-receipt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      deleteStoredReceipt(button.dataset.deleteReceipt || "");
+    });
+  });
 }
 
 function animateCounters() {
@@ -2569,19 +2586,12 @@ function getUploadWarningState() {
 
   const message = String(uploadState.message || "").trim();
   const rejected = /^rejected\b/i.test(message);
-  const duplicateResolved =
-    /duplicate/i.test(message)
-    && /(kept as a separate receipt|rejected and removed|discarded|already handled)/i.test(message);
-  const duplicate = /duplicate/i.test(message) && !duplicateResolved;
 
   return {
     rejected,
-    duplicate,
-    kicker: rejected ? "Receipt Rejected" : duplicate ? "Duplicate Detected" : "Upload Warning",
+    kicker: rejected ? "Receipt Rejected" : "Upload Warning",
     title: rejected
       ? "This file was blocked before it reached your dashboard."
-      : duplicate
-        ? "Choose whether to keep this duplicate or remove it."
       : "The upload needs another try before it can be stored.",
     detail:
       message
@@ -2597,9 +2607,7 @@ function buildUploadWarningMarkup() {
 
   const warningPills = warning.rejected
     ? ["Blocked", "Not Stored", "No Dashboard Impact"]
-    : warning.duplicate
-      ? ["Rename Required", "Decision Pending", "Choose One Path"]
-      : ["Retry Needed", "Check File", "Upload Paused"];
+    : ["Retry Needed", "Check File", "Upload Paused"];
 
   return `
     <article class="upload-warning-banner${warning.rejected ? " upload-warning-banner--rejected" : ""}">
@@ -2634,7 +2642,6 @@ function formatUploadPhase(phase) {
   if (phase === "error") {
     const warning = getUploadWarningState();
     if (warning?.rejected) return "Rejected";
-    if (warning?.duplicate) return "Decision Needed";
     return "Needs Retry";
   }
   return "Ready";
@@ -3003,9 +3010,9 @@ async function handleUpload(event) {
 
 async function handleDuplicateReceiptDecision(receipt) {
   setUploadState(
-    "error",
+    "processing",
     "quality",
-    "Potential duplicate found. Choose whether to keep it as a separate receipt or reject it from uploads."
+    "Potential duplicate found. Use the decision panel to keep it separately or discard it."
   );
   const decision = await openDuplicateDecisionDialog(receipt);
 
@@ -3955,6 +3962,51 @@ async function clearStoredReceiptData() {
     window.alert(error.message || "Stored receipt deletion failed.");
   } finally {
     toggleStoredDeleteBusy(false);
+  }
+}
+
+async function deleteStoredReceipt(receiptId) {
+  if (!apiBase || !isSignedIn() || !receiptId) {
+    return;
+  }
+
+  const receipt = (activeDashboardView?.receipts || []).find(
+    (entry) => entry.receiptId === receiptId
+  );
+  const receiptLabel = receipt ? getReceiptDisplayLabel(receipt) : "this receipt";
+  const shouldDelete = await openConfirmDialog({
+    title: `Delete ${receiptLabel}?`,
+    message:
+      "This will remove only this receipt from the archive, charts, totals, and review queue.",
+    confirmLabel: "Delete receipt",
+  });
+  if (!shouldDelete) {
+    return;
+  }
+
+  try {
+    const response = await apiFetch(`/receipts/${encodeURIComponent(receiptId)}`, {
+      method: "DELETE",
+    });
+
+    if (!response.ok) {
+      throw new Error(`Unable to delete the selected receipt (${response.status}).`);
+    }
+
+    const payload = await response.json();
+    uploadHistory = uploadHistory.filter((entry) => entry.receiptId !== receiptId);
+    persistUploadHistory();
+    if (uploadState.receipt?.receiptId === receiptId) {
+      uploadState.receipt = null;
+      uploadState.durationMs = null;
+      setUploadState("idle", "slot", "The selected receipt was deleted from your workspace.");
+    }
+    await refreshLiveSnapshot();
+    renderUploadHistory();
+    elements.statusNote.textContent = payload.message || "Receipt deleted.";
+  } catch (error) {
+    console.error("Single receipt deletion failed.", error);
+    window.alert(error.message || "Unable to delete the selected receipt.");
   }
 }
 

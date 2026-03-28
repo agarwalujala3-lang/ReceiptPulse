@@ -586,19 +586,36 @@ body.cursor-active button {
   isolation: isolate;
   overflow: hidden;
   display: grid;
-  grid-template-columns: 54px 1fr;
+  grid-template-columns: 72px 1fr;
   gap: 1rem;
   align-items: start;
-  padding: 1rem 1.05rem;
+  padding: 1.06rem 1.1rem;
   border-radius: 24px;
-  border: 1px solid rgba(255, 146, 109, 0.28);
+  border: 1px solid rgba(255, 146, 109, 0.32);
   background:
-    radial-gradient(circle at 12% 18%, rgba(255, 205, 122, 0.16), transparent 26%),
-    linear-gradient(150deg, rgba(42, 18, 23, 0.95), rgba(18, 10, 16, 0.92));
+    radial-gradient(circle at 12% 18%, rgba(255, 205, 122, 0.18), transparent 26%),
+    radial-gradient(circle at 82% 28%, rgba(255, 118, 92, 0.18), transparent 24%),
+    linear-gradient(150deg, rgba(42, 18, 23, 0.96), rgba(18, 10, 16, 0.94));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.07),
-    0 18px 44px rgba(255, 108, 88, 0.16),
-    0 0 0 1px rgba(255, 186, 126, 0.05);
+    0 18px 44px rgba(255, 108, 88, 0.18),
+    0 0 0 1px rgba(255, 186, 126, 0.05),
+    0 0 40px rgba(255, 118, 92, 0.1);
+}
+
+.upload-warning-banner::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(110deg, transparent 0%, rgba(255, 232, 170, 0.12) 46%, transparent 62%),
+    linear-gradient(90deg, rgba(255, 130, 98, 0.2), transparent 24%, transparent 76%, rgba(255, 190, 132, 0.14));
+  mix-blend-mode: screen;
+  opacity: 0.82;
+  transform: translateX(-18%);
+  animation: upload-warning-sweep 5.8s ease-in-out infinite;
+  pointer-events: none;
+  z-index: 0;
 }
 
 .upload-warning-aura {
@@ -616,32 +633,92 @@ body.cursor-active button {
   animation: upload-warning-pulse 4.6s ease-in-out infinite;
 }
 
+.upload-warning-grid,
+.upload-warning-scan,
+.upload-warning-emblem,
 .upload-warning-icon,
 .upload-warning-copy {
   position: relative;
   z-index: 1;
 }
 
+.upload-warning-grid {
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(rgba(255, 196, 143, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 196, 143, 0.06) 1px, transparent 1px);
+  background-size: 24px 24px;
+  mask-image: linear-gradient(135deg, rgba(255, 255, 255, 0.5), transparent 82%);
+  opacity: 0.42;
+  pointer-events: none;
+}
+
+.upload-warning-scan {
+  position: absolute;
+  left: -22%;
+  right: -22%;
+  top: 42%;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(255, 210, 143, 0.82), transparent);
+  box-shadow:
+    0 0 18px rgba(255, 178, 118, 0.36),
+    0 0 36px rgba(255, 126, 102, 0.2);
+  opacity: 0.68;
+  animation: upload-warning-scanline 3.2s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.upload-warning-emblem {
+  position: relative;
+  display: grid;
+  place-items: center;
+  width: 72px;
+  height: 72px;
+}
+
+.upload-warning-emblem-ring {
+  position: absolute;
+  inset: 6px;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 202, 140, 0.28);
+  box-shadow: 0 0 22px rgba(255, 126, 102, 0.12);
+}
+
+.upload-warning-emblem-ring--one {
+  animation: upload-warning-ring-one 2.6s ease-out infinite;
+}
+
+.upload-warning-emblem-ring--two {
+  inset: 0;
+  border-color: rgba(255, 129, 114, 0.2);
+  animation: upload-warning-ring-two 2.6s ease-out infinite 0.7s;
+}
+
 .upload-warning-icon {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 54px;
-  height: 54px;
-  border-radius: 18px;
+  width: 56px;
+  height: 56px;
+  border-radius: 20px;
   border: 1px solid rgba(255, 221, 157, 0.34);
-  background: linear-gradient(160deg, rgba(255, 205, 122, 0.18), rgba(255, 102, 128, 0.18));
+  background:
+    linear-gradient(160deg, rgba(255, 205, 122, 0.24), rgba(255, 102, 128, 0.18)),
+    radial-gradient(circle at 30% 28%, rgba(255, 255, 255, 0.18), transparent 42%);
   color: #fff2cf;
-  font-size: 1.35rem;
+  font-size: 1.5rem;
   font-weight: 800;
   box-shadow:
     0 0 0 1px rgba(255, 255, 255, 0.04),
-    0 0 26px rgba(255, 132, 100, 0.24);
+    0 0 26px rgba(255, 132, 100, 0.3),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+  animation: upload-warning-icon-float 2.8s ease-in-out infinite;
 }
 
 .upload-warning-copy {
   display: grid;
-  gap: 0.35rem;
+  gap: 0.42rem;
 }
 
 .upload-warning-kicker {
@@ -654,9 +731,9 @@ body.cursor-active button {
 
 .upload-warning-copy strong {
   display: block;
-  font-size: 1.06rem;
+  font-size: 1.12rem;
   color: #fff0dd;
-  text-shadow: 0 0 16px rgba(255, 165, 115, 0.15);
+  text-shadow: 0 0 16px rgba(255, 165, 115, 0.18);
 }
 
 .upload-warning-copy p:last-child {
@@ -665,14 +742,51 @@ body.cursor-active button {
   line-height: 1.62;
 }
 
+.upload-warning-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+  margin-top: 0.1rem;
+}
+
+.upload-warning-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 0.3rem 0.7rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 204, 146, 0.22);
+  background: rgba(255, 255, 255, 0.05);
+  color: #ffe5bb;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.04),
+    0 0 18px rgba(255, 133, 98, 0.08);
+}
+
 .ops-card--warning {
   border-color: rgba(255, 146, 109, 0.24);
   background:
     radial-gradient(circle at top right, rgba(255, 169, 108, 0.14), transparent 32%),
-    linear-gradient(155deg, rgba(39, 19, 28, 0.94), rgba(14, 13, 21, 0.88));
+    linear-gradient(155deg, rgba(39, 19, 28, 0.96), rgba(14, 13, 21, 0.9));
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.05),
-    0 16px 34px rgba(255, 98, 83, 0.12);
+    0 16px 34px rgba(255, 98, 83, 0.14),
+    0 0 28px rgba(255, 131, 88, 0.08);
+}
+
+.ops-card--warning::after {
+  content: "";
+  position: absolute;
+  inset: auto 1rem 0.85rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 155, 102, 0.14), rgba(255, 216, 145, 0.92), rgba(255, 155, 102, 0.14));
+  box-shadow: 0 0 18px rgba(255, 186, 112, 0.2);
+  animation: upload-warning-strip 2.6s ease-in-out infinite;
 }
 
 .ops-card--warning .eyebrow {
@@ -686,6 +800,22 @@ body.cursor-active button {
 
 .ops-card--warning span {
   color: rgba(240, 225, 215, 0.78);
+}
+
+@media (max-width: 760px) {
+  .upload-warning-banner {
+    grid-template-columns: 1fr;
+    gap: 0.85rem;
+  }
+
+  .upload-warning-emblem {
+    width: 64px;
+    height: 64px;
+  }
+
+  .upload-warning-copy strong {
+    font-size: 1.02rem;
+  }
 }
 
 .timeline-step {
@@ -754,6 +884,84 @@ body.cursor-active button {
   50% {
     transform: scale(1.08);
     opacity: 1;
+  }
+}
+
+@keyframes upload-warning-sweep {
+  0%,
+  100% {
+    transform: translateX(-18%);
+    opacity: 0.55;
+  }
+  50% {
+    transform: translateX(18%);
+    opacity: 0.95;
+  }
+}
+
+@keyframes upload-warning-scanline {
+  0%,
+  100% {
+    transform: translateY(-18px);
+    opacity: 0.18;
+  }
+  45% {
+    transform: translateY(0);
+    opacity: 0.88;
+  }
+  85% {
+    transform: translateY(24px);
+    opacity: 0.2;
+  }
+}
+
+@keyframes upload-warning-ring-one {
+  0% {
+    transform: scale(0.82);
+    opacity: 0.18;
+  }
+  35% {
+    opacity: 0.55;
+  }
+  100% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+}
+
+@keyframes upload-warning-ring-two {
+  0% {
+    transform: scale(0.86);
+    opacity: 0;
+  }
+  30% {
+    opacity: 0.48;
+  }
+  100% {
+    transform: scale(1.24);
+    opacity: 0;
+  }
+}
+
+@keyframes upload-warning-icon-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-4px);
+  }
+}
+
+@keyframes upload-warning-strip {
+  0%,
+  100% {
+    opacity: 0.44;
+    transform: scaleX(0.92);
+  }
+  50% {
+    opacity: 0.94;
+    transform: scaleX(1);
   }
 }
 

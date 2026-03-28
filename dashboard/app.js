@@ -2551,14 +2551,29 @@ function buildUploadWarningMarkup() {
     return "";
   }
 
+  const warningPills = warning.rejected
+    ? ["Blocked", "Not Stored", "No Dashboard Impact"]
+    : ["Retry Needed", "Check File", "Upload Paused"];
+
   return `
     <article class="upload-warning-banner${warning.rejected ? " upload-warning-banner--rejected" : ""}">
       <span class="upload-warning-aura" aria-hidden="true"></span>
-      <span class="upload-warning-icon" aria-hidden="true">!</span>
+      <span class="upload-warning-grid" aria-hidden="true"></span>
+      <span class="upload-warning-scan" aria-hidden="true"></span>
+      <div class="upload-warning-emblem" aria-hidden="true">
+        <span class="upload-warning-emblem-ring upload-warning-emblem-ring--one"></span>
+        <span class="upload-warning-emblem-ring upload-warning-emblem-ring--two"></span>
+        <span class="upload-warning-icon">!</span>
+      </div>
       <div class="upload-warning-copy">
         <p class="upload-warning-kicker">${escapeHtml(warning.kicker)}</p>
         <strong>${escapeHtml(warning.title)}</strong>
         <p>${escapeHtml(warning.detail)}</p>
+        <div class="upload-warning-pills">
+          ${warningPills
+            .map((pill) => `<span class="upload-warning-pill">${escapeHtml(pill)}</span>`)
+            .join("")}
+        </div>
       </div>
     </article>
   `;

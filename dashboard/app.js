@@ -395,6 +395,7 @@ const elements = {
   authSummary: document.querySelector("#authSummary"),
   authCta: document.querySelector("#authCta"),
   authSecondaryCta: document.querySelector("#authSecondaryCta"),
+  switchAccountButton: document.querySelector("#switchAccountButton"),
   signOutButton: document.querySelector("#signOutButton"),
   riskHeadline: document.querySelector("#riskHeadline"),
   opsStrip: document.querySelector("#opsStrip"),
@@ -801,7 +802,14 @@ function updateAuthUI() {
     elements.signOutButton.hidden = !signedIn;
     elements.signOutButton.style.display = signedIn ? "" : "none";
     elements.signOutButton.disabled = authBusy;
-    elements.signOutButton.textContent = signedIn ? "Switch Account" : "Sign Out";
+    elements.signOutButton.textContent = "Sign Out";
+  }
+
+  if (elements.switchAccountButton) {
+    elements.switchAccountButton.hidden = !signedIn;
+    elements.switchAccountButton.style.display = signedIn ? "" : "none";
+    elements.switchAccountButton.disabled = authBusy;
+    elements.switchAccountButton.textContent = "Switch Account";
   }
 
   if (elements.uploadAccount) {
@@ -814,7 +822,7 @@ function updateAuthUI() {
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Files uploaded from this browser stay inside your signed-in workspace. Receipt progress and results are shown here in the app."
+      ? "Files uploaded from this browser stay inside your signed-in workspace. The app rejects personal photos or unrelated documents after receipt inspection."
       : configured
         ? "Sign in or create an account first. Uploads, history, analytics, and delete actions stay tied to that user."
         : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";
@@ -851,19 +859,36 @@ function bindAuthControls() {
   if (elements.signOutButton && elements.signOutButton.dataset.bound !== "true") {
     elements.signOutButton.dataset.bound = "true";
     elements.signOutButton.addEventListener("click", async () => {
-      try {
-        if (authClient?.globalSignOut && authState.tokens?.accessToken) {
-          await authClient.globalSignOut(authConfig, authState.tokens.accessToken);
-        }
-      } catch (error) {
-        console.warn("Unable to revoke the active session cleanly.", error);
-      }
-
-      clearPreviewObjectUrl();
-      setSignedOutState();
-      updateAuthUI();
-      goToSignedOutPage();
+      await endCurrentSession(goToSignedOutPage);
     });
+  }
+
+  if (
+    elements.switchAccountButton
+    && elements.switchAccountButton.dataset.bound !== "true"
+  ) {
+    elements.switchAccountButton.dataset.bound = "true";
+    elements.switchAccountButton.addEventListener("click", async () => {
+      await endCurrentSession(goToSignInPage);
+    });
+  }
+}
+
+async function endCurrentSession(nextStep) {
+  try {
+    if (authClient?.globalSignOut && authState.tokens?.accessToken) {
+      await authClient.globalSignOut(authConfig, authState.tokens.accessToken);
+    }
+  } catch (error) {
+    console.warn("Unable to revoke the active session cleanly.", error);
+  }
+
+  clearPreviewObjectUrl();
+  setSignedOutState();
+  updateAuthUI();
+
+  if (typeof nextStep === "function") {
+    nextStep();
   }
 }
 
@@ -2176,6 +2201,13 @@ function getUploadOwnerFact(receipt) {
   return ["Workspace Owner", receipt.uploadedBy || "Workspace user"];
 }
 
+function clearSelectedReceiptFile() {
+  if (elements.fileInput) {
+    elements.fileInput.value = "";
+  }
+  syncSelectedReceiptFile(null);
+}
+
 function syncSelectedReceiptFile(file) {
   if (!elements.fileMeta) {
     return;
@@ -2183,7 +2215,7 @@ function syncSelectedReceiptFile(file) {
 
   if (!file) {
     elements.fileMeta.textContent =
-      "No receipt selected yet. Phone gallery and device storage are both supported for receipt files.";
+      "No receipt or bill selected yet. Phone gallery and device storage are supported, but personal photos and unrelated docs are rejected.";
     void updatePreviewFromFile(null);
     return;
   }
@@ -2193,11 +2225,11 @@ function syncSelectedReceiptFile(file) {
       elements.fileInput.value = "";
     }
     elements.fileMeta.textContent =
-      "Blocked. Use a receipt PDF, PNG, JPG, or JPEG file from your device or photo library.";
+      "Blocked. Use a receipt or bill PDF, PNG, JPG, or JPEG file from your device or photo library.";
     setUploadState(
       "error",
       "slot",
-      "Only receipt PDF, PNG, JPG, or JPEG files are allowed."
+      "Only receipt or bill PDF, PNG, JPG, or JPEG files are allowed."
     );
     void updatePreviewFromFile(null);
     return;
@@ -2337,7 +2369,7 @@ async function handleUpload(event) {
 
   const file = elements.fileInput.files[0];
   if (!file) {
-    setUploadState("error", "slot", "Choose a receipt file first.");
+    setUploadState("error", "slot", "Choose a receipt or bill file first.");
     return;
   }
 
@@ -2345,7 +2377,7 @@ async function handleUpload(event) {
     setUploadState(
       "error",
       "slot",
-      "Only receipt PDF, PNG, JPG, or JPEG files are allowed."
+      "Only receipt or bill PDF, PNG, JPG, or JPEG files are allowed."
     );
     return;
   }
@@ -2391,7 +2423,14 @@ async function handleUpload(event) {
     scrollToProcessedResult();
   } catch (error) {
     console.error("Upload failed.", error);
-    setUploadState("error", uploadState.stage || "transfer", error.message || "Upload failed.");
+    if (error?.code === "REJECTED" || error?.code === "FAILED") {
+      clearSelectedReceiptFile();
+    }
+    setUploadState(
+      "error",
+      error?.stage || uploadState.stage || "transfer",
+      error.message || "Upload failed."
+    );
   }
 }
 
@@ -2451,6 +2490,15 @@ async function pollUntilProcessed(objectKey, firstDelay) {
 
     if (payload.status === "PROCESSED" && payload.receipt) {
       return mapReceipt(payload.receipt);
+    }
+
+    if (payload.status === "REJECTED" || payload.status === "FAILED") {
+      const error = new Error(
+        payload.message || "This file could not be accepted as a receipt or bill."
+      );
+      error.code = payload.status;
+      error.stage = payload.stage || "quality";
+      throw error;
     }
 
     const stage = payload.stage === "stored" ? "quality" : payload.stage || "textract";

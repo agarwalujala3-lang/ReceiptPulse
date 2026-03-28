@@ -20,6 +20,7 @@ RECEIPT_TABLE = os.environ.get("DYNAMODB_TABLE", "ReceiptRecords")
 RECEIPT_BUCKET = os.environ.get("RECEIPT_BUCKET", "")
 CACHE_TTL_SECONDS = int(os.environ.get("SNAPSHOT_CACHE_TTL_SECONDS", "15"))
 UPLOAD_URL_EXPIRES_IN = int(os.environ.get("UPLOAD_URL_EXPIRES_IN", "900"))
+UPLOAD_STATUS_PREFIX = "_upload-status"
 ALLOWED_UPLOAD_TYPES = {
     "application/pdf": {".pdf"},
     "image/png": {".png"},
@@ -249,7 +250,10 @@ def create_upload_session(payload, identity):
         payload.get("contentType") or "application/octet-stream"
     )
     if not is_supported_receipt_upload(file_name, content_type):
-        raise ApiError(400, "Only PDF, PNG, JPG, and JPEG receipts are supported.")
+        raise ApiError(
+            400,
+            "Only PDF, PNG, JPG, and JPEG receipt or bill files are supported.",
+        )
 
     receipt_label = (
         payload.get("receiptLabel")
@@ -316,6 +320,10 @@ def get_upload_status(object_key, identity):
             "message": "Receipt processed and available in your private workspace.",
         }
 
+    upload_status = read_upload_status_record(object_key)
+    if upload_status:
+        return upload_status
+
     try:
         head = s3.head_object(Bucket=RECEIPT_BUCKET, Key=object_key)
         owner_id = head.get("Metadata", {}).get("user-id", "")
@@ -348,6 +356,48 @@ def find_receipt_by_key(object_key, user_id, force_refresh=False):
         if receipt.get("key") == object_key:
             return receipt
     return None
+
+
+def build_upload_status_key(object_key):
+    normalized_key = str(object_key or "").lstrip("/")
+    return f"{UPLOAD_STATUS_PREFIX}/{normalized_key}.json"
+
+
+def read_upload_status_record(object_key):
+    try:
+        response_payload = s3.get_object(
+            Bucket=RECEIPT_BUCKET,
+            Key=build_upload_status_key(object_key),
+        )
+    except ClientError as exc:
+        error_code = exc.response.get("Error", {}).get("Code", "")
+        if error_code in {"404", "NotFound", "NoSuchKey"}:
+            return None
+        raise
+
+    try:
+        data = json.loads(
+            response_payload["Body"].read().decode("utf-8") or "{}"
+        )
+    except json.JSONDecodeError:
+        return {
+            "status": "FAILED",
+            "stage": "quality",
+            "message": "Upload status data was unreadable. Please try the receipt again.",
+            "objectKey": object_key,
+        }
+
+    return {
+        "status": data.get("status", "FAILED"),
+        "stage": data.get("stage", "quality"),
+        "message": data.get(
+            "message",
+            "This upload could not be processed as a receipt.",
+        ),
+        "objectKey": object_key,
+        "reason": data.get("reason", ""),
+        "processedAt": data.get("processedAt", ""),
+    }
 
 
 def assert_user_owns_object_key(object_key, user_id):

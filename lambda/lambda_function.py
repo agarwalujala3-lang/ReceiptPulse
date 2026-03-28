@@ -16,10 +16,15 @@ dynamodb = boto3.resource("dynamodb")
 
 
 DYNAMODB_TABLE = os.environ.get("DYNAMODB_TABLE", "ReceiptRecords")
+UPLOAD_STATUS_PREFIX = "_upload-status"
 CONFIDENCE_THRESHOLD = float(os.environ.get("CONFIDENCE_THRESHOLD", "85"))
 ALLOW_DUPLICATES = os.environ.get("ALLOW_DUPLICATES", "false").lower() == "true"
 READ_OBJECT_METADATA = (
     os.environ.get("READ_OBJECT_METADATA", "false").lower() == "true"
+)
+REJECTED_UPLOAD_MESSAGE = (
+    "Rejected. This file does not look like a receipt or bill. "
+    "Upload a store receipt, invoice, or utility bill with readable vendor and amount details."
 )
 
 CATEGORY_KEYWORDS = {
@@ -111,39 +116,85 @@ def process_record(record):
         or metadata.get("uploader-name")
         or ""
     ).strip()
-
-    receipt_data = process_receipt_with_textract(
-        bucket=bucket,
-        key=key,
-        object_size=object_size,
-        etag=etag,
-        user_id=user_id,
-        user_name=user_name,
-        receipt_label=receipt_label,
-    )
-
-    duplicate_receipt = find_duplicate_receipt(receipt_data["user_duplicate_key"])
-    if duplicate_receipt:
-        receipt_data["is_duplicate"] = True
-        receipt_data["duplicate_of"] = duplicate_receipt["receipt_id"]
-        receipt_data["review_status"] = "DUPLICATE"
-        receipt_data["review_reasons"].append(
-            f"Potential duplicate of {duplicate_receipt['receipt_id']}."
+    try:
+        receipt_data = process_receipt_with_textract(
+            bucket=bucket,
+            key=key,
+            object_size=object_size,
+            etag=etag,
+            user_id=user_id,
+            user_name=user_name,
+            receipt_label=receipt_label,
         )
-        if not ALLOW_DUPLICATES:
-            receipt_data["lifecycle_stage"] = "needs-attention"
 
-    store_receipt_in_dynamodb(receipt_data)
+        is_receipt_candidate, rejection_reason = validate_receipt_candidate(
+            receipt_data
+        )
+        if not is_receipt_candidate:
+            mark_upload_status(
+                bucket=bucket,
+                object_key=key,
+                payload={
+                    "status": "REJECTED",
+                    "stage": "quality",
+                    "message": REJECTED_UPLOAD_MESSAGE,
+                    "reason": rejection_reason,
+                    "processedAt": datetime.now(timezone.utc).isoformat(),
+                },
+            )
+            delete_source_upload(bucket, key)
+            print(
+                "Rejected non-receipt upload "
+                f"{key} for user {user_id}: {rejection_reason}"
+            )
+            return {
+                "status": "REJECTED",
+                "reason": rejection_reason,
+                "message": REJECTED_UPLOAD_MESSAGE,
+                "fileName": receipt_data["file_name"],
+            }
 
-    return {
-        "receiptId": receipt_data["receipt_id"],
-        "vendor": receipt_data["vendor"],
-        "category": receipt_data["category"],
-        "reviewStatus": receipt_data["review_status"],
-        "totalAmount": receipt_data["total_amount"],
-        "confidenceScore": receipt_data["confidence_score"],
-        "duplicate": receipt_data["is_duplicate"],
-    }
+        duplicate_receipt = find_duplicate_receipt(receipt_data["user_duplicate_key"])
+        if duplicate_receipt:
+            receipt_data["is_duplicate"] = True
+            receipt_data["duplicate_of"] = duplicate_receipt["receipt_id"]
+            receipt_data["review_status"] = "DUPLICATE"
+            receipt_data["review_reasons"].append(
+                f"Potential duplicate of {duplicate_receipt['receipt_id']}."
+            )
+            if not ALLOW_DUPLICATES:
+                receipt_data["lifecycle_stage"] = "needs-attention"
+
+        store_receipt_in_dynamodb(receipt_data)
+
+        return {
+            "receiptId": receipt_data["receipt_id"],
+            "vendor": receipt_data["vendor"],
+            "category": receipt_data["category"],
+            "reviewStatus": receipt_data["review_status"],
+            "totalAmount": receipt_data["total_amount"],
+            "confidenceScore": receipt_data["confidence_score"],
+            "duplicate": receipt_data["is_duplicate"],
+        }
+    except Exception as exc:
+        try:
+            mark_upload_status(
+                bucket=bucket,
+                object_key=key,
+                payload={
+                    "status": "FAILED",
+                    "stage": "quality",
+                    "message": (
+                        "Processing failed before the file could be accepted as a receipt. "
+                        "Try a clearer receipt or bill image."
+                    ),
+                    "reason": str(exc),
+                    "processedAt": datetime.now(timezone.utc).isoformat(),
+                },
+            )
+        except Exception as status_exc:
+            print(f"Unable to write upload status marker for {key}: {status_exc}")
+        raise
 
 
 def extract_event_payloads(event):
@@ -254,6 +305,42 @@ def process_receipt_with_textract(
 
     print(json.dumps(receipt_data))
     return receipt_data
+
+
+def validate_receipt_candidate(receipt_data):
+    summary_fields = receipt_data.get("summary_fields") or {}
+    has_vendor = bool(summary_fields.get("vendor", {}).get("value")) and not (
+        receipt_data["vendor"].lower().startswith("unknown")
+    )
+    has_total = float(receipt_data["total_amount"]) > 0
+    has_date = bool(summary_fields.get("date", {}).get("value"))
+    has_line_items = bool(receipt_data["items"])
+
+    looks_like_receipt = (
+        has_vendor and (has_total or has_date or has_line_items)
+    ) or (
+        has_total and (has_date or has_line_items)
+    )
+
+    if looks_like_receipt:
+        return True, ""
+
+    missing_signals = []
+    if not has_vendor:
+        missing_signals.append("merchant or biller name")
+    if not has_total:
+        missing_signals.append("total amount")
+    if not has_date:
+        missing_signals.append("receipt or bill date")
+    if not has_line_items:
+        missing_signals.append("charge line items")
+
+    reason = (
+        "The upload is missing the usual receipt signals: "
+        + ", ".join(missing_signals[:3])
+        + "."
+    )
+    return False, reason
 
 
 def extract_summary_fields(expense_document, receipt_data):
@@ -379,6 +466,24 @@ def store_receipt_in_dynamodb(receipt_data):
     table = dynamodb.Table(DYNAMODB_TABLE)
     table.put_item(Item=receipt_data)
     print(f"Stored receipt {receipt_data['receipt_id']} in DynamoDB.")
+
+
+def build_upload_status_key(object_key):
+    normalized_key = str(object_key or "").lstrip("/")
+    return f"{UPLOAD_STATUS_PREFIX}/{normalized_key}.json"
+
+
+def mark_upload_status(bucket, object_key, payload):
+    s3.put_object(
+        Bucket=bucket,
+        Key=build_upload_status_key(object_key),
+        Body=json.dumps(payload).encode("utf-8"),
+        ContentType="application/json",
+    )
+
+
+def delete_source_upload(bucket, object_key):
+    s3.delete_object(Bucket=bucket, Key=object_key)
 
 
 def build_duplicate_key(receipt_data):

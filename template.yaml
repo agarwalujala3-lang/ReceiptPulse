@@ -200,7 +200,7 @@ Resources:
         Type: SQS
         TargetArn: !GetAtt ReceiptDeadLetterQueue.Arn
       Policies:
-        - S3ReadPolicy:
+        - S3CrudPolicy:
             BucketName: !Ref ReceiptBucket
         - DynamoDBCrudPolicy:
             TableName: !Ref ReceiptTable

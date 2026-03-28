@@ -22,6 +22,7 @@
           <span class="status-pill auth-summary-pill" id="authSummary">Portfolio Project</span>
           <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>Create Account</button>
           <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
+          <button class="ghost-link ghost-button" id="switchAccountButton" type="button" hidden>Switch Account</button>
           <button class="ghost-link ghost-button" id="signOutButton" type="button" hidden>Sign Out</button>
           <button class="ghost-link ghost-button" id="historyToggle" type="button">Past Uploads</button>
           <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noreferrer">Source Code</a>
@@ -115,8 +116,8 @@
             <label class="dropzone" id="dropzone" for="fileInput">
               <input id="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" hidden />
               <span class="drop-kicker">Choose from your device or photo library</span>
-              <strong class="drop-title">Receipt PDF, PNG, or JPG only</strong>
-              <span class="drop-copy" id="fileMeta">No receipt selected yet. Phone gallery and device storage are both supported for receipt files.</span>
+              <strong class="drop-title">Receipt or bill PDF, PNG, or JPG only</strong>
+              <span class="drop-copy" id="fileMeta">No receipt or bill selected yet. Phone gallery and device storage are supported, but personal photos and unrelated docs are rejected.</span>
             </label>
 
             <div class="upload-preview-shell">
@@ -134,7 +135,7 @@
                 </article>
                 <article class="preview-stat">
                   <span>Type</span>
-                  <strong>Receipt</strong>
+                  <strong>Receipt or bill</strong>
                 </article>
                 <article class="preview-stat">
                   <span>Visibility</span>
@@ -158,7 +159,7 @@
               <button class="primary-button upload-submit" id="uploadSubmit" type="submit">
                 Upload And Process
               </button>
-              <span class="upload-helper" id="uploadHelper">Add a label if you want. Receipt progress and results now stay inside the app for the signed-in workspace.</span>
+              <span class="upload-helper" id="uploadHelper">Add a label if you want. The app checks the uploaded file after OCR and rejects personal photos or unrelated documents.</span>
             </div>
           </form>
 
@@ -394,6 +395,6 @@
 
     <script src="./config.js?v=20260328b"></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260328b" defer></script>
+    <script src="./app.js?v=20260328c" defer></script>
   </body>
 </html>

@@ -1064,6 +1064,13 @@ body.cursor-active button {
   max-width: 60ch;
 }
 
+.spotlight-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.95rem;
+}
+
 .spotlight-facts {
   grid-template-columns: repeat(2, minmax(0, 1fr));
   padding-bottom: 1.35rem;
@@ -6406,6 +6413,23 @@ body.workspace-signed-in.topbar-condensed .topbar {
   box-shadow:
     0 14px 28px rgba(10, 1, 14, 0.2),
     0 0 24px rgba(255, 124, 112, 0.14);
+}
+
+.spotlight-delete-button {
+  min-width: 11.5rem;
+  justify-content: center;
+  border-color: rgba(255, 128, 116, 0.24);
+  color: #ffdacf;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02)),
+    rgba(255, 255, 255, 0.02);
+}
+
+.spotlight-delete-button:hover {
+  border-color: rgba(255, 154, 136, 0.44);
+  box-shadow:
+    0 16px 30px rgba(13, 4, 16, 0.22),
+    0 0 28px rgba(255, 124, 112, 0.16);
 }
 
 @media (max-width: 900px) {

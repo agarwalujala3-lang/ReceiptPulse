@@ -566,6 +566,7 @@ const elements = {
   spotlightKicker: document.querySelector("#spotlightKicker"),
   spotlightTitle: document.querySelector("#spotlightTitle"),
   spotlightNarrative: document.querySelector("#spotlightNarrative"),
+  spotlightActions: document.querySelector("#spotlightActions"),
   spotlightFacts: document.querySelector("#spotlightFacts"),
   spotlightPanel: document.querySelector(".spotlight-panel"),
   flipGrid: document.querySelector("#flipGrid"),
@@ -2042,6 +2043,7 @@ function renderSpotlight() {
       isSignedIn()
         ? "Select a file from your device and this panel will show the latest processed receipt from the current session."
         : "After sign-in, uploads from this device are tied to your account and this panel shows the latest processed result.";
+    elements.spotlightActions.innerHTML = "";
     elements.spotlightFacts.innerHTML = "";
     elements.spotlightPanel?.style.removeProperty("--theme-accent");
     elements.spotlightPanel?.style.removeProperty("--theme-soft");
@@ -2057,6 +2059,20 @@ function renderSpotlight() {
     displayLabel
   )} · ${escapeHtml(formatLabel(receipt.reviewStatus))}`;
   elements.spotlightNarrative.textContent = buildSpotlightNarrative(receipt);
+  elements.spotlightActions.innerHTML = `
+    <button
+      class="ghost-link ghost-button receipt-delete-button spotlight-delete-button"
+      type="button"
+      data-spotlight-delete="${escapeHtml(receipt.receiptId)}"
+    >
+      Delete This Receipt
+    </button>
+  `;
+  elements.spotlightActions
+    .querySelector("[data-spotlight-delete]")
+    ?.addEventListener("click", () => {
+      deleteStoredReceipt(receipt.receiptId);
+    });
 
   const facts = [
     ["Receipt Label", displayLabel],

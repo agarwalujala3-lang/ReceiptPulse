@@ -1462,16 +1462,8 @@ function getReceiptDate(receipt) {
   return new Date(0);
 }
 
-function getReferenceDate(receipts) {
-  const timestamps = receipts
-    .map((receipt) => getReceiptDate(receipt).getTime())
-    .filter((value) => Number.isFinite(value) && value > 0);
-
-  if (!timestamps.length) {
-    return new Date();
-  }
-
-  return new Date(Math.max(...timestamps));
+function getReferenceDate() {
+  return new Date();
 }
 
 function matchesDashboardPeriod(receipt, period, referenceDate) {
@@ -1607,7 +1599,7 @@ function buildRiskHeadlineForPeriod(summary) {
 
 function buildDashboardView() {
   const receipts = dashboardData?.receipts || [];
-  const referenceDate = getReferenceDate(receipts);
+  const referenceDate = getReferenceDate();
   const filteredReceipts = receipts.filter((receipt) =>
     matchesDashboardPeriod(receipt, selectedDashboardPeriod, referenceDate)
   );

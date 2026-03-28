@@ -3233,6 +3233,7 @@ async function refreshLiveSnapshot() {
 
   const snapshotPayload = await snapshotResponse.json();
   dashboardData = adaptSnapshotPayload(snapshotPayload);
+  reconcileUploadHistoryWithSnapshot(dashboardData.receipts);
 
   if (uploadState.receipt?.objectKey) {
     const matched = dashboardData.receipts.find(
@@ -3323,7 +3324,18 @@ function loadUploadHistory() {
     }
 
     const parsed = JSON.parse(raw);
-    return Array.isArray(parsed) ? parsed : [];
+    if (!Array.isArray(parsed)) {
+      return [];
+    }
+
+    return parsed.map((entry, index) => {
+      const receiptId = entry?.receiptId || entry?.id || `history-${index}`;
+      return {
+        ...entry,
+        id: entry?.id || receiptId,
+        receiptId,
+      };
+    });
   } catch (error) {
     console.warn("Unable to read upload history.", error);
     return [];
@@ -3340,8 +3352,10 @@ function persistUploadHistory() {
 
 function addUploadHistoryEntry(file, receipt, receiptLabel = "") {
   const previewType = latestPreview?.type || (guessContentType(file) === "application/pdf" ? "pdf" : "file");
+  const receiptId = receipt.receiptId || `${Date.now()}`;
   const entry = {
-    id: receipt.receiptId || `${Date.now()}`,
+    id: receiptId,
+    receiptId,
     fileName: receipt.fileName || file.name,
     vendor: receipt.vendor || "Unknown Vendor",
     receiptLabel: receipt.receiptLabel || receiptLabel || "",
@@ -3361,6 +3375,40 @@ function addUploadHistoryEntry(file, receipt, receiptLabel = "") {
   );
   persistUploadHistory();
   renderUploadHistory();
+}
+
+function pruneLocalHistoryByReceiptId(receiptId) {
+  if (!receiptId) {
+    return false;
+  }
+
+  const previousLength = uploadHistory.length;
+  uploadHistory = uploadHistory.filter((entry) => (entry.receiptId || entry.id) !== receiptId);
+  if (uploadHistory.length === previousLength) {
+    return false;
+  }
+
+  persistUploadHistory();
+  return true;
+}
+
+function reconcileUploadHistoryWithSnapshot(receipts = []) {
+  if (!Array.isArray(receipts) || !receipts.length || !uploadHistory.length) {
+    return;
+  }
+
+  const liveReceiptIds = new Set(
+    receipts.map((entry) => entry.receiptId).filter(Boolean)
+  );
+  const previousLength = uploadHistory.length;
+  uploadHistory = uploadHistory.filter((entry) => {
+    const receiptId = entry.receiptId || entry.id || "";
+    return !receiptId || liveReceiptIds.has(receiptId);
+  });
+
+  if (uploadHistory.length !== previousLength) {
+    persistUploadHistory();
+  }
 }
 
 async function updatePreviewFromFile(file) {
@@ -4007,12 +4055,23 @@ async function deleteStoredReceipt(receiptId) {
     });
 
     if (!response.ok) {
+      if (response.status === 404) {
+        pruneLocalHistoryByReceiptId(receiptId);
+        if (uploadState.receipt?.receiptId === receiptId) {
+          uploadState.receipt = null;
+          uploadState.durationMs = null;
+          setUploadState("idle", "slot", "That receipt was already deleted from your workspace.");
+        }
+        await refreshLiveSnapshot();
+        renderUploadHistory();
+        elements.statusNote.textContent = "That receipt was already removed. The stale history card was cleared.";
+        return;
+      }
       throw new Error(`Unable to delete the selected receipt (${response.status}).`);
     }
 
     const payload = await response.json();
-    uploadHistory = uploadHistory.filter((entry) => (entry.receiptId || entry.id) !== receiptId);
-    persistUploadHistory();
+    pruneLocalHistoryByReceiptId(receiptId);
     if (uploadState.receipt?.receiptId === receiptId) {
       uploadState.receipt = null;
       uploadState.durationMs = null;

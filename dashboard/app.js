@@ -569,6 +569,7 @@ const elements = {
   spotlightPanel: document.querySelector(".spotlight-panel"),
   flipGrid: document.querySelector("#flipGrid"),
   heroUploadTrigger: document.querySelector("#heroUploadTrigger"),
+  uploadLab: document.querySelector("#uploadLab"),
   archiveToggle: document.querySelector("#archiveToggle"),
   archiveClose: document.querySelector("#archiveClose"),
   archivePanel: document.querySelector("#receiptsTable"),
@@ -582,6 +583,7 @@ const elements = {
   uploadAccount: document.querySelector("#uploadAccount"),
   uploadHelper: document.querySelector("#uploadHelper"),
   uploadSubmit: document.querySelector("#uploadSubmit"),
+  uploadStatusCard: document.querySelector(".upload-status-card"),
   uploadTimeline: document.querySelector("#uploadTimeline"),
   uploadMessage: document.querySelector("#uploadMessage"),
   uploadMotionScene: document.querySelector("#uploadMotionScene"),
@@ -624,6 +626,7 @@ let selectedExpenseMonth = "";
 let donutRefreshTimer = 0;
 let panelRefreshTimer = 0;
 let pendingVisualRefresh = null;
+let warningRevealTimer = 0;
 let uploadState = {
   phase: "idle",
   stage: "slot",
@@ -3026,6 +3029,54 @@ function setUploadState(phase, stage, message) {
   renderUploadTimeline();
   renderSpotlight();
   syncUploadMotion();
+
+  if (shouldAutoRevealUploadWarning(phase, stage, message)) {
+    revealUploadWarning();
+  }
+}
+
+function shouldAutoRevealUploadWarning(phase, stage, message) {
+  if (phase !== "error") {
+    return false;
+  }
+
+  const normalizedMessage = String(message || "").trim().toLowerCase();
+  if (!normalizedMessage) {
+    return false;
+  }
+
+  return (
+    stage === "quality"
+    || normalizedMessage.startsWith("rejected")
+    || normalizedMessage.includes("only receipt or bill")
+    || normalizedMessage.includes("could not be accepted as a receipt")
+    || normalizedMessage.includes("could not be processed into a valid receipt")
+    || normalizedMessage.includes("processing failed")
+    || normalizedMessage.includes("upload failed")
+  );
+}
+
+function revealUploadWarning() {
+  const target =
+    elements.uploadTimeline?.querySelector(".upload-warning-banner")
+    || elements.uploadStatusCard
+    || elements.uploadLab;
+
+  if (!target) {
+    return;
+  }
+
+  target.scrollIntoView({ behavior: "smooth", block: "center" });
+
+  const spotlightHost = elements.uploadStatusCard || target;
+  spotlightHost.classList.remove("upload-warning-spotlight");
+  void spotlightHost.offsetWidth;
+  spotlightHost.classList.add("upload-warning-spotlight");
+
+  window.clearTimeout(warningRevealTimer);
+  warningRevealTimer = window.setTimeout(() => {
+    spotlightHost.classList.remove("upload-warning-spotlight");
+  }, 1800);
 }
 
 function loadUploadHistory() {

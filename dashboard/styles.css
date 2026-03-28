@@ -5202,6 +5202,293 @@ body.cursor-cta .cursor-orb {
   min-width: 11.5rem;
 }
 
+.duplicate-decision-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 66;
+  background:
+    radial-gradient(circle at 50% 24%, rgba(255, 136, 102, 0.16), transparent 30%),
+    rgba(4, 8, 16, 0.74);
+  backdrop-filter: blur(16px);
+  opacity: 0;
+  transition: opacity 220ms ease;
+}
+
+.duplicate-decision-modal {
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  z-index: 67;
+  width: min(92vw, 44rem);
+  padding: 1.3rem 1.3rem 1.2rem;
+  border-radius: 30px;
+  border: 1px solid rgba(255, 169, 126, 0.28);
+  background:
+    radial-gradient(circle at 18% 16%, rgba(255, 196, 132, 0.14), transparent 24%),
+    radial-gradient(circle at 84% 20%, rgba(255, 124, 112, 0.18), transparent 24%),
+    linear-gradient(180deg, rgba(18, 16, 25, 0.98), rgba(10, 12, 20, 0.98));
+  box-shadow:
+    0 36px 90px rgba(2, 8, 16, 0.5),
+    0 0 0 1px rgba(255, 222, 176, 0.06),
+    0 0 80px rgba(255, 120, 96, 0.12);
+  opacity: 0;
+  transform: translate(-50%, -46%) scale(0.94);
+  transition: opacity 220ms ease, transform 220ms ease;
+  overflow: hidden;
+  isolation: isolate;
+}
+
+.duplicate-decision-modal.is-open,
+.duplicate-decision-scrim.is-open {
+  opacity: 1;
+}
+
+.duplicate-decision-modal.is-open {
+  transform: translate(-50%, -50%) scale(1);
+}
+
+.duplicate-decision-aura {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(16px);
+  opacity: 0.78;
+  pointer-events: none;
+  animation: duplicate-decision-aura-float 5.8s ease-in-out infinite;
+}
+
+.duplicate-decision-aura--one {
+  width: 180px;
+  height: 180px;
+  top: -48px;
+  left: -30px;
+  background: radial-gradient(circle, rgba(255, 190, 120, 0.24), transparent 68%);
+}
+
+.duplicate-decision-aura--two {
+  width: 220px;
+  height: 220px;
+  right: -70px;
+  bottom: -96px;
+  background: radial-gradient(circle, rgba(255, 104, 118, 0.22), transparent 70%);
+  animation-delay: 1.2s;
+}
+
+.duplicate-decision-head,
+.duplicate-decision-shell {
+  position: relative;
+  z-index: 1;
+}
+
+.duplicate-decision-head {
+  display: grid;
+  gap: 0.52rem;
+}
+
+.duplicate-decision-head h3 {
+  margin: 0;
+  font-size: clamp(1.45rem, 2.4vw, 2.05rem);
+  color: #fff4e8;
+  text-shadow: 0 0 22px rgba(255, 170, 118, 0.12);
+}
+
+.duplicate-decision-body {
+  margin: 0;
+  color: rgba(236, 227, 221, 0.84);
+  line-height: 1.65;
+}
+
+.duplicate-decision-shell {
+  display: grid;
+  grid-template-columns: 132px 1fr;
+  gap: 1.1rem;
+  margin-top: 1.15rem;
+  padding: 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 177, 130, 0.16);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)),
+    linear-gradient(160deg, rgba(29, 18, 24, 0.82), rgba(14, 14, 23, 0.78));
+}
+
+.duplicate-decision-signal {
+  position: relative;
+  display: grid;
+  place-items: center;
+  min-height: 180px;
+}
+
+.duplicate-signal-ring {
+  position: absolute;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 205, 150, 0.2);
+  box-shadow: 0 0 36px rgba(255, 140, 104, 0.1);
+}
+
+.duplicate-signal-ring--outer {
+  inset: 0;
+  animation: duplicate-ring-outer 3.1s ease-out infinite;
+}
+
+.duplicate-signal-ring--inner {
+  inset: 20px;
+  border-color: rgba(255, 122, 120, 0.28);
+  animation: duplicate-ring-inner 2.4s ease-out infinite;
+}
+
+.duplicate-signal-core {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 74px;
+  height: 74px;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 228, 166, 0.34);
+  background:
+    linear-gradient(160deg, rgba(255, 212, 132, 0.2), rgba(255, 104, 118, 0.2)),
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.16), transparent 40%);
+  color: #fff3dd;
+  font-size: 1.95rem;
+  font-weight: 800;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.1),
+    0 0 36px rgba(255, 128, 106, 0.22);
+  animation: duplicate-core-float 2.8s ease-in-out infinite;
+}
+
+.duplicate-decision-copy {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.duplicate-decision-pills {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.duplicate-decision-pills span {
+  display: inline-flex;
+  align-items: center;
+  min-height: 32px;
+  padding: 0.32rem 0.72rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 198, 142, 0.2);
+  background: rgba(255, 255, 255, 0.04);
+  color: #ffe5bc;
+  font-size: 0.74rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.duplicate-decision-field {
+  gap: 0.5rem;
+}
+
+.duplicate-decision-input {
+  min-height: 56px;
+  border-color: rgba(255, 193, 142, 0.2);
+  background:
+    linear-gradient(180deg, rgba(19, 22, 34, 0.96), rgba(15, 17, 28, 0.96)),
+    radial-gradient(circle at 16% 18%, rgba(255, 194, 126, 0.06), transparent 26%);
+}
+
+.duplicate-decision-input:focus {
+  border-color: rgba(255, 203, 139, 0.52);
+  box-shadow:
+    0 0 0 4px rgba(255, 174, 112, 0.12),
+    0 0 24px rgba(255, 120, 102, 0.08);
+}
+
+.duplicate-decision-note {
+  margin: 0;
+  color: rgba(229, 220, 214, 0.74);
+  line-height: 1.55;
+}
+
+.duplicate-decision-note[data-tone="error"] {
+  color: #ffcfab;
+  text-shadow: 0 0 18px rgba(255, 153, 102, 0.12);
+}
+
+.duplicate-decision-note[data-tone="ready"] {
+  color: #ffe9c6;
+}
+
+.duplicate-decision-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.7rem;
+  margin-top: 0.2rem;
+}
+
+.duplicate-keep-button {
+  min-width: 16.5rem;
+}
+
+.duplicate-reject-button {
+  min-width: 10rem;
+  justify-content: center;
+}
+
+.duplicate-keep-button:disabled,
+.duplicate-reject-button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+body.duplicate-decision-open {
+  overflow: hidden;
+}
+
+@keyframes duplicate-decision-aura-float {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) scale(0.96);
+  }
+  50% {
+    transform: translate3d(6px, -10px, 0) scale(1.06);
+  }
+}
+
+@keyframes duplicate-ring-outer {
+  0% {
+    transform: scale(0.88);
+    opacity: 0.16;
+  }
+  35% {
+    opacity: 0.42;
+  }
+  100% {
+    transform: scale(1.12);
+    opacity: 0;
+  }
+}
+
+@keyframes duplicate-ring-inner {
+  0% {
+    transform: scale(0.9);
+    opacity: 0.12;
+  }
+  38% {
+    opacity: 0.52;
+  }
+  100% {
+    transform: scale(1.18);
+    opacity: 0;
+  }
+}
+
+@keyframes duplicate-core-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
 @media (max-width: 760px) {
   .confirm-modal {
     width: min(94vw, 26rem);
@@ -5215,6 +5502,28 @@ body.cursor-cta .cursor-orb {
 
   .confirm-danger,
   .confirm-actions .ghost-link {
+    width: 100%;
+    justify-content: center;
+  }
+
+  .duplicate-decision-modal {
+    width: min(94vw, 28rem);
+    padding: 1rem;
+    border-radius: 24px;
+  }
+
+  .duplicate-decision-shell {
+    grid-template-columns: 1fr;
+    gap: 0.9rem;
+    padding: 0.9rem;
+  }
+
+  .duplicate-decision-signal {
+    min-height: 110px;
+  }
+
+  .duplicate-keep-button,
+  .duplicate-reject-button {
     width: 100%;
     justify-content: center;
   }

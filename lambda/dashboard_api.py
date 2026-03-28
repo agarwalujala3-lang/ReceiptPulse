@@ -539,6 +539,12 @@ def export_csv(receipts):
 
 def update_review_status(receipt_id, payload, identity):
     table = dynamodb.Table(RECEIPT_TABLE)
+    action = str(payload.get("action") or "").strip().lower()
+    if action == "reject_upload":
+        return reject_receipt_upload(table, receipt_id, identity)
+    if action == "keep_separate":
+        return keep_duplicate_receipt(table, receipt_id, payload, identity)
+
     review_status = payload.get("reviewStatus", "REVIEWED")
     reviewer = identity["user_email"] or identity["user_name"] or "workspace-user"
     note = payload.get("note", "")
@@ -568,6 +574,126 @@ def update_review_status(receipt_id, payload, identity):
 
     invalidate_snapshot_cache(identity["user_id"])
     return {"receipt": serialize_receipt(response_payload.get("Attributes", {}))}
+
+
+def get_owned_receipt(table, receipt_id, user_id):
+    try:
+        response_payload = table.get_item(Key={"receipt_id": receipt_id})
+    except ClientError as exc:
+        raise ApiError(500, "Unable to load the selected receipt.") from exc
+
+    receipt = response_payload.get("Item")
+    if not receipt or receipt.get("user_id") != user_id:
+        raise ApiError(404, "Receipt not found for the signed-in user.")
+    return receipt
+
+
+def keep_duplicate_receipt(table, receipt_id, payload, identity):
+    receipt = get_owned_receipt(table, receipt_id, identity["user_id"])
+    if receipt.get("review_status") != "DUPLICATE":
+        raise ApiError(400, "Only duplicate receipts can use this action.")
+
+    current_label = (
+        receipt.get("receipt_label")
+        or receipt.get("category")
+        or receipt.get("vendor")
+        or receipt.get("file_name")
+        or "Receipt"
+    )
+    receipt_label = str(payload.get("receiptLabel") or "").strip()
+    if not receipt_label:
+        raise ApiError(400, "Add a new receipt name before keeping this duplicate.")
+    if normalize_label(receipt_label) == normalize_label(current_label):
+        raise ApiError(
+            400,
+            "Use a different receipt name so this duplicate can stay as a separate entry.",
+        )
+
+    reviewer = identity["user_email"] or identity["user_name"] or "workspace-user"
+    reviewed_at = datetime.now(timezone.utc).isoformat()
+    note = (
+        str(payload.get("note") or "").strip()
+        or "User kept this duplicate as a separate receipt."
+    )
+
+    try:
+        response_payload = table.update_item(
+            Key={"receipt_id": receipt_id},
+            UpdateExpression=(
+                "SET receipt_label = :receipt_label, "
+                "review_status = :review_status, "
+                "reviewed_by = :reviewed_by, "
+                "reviewed_at = :reviewed_at, "
+                "reviewer_note = :reviewer_note, "
+                "is_duplicate = :is_duplicate, "
+                "review_reasons = :review_reasons, "
+                "lifecycle_stage = :lifecycle_stage "
+                "REMOVE duplicate_of"
+            ),
+            ConditionExpression="attribute_exists(receipt_id) AND user_id = :user_id",
+            ExpressionAttributeValues={
+                ":receipt_label": receipt_label[:120],
+                ":review_status": "AUTO_APPROVED",
+                ":reviewed_by": reviewer,
+                ":reviewed_at": reviewed_at,
+                ":reviewer_note": note,
+                ":is_duplicate": False,
+                ":review_reasons": [],
+                ":lifecycle_stage": "ready-for-expense-sync",
+                ":user_id": identity["user_id"],
+            },
+            ReturnValues="ALL_NEW",
+        )
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+            raise ApiError(404, "Receipt not found for the signed-in user.") from exc
+        raise
+
+    invalidate_snapshot_cache(identity["user_id"])
+    return {
+        "receipt": serialize_receipt(response_payload.get("Attributes", {})),
+        "message": "Duplicate kept as a separate receipt.",
+    }
+
+
+def reject_receipt_upload(table, receipt_id, identity):
+    receipt = get_owned_receipt(table, receipt_id, identity["user_id"])
+    key = receipt.get("key")
+
+    try:
+        table.delete_item(
+            Key={"receipt_id": receipt_id},
+            ConditionExpression="attribute_exists(receipt_id) AND user_id = :user_id",
+            ExpressionAttributeValues={":user_id": identity["user_id"]},
+        )
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+            raise ApiError(404, "Receipt not found for the signed-in user.") from exc
+        raise
+
+    deleted_objects = 0
+    if RECEIPT_BUCKET and key:
+        deleted_objects += delete_receipt_object(RECEIPT_BUCKET, key)
+        deleted_objects += delete_receipt_object(
+            RECEIPT_BUCKET, build_upload_status_key(key)
+        )
+
+    invalidate_snapshot_cache(identity["user_id"])
+    return {
+        "deleted": True,
+        "deletedS3Objects": deleted_objects,
+        "message": "Duplicate upload rejected and removed from your workspace.",
+    }
+
+
+def delete_receipt_object(bucket_name, object_key):
+    if not bucket_name or not object_key:
+        return 0
+    try:
+        s3.delete_object(Bucket=bucket_name, Key=object_key)
+        return 1
+    except ClientError:
+        return 0
 
 
 def clear_receipts(payload, identity):
@@ -638,6 +764,7 @@ def serialize_receipt(receipt):
         "fileName": receipt.get("file_name"),
         "objectKey": receipt.get("key"),
         "currencySymbol": receipt.get("currency_symbol", "$"),
+        "isDuplicate": bool(receipt.get("is_duplicate")),
         "duplicateOf": receipt.get("duplicate_of"),
         "itemCount": receipt.get("item_count", 0),
         "reviewReasons": receipt.get("review_reasons", []),
@@ -674,6 +801,10 @@ def sanitize_filename(value):
 def sanitize_path_segment(value):
     sanitized = re.sub(r"[^A-Za-z0-9._-]+", "-", str(value).strip()).strip(".-")
     return sanitized or "user"
+
+
+def normalize_label(value):
+    return re.sub(r"[^a-z0-9]+", " ", str(value or "").strip().lower()).strip()
 
 
 def receipt_matches_range(receipt, from_date, to_date):

@@ -1371,6 +1371,7 @@ function renderOpsStrip() {
 
   const summary = activeDashboardView?.summary || buildSummaryFromReceipts([]);
   const total = Math.max(Number(summary.receiptCount || 0), 1);
+  const uploadWarning = getUploadWarningState();
   const cards = [
     {
       label: "Auto Approved",
@@ -1404,13 +1405,14 @@ function renderOpsStrip() {
       label: "Upload Status",
       value: formatUploadPhase(uploadState.phase),
       detail: uploadState.message,
+      tone: uploadWarning ? "warning" : "",
     },
   ];
 
   elements.opsStrip.innerHTML = cards
     .map(
       (card) => `
-        <article class="panel ops-card">
+        <article class="panel ops-card${card.tone ? ` ops-card--${card.tone}` : ""}">
           <p class="eyebrow">${card.label}</p>
           <strong>${card.value}</strong>
           <span>${card.detail}</span>
@@ -1439,8 +1441,9 @@ function renderUploadTimeline() {
       : uploadState.phase === "success"
         ? order.length - 1
         : Math.max(order.indexOf(uploadState.stage || "slot"), 0);
+  const warningMarkup = buildUploadWarningMarkup();
 
-  elements.uploadTimeline.innerHTML = steps
+  elements.uploadTimeline.innerHTML = `${warningMarkup}${steps
     .map(([id, title, detail], index) => {
       let tone = "pending";
       if (index < activeIndex || uploadState.phase === "success") {
@@ -1459,7 +1462,7 @@ function renderUploadTimeline() {
         </article>
       `;
     })
-    .join("");
+    .join("")}`;
 
   elements.uploadMessage.textContent = uploadState.message;
   if (elements.uploadSubmit) {
@@ -2129,12 +2132,53 @@ function formatLabel(value) {
     .join(" ");
 }
 
+function getUploadWarningState() {
+  if (uploadState.phase !== "error") {
+    return null;
+  }
+
+  const message = String(uploadState.message || "").trim();
+  const rejected = /^rejected\b/i.test(message);
+
+  return {
+    rejected,
+    kicker: rejected ? "Receipt Rejected" : "Upload Warning",
+    title: rejected
+      ? "This file was blocked before it reached your dashboard."
+      : "The upload needs another try before it can be stored.",
+    detail:
+      message
+      || "The current file could not be processed into a valid receipt record.",
+  };
+}
+
+function buildUploadWarningMarkup() {
+  const warning = getUploadWarningState();
+  if (!warning) {
+    return "";
+  }
+
+  return `
+    <article class="upload-warning-banner${warning.rejected ? " upload-warning-banner--rejected" : ""}">
+      <span class="upload-warning-aura" aria-hidden="true"></span>
+      <span class="upload-warning-icon" aria-hidden="true">!</span>
+      <div class="upload-warning-copy">
+        <p class="upload-warning-kicker">${escapeHtml(warning.kicker)}</p>
+        <strong>${escapeHtml(warning.title)}</strong>
+        <p>${escapeHtml(warning.detail)}</p>
+      </div>
+    </article>
+  `;
+}
+
 function formatUploadPhase(phase) {
   if (phase === "preparing") return "Securing";
   if (phase === "uploading") return "Uploading";
   if (phase === "processing") return "Processing";
   if (phase === "success") return "Complete";
-  if (phase === "error") return "Needs Retry";
+  if (phase === "error") {
+    return getUploadWarningState()?.rejected ? "Rejected" : "Needs Retry";
+  }
   return "Ready";
 }
 

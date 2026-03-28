@@ -105,16 +105,18 @@ def process_record(record):
             metadata = head.get("Metadata", {})
         except Exception as exc:
             print(f"Unable to read S3 object metadata for {key}: {exc}")
-    user_email = resolve_receipt_email(metadata)
+    account_email = resolve_account_email(metadata)
+    notification_email = resolve_notification_email(metadata)
     user_id = (
         metadata.get("user-id")
         or metadata.get("owner-id")
-        or build_fallback_user_id(user_email)
+        or build_fallback_user_id(account_email or notification_email)
     )
     user_name = (
         metadata.get("user-name")
         or metadata.get("uploader-name")
-        or user_email.split("@")[0]
+        or account_email.split("@")[0]
+        or notification_email.split("@")[0]
         or "workspace-user"
     ).strip()
     receipt_label = (
@@ -129,7 +131,8 @@ def process_record(record):
         object_size=object_size,
         etag=etag,
         user_id=user_id,
-        user_email=user_email,
+        user_email=account_email,
+        notification_email=notification_email,
         user_name=user_name,
         receipt_label=receipt_label,
     )
@@ -205,6 +208,7 @@ def process_receipt_with_textract(
     etag,
     user_id,
     user_email,
+    notification_email,
     user_name,
     receipt_label="",
 ):
@@ -228,8 +232,11 @@ def process_receipt_with_textract(
         "etag": etag,
         "user_id": user_id,
         "user_email": user_email,
+        "notification_email": notification_email,
         "user_name": user_name[:120],
-        "uploaded_by": (user_email or user_name)[:120],
+        "uploaded_by": (user_name or user_email or notification_email or "workspace-user")[
+            :120
+        ],
         "receipt_label": receipt_label[:120],
         "created_at": now.isoformat(),
         "processed_timestamp": now.isoformat(),
@@ -404,7 +411,8 @@ def store_receipt_in_dynamodb(receipt_data):
 
 def send_email_notification(receipt_data):
     destination = (
-        normalize_email(receipt_data.get("user_email"))
+        normalize_email(receipt_data.get("notification_email"))
+        or normalize_email(receipt_data.get("user_email"))
         or normalize_email(receipt_data.get("uploaded_by"))
         or normalize_email(DEFAULT_RECIPIENT_EMAIL)
     )
@@ -461,12 +469,20 @@ def send_email_notification(receipt_data):
     print(f"Sent email notification to {destination}.")
 
 
-def resolve_receipt_email(metadata):
+def resolve_account_email(metadata):
     for key in ("account-email", "user-email", "uploader-email", "owner-email"):
         candidate = normalize_email(metadata.get(key))
         if candidate:
             return candidate
-    return normalize_email(DEFAULT_RECIPIENT_EMAIL)
+    return ""
+
+
+def resolve_notification_email(metadata):
+    for key in ("notification-email", "contact-email", "update-email"):
+        candidate = normalize_email(metadata.get(key))
+        if candidate:
+            return candidate
+    return ""
 
 
 def normalize_email(value):

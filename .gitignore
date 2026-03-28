@@ -2,6 +2,7 @@ __pycache__/
 *.pyc
 .aws-sam/
 .aws-sam-live/
+.aws-sam-live-*/
 .aws-sam-build-auth/
 .aws-sam-build-auth2/
 .deploy-dashboard/

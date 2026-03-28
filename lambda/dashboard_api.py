@@ -20,7 +20,11 @@ RECEIPT_TABLE = os.environ.get("DYNAMODB_TABLE", "ReceiptRecords")
 RECEIPT_BUCKET = os.environ.get("RECEIPT_BUCKET", "")
 CACHE_TTL_SECONDS = int(os.environ.get("SNAPSHOT_CACHE_TTL_SECONDS", "15"))
 UPLOAD_URL_EXPIRES_IN = int(os.environ.get("UPLOAD_URL_EXPIRES_IN", "900"))
-ALLOWED_UPLOAD_TYPES = {"application/pdf", "image/png", "image/jpeg"}
+ALLOWED_UPLOAD_TYPES = {
+    "application/pdf": {".pdf"},
+    "image/png": {".png"},
+    "image/jpeg": {".jpg", ".jpeg"},
+}
 _SNAPSHOT_CACHE = {}
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
 
@@ -153,6 +157,27 @@ def normalize_email(value):
     return candidate
 
 
+def normalize_upload_content_type(value):
+    candidate = str(value or "").strip().lower()
+    if candidate == "image/jpg":
+        return "image/jpeg"
+    return candidate
+
+
+def get_file_extension(file_name):
+    sanitized = str(file_name or "").strip().lower()
+    if "." not in sanitized:
+        return ""
+    return f".{sanitized.rsplit('.', 1)[-1]}"
+
+
+def is_supported_receipt_upload(file_name, content_type):
+    allowed_extensions = ALLOWED_UPLOAD_TYPES.get(content_type)
+    if not allowed_extensions:
+        return False
+    return get_file_extension(file_name) in allowed_extensions
+
+
 def parse_json_body(event):
     try:
         return json.loads(event.get("body") or "{}")
@@ -171,6 +196,7 @@ def query_user_receipts(user_id):
             "confidence_score, expense_month, uploaded_by, receipt_label, s3_path, "
             "processed_timestamp, is_duplicate, review_reasons, file_name, "
             "currency_symbol, duplicate_of, item_count, user_id, user_email, user_name, "
+            "notification_email, "
             "created_at, #receipt_key"
         ),
         "ExpressionAttributeNames": {"#receipt_key": "key"},
@@ -217,8 +243,10 @@ def create_upload_session(payload, identity):
         raise ApiError(500, "Receipt bucket is not configured for uploads.")
 
     file_name = sanitize_filename(payload.get("fileName") or "receipt-upload")
-    content_type = payload.get("contentType") or "application/octet-stream"
-    if content_type not in ALLOWED_UPLOAD_TYPES:
+    content_type = normalize_upload_content_type(
+        payload.get("contentType") or "application/octet-stream"
+    )
+    if not is_supported_receipt_upload(file_name, content_type):
         raise ApiError(400, "Only PDF, PNG, JPG, and JPEG receipts are supported.")
 
     receipt_label = (
@@ -226,6 +254,10 @@ def create_upload_session(payload, identity):
         or payload.get("uploaderName")
         or ""
     ).strip()
+    raw_notification_email = str(payload.get("notificationEmail") or "").strip()
+    notification_email = normalize_email(raw_notification_email)
+    if raw_notification_email and not notification_email:
+        raise ApiError(400, "Notification email must be a valid email address.")
     stamp = datetime.now(timezone.utc).strftime("%Y/%m/%d")
     user_key = sanitize_path_segment(identity["user_id"])
     object_key = f"users/{user_key}/{stamp}/{uuid.uuid4().hex[:12]}-{file_name}"
@@ -237,6 +269,7 @@ def create_upload_session(payload, identity):
         "user-name": identity["user_name"][:120],
         "uploader-email": account_email[:120],
         "uploader-name": identity["user_name"][:120],
+        "notification-email": notification_email[:120],
         "receipt-label": receipt_label[:120],
     })
 
@@ -264,6 +297,7 @@ def create_upload_session(payload, identity):
             "x-amz-meta-user-name": metadata["user-name"],
             "x-amz-meta-uploader-email": metadata.get("uploader-email", ""),
             "x-amz-meta-uploader-name": metadata["uploader-name"],
+            "x-amz-meta-notification-email": metadata.get("notification-email", ""),
             "x-amz-meta-receipt-label": metadata["receipt-label"],
         }),
         "pollAfterMs": 2200,
@@ -439,6 +473,7 @@ def export_csv(receipts):
             "confidence_score",
             "expense_month",
             "uploaded_by",
+            "notification_email",
             "receipt_label",
             "s3_path",
             "processed_timestamp",
@@ -456,6 +491,7 @@ def export_csv(receipts):
                 "confidence_score": receipt.get("confidence_score"),
                 "expense_month": receipt.get("expense_month"),
                 "uploaded_by": receipt.get("uploaded_by"),
+                "notification_email": receipt.get("notification_email"),
                 "receipt_label": receipt.get("receipt_label"),
                 "s3_path": receipt.get("s3_path"),
                 "processed_timestamp": receipt.get("processed_timestamp"),
@@ -559,6 +595,7 @@ def serialize_receipt(receipt):
         "confidenceScore": receipt.get("confidence_score", "0.00"),
         "expenseMonth": receipt.get("expense_month"),
         "uploadedBy": receipt.get("uploaded_by"),
+        "notificationEmail": receipt.get("notification_email"),
         "receiptLabel": receipt.get("receipt_label", ""),
         "s3Path": receipt.get("s3_path"),
         "processedAt": receipt.get("processed_timestamp"),

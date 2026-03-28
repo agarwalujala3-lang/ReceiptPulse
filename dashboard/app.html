@@ -8,7 +8,7 @@
       name="description"
       content="ReceiptPulse is a portfolio project for receipt upload, OCR extraction, and basic expense analysis."
     />
-    <link rel="stylesheet" href="./styles.css?v=20260327h" />
+    <link rel="stylesheet" href="./styles.css?v=20260328a" />
   </head>
   <body>
     <header class="topbar">
@@ -114,9 +114,9 @@
           <form class="upload-form" id="uploadForm">
             <label class="dropzone" id="dropzone" for="fileInput">
               <input id="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" hidden />
-              <span class="drop-kicker">Drop receipt or browse</span>
-              <strong class="drop-title">PDF, PNG, JPG, or JPEG</strong>
-              <span class="drop-copy" id="fileMeta">No receipt selected yet.</span>
+              <span class="drop-kicker">Choose from your device or photo library</span>
+              <strong class="drop-title">Receipt PDF, PNG, or JPG only</strong>
+              <span class="drop-copy" id="fileMeta">No receipt selected yet. Phone gallery and device storage are both supported for receipt files.</span>
             </label>
 
             <div class="upload-preview-shell">
@@ -149,7 +149,11 @@
                 <input class="text-input" id="uploadName" type="text" placeholder="Groceries, Electricity, Travel..." />
               </label>
               <label class="field">
-                <span>Signed-in account</span>
+                <span>Receipt update email</span>
+                <input class="text-input" id="uploadEmail" type="email" inputmode="email" placeholder="Optional personal email for receipt updates" />
+              </label>
+              <label class="field">
+                <span>Workspace owner</span>
                 <input class="text-input" id="uploadAccount" type="text" placeholder="Sign in to upload receipts" readonly />
               </label>
             </div>
@@ -158,7 +162,7 @@
               <button class="primary-button upload-submit" id="uploadSubmit" type="submit">
                 Upload And Process
               </button>
-              <span class="upload-helper" id="uploadHelper">Adding a label is optional. If provided, it is used as the display tag in the dashboard.</span>
+              <span class="upload-helper" id="uploadHelper">Add a label if you want, and optionally enter a personal email for receipt updates. Workspace ownership still stays with the signed-in account.</span>
             </div>
           </form>
 
@@ -394,6 +398,6 @@
 
     <script src="./config.js?v=20260327a"></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260327h" defer></script>
+    <script src="./app.js?v=20260328a" defer></script>
   </body>
 </html>

@@ -6,6 +6,14 @@ const AUTH_STORAGE_KEY = "receiptpulse-auth-session";
 const AUTH_SIGNIN_PATH = "./index.html";
 const AUTH_SIGNUP_PATH = "./signup.html";
 const MAX_HISTORY_ITEMS = 8;
+const RECEIPT_UPLOAD_TYPE_MAP = {
+  "application/pdf": [".pdf"],
+  "image/png": [".png"],
+  "image/jpeg": [".jpg", ".jpeg"],
+};
+const RECEIPT_UPLOAD_EXTENSIONS = new Set(
+  Object.values(RECEIPT_UPLOAD_TYPE_MAP).flat()
+);
 const authClient = window.ReceiptPulseAuth || null;
 const HOW_IT_WORKS = [
   {
@@ -407,6 +415,7 @@ const elements = {
   previewFrame: document.querySelector("#previewFrame"),
   previewMeta: document.querySelector("#previewMeta"),
   uploadName: document.querySelector("#uploadName"),
+  uploadEmail: document.querySelector("#uploadEmail"),
   uploadAccount: document.querySelector("#uploadAccount"),
   uploadHelper: document.querySelector("#uploadHelper"),
   uploadSubmit: document.querySelector("#uploadSubmit"),
@@ -798,15 +807,15 @@ function updateAuthUI() {
 
   if (elements.uploadAccount) {
     elements.uploadAccount.value = signedIn
-      ? `${authState.user.name}${authState.user.email ? ` (${authState.user.email})` : ""}`
+      ? authState.user.name || "Workspace user"
       : configured
-        ? "Sign in to upload under your own workspace."
+        ? "Sign in to upload into your own workspace."
         : "Add Cognito config to enable signed-in uploads.";
   }
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Files uploaded from this browser are stored under your signed-in workspace and shown only in your dashboard."
+      ? "Files uploaded from this browser stay inside your signed-in workspace. Add a personal email only if you want receipt updates sent there."
       : configured
         ? "Sign in or create an account first. Uploads, history, analytics, and delete actions stay tied to that user."
         : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";
@@ -918,6 +927,7 @@ function mapReceipt(receipt) {
     confidenceScore: receipt.confidenceScore || receipt.confidence_score || "0.00",
     expenseMonth: receipt.expenseMonth || receipt.expense_month || "--",
     uploadedBy: receipt.uploadedBy || receipt.uploaded_by || "demo@receiptpulse.dev",
+    notificationEmail: receipt.notificationEmail || receipt.notification_email || "",
     fileName: receipt.fileName || receipt.file_name || "receipt",
     objectKey: receipt.objectKey || receipt.key || "",
     currencySymbol: receipt.currencySymbol || receipt.currency_symbol || "$",
@@ -1593,7 +1603,7 @@ function renderSpotlight() {
     ["Month", receipt.expenseMonth],
     ["Items", `${receipt.itemCount || 0}`],
     ["Process Time", formatProcessingDuration(uploadState.durationMs)],
-    ["Uploaded By", receipt.uploadedBy || "demo@receiptpulse.dev"],
+    getUploadContactFact(receipt),
     ["File", receipt.fileName || "receipt"],
     ["Duplicate Of", receipt.duplicateOf || "No prior match"],
   ];
@@ -1601,7 +1611,7 @@ function renderSpotlight() {
   elements.spotlightFacts.innerHTML = facts
     .map(
       ([label, value]) => `
-        <article class="spotlight-stat${label === "Uploaded By" || label === "File" ? " spotlight-stat--wrap" : ""}">
+        <article class="spotlight-stat${label === "Update Email" || label === "Workspace Owner" || label === "File" ? " spotlight-stat--wrap" : ""}">
           <span>${escapeHtml(label)}</span>
           <strong>${escapeHtml(String(value))}</strong>
         </article>
@@ -2133,7 +2143,9 @@ function formatProcessingDuration(durationMs) {
 }
 
 function guessContentType(file) {
-  if (file.type) return file.type;
+  const declaredType = String(file?.type || "").trim().toLowerCase();
+  if (declaredType === "image/jpg") return "image/jpeg";
+  if (declaredType && RECEIPT_UPLOAD_TYPE_MAP[declaredType]) return declaredType;
   const name = file.name.toLowerCase();
   if (name.endsWith(".pdf")) return "application/pdf";
   if (name.endsWith(".png")) return "image/png";
@@ -2141,8 +2153,73 @@ function guessContentType(file) {
   return "application/octet-stream";
 }
 
+function getFileExtension(fileName) {
+  const normalizedName = String(fileName || "").trim().toLowerCase();
+  const lastDot = normalizedName.lastIndexOf(".");
+  if (lastDot < 0) {
+    return "";
+  }
+  return normalizedName.slice(lastDot);
+}
+
 function isSupportedFile(file) {
-  return ["application/pdf", "image/png", "image/jpeg"].includes(guessContentType(file));
+  const contentType = guessContentType(file);
+  const extension = getFileExtension(file?.name || "");
+  const allowedExtensions = RECEIPT_UPLOAD_TYPE_MAP[contentType] || [];
+  return Boolean(
+    RECEIPT_UPLOAD_TYPE_MAP[contentType]
+    && extension
+    && RECEIPT_UPLOAD_EXTENSIONS.has(extension)
+    && allowedExtensions.includes(extension)
+  );
+}
+
+function normalizeEmail(value) {
+  const candidate = String(value || "").trim().toLowerCase();
+  if (!candidate) {
+    return "";
+  }
+
+  return /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(candidate) ? candidate : "";
+}
+
+function getUploadContactFact(receipt) {
+  if (receipt.notificationEmail) {
+    return ["Update Email", receipt.notificationEmail];
+  }
+
+  return ["Workspace Owner", receipt.uploadedBy || "Workspace user"];
+}
+
+function syncSelectedReceiptFile(file) {
+  if (!elements.fileMeta) {
+    return;
+  }
+
+  if (!file) {
+    elements.fileMeta.textContent =
+      "No receipt selected yet. Phone gallery and device storage are both supported for receipt files.";
+    void updatePreviewFromFile(null);
+    return;
+  }
+
+  if (!isSupportedFile(file)) {
+    if (elements.fileInput) {
+      elements.fileInput.value = "";
+    }
+    elements.fileMeta.textContent =
+      "Blocked. Use a receipt PDF, PNG, JPG, or JPEG file from your device or photo library.";
+    setUploadState(
+      "error",
+      "slot",
+      "Only receipt PDF, PNG, JPG, or JPEG files are allowed."
+    );
+    void updatePreviewFromFile(null);
+    return;
+  }
+
+  elements.fileMeta.textContent = `${file.name} - ${formatFileSize(file.size)} - ready for upload`;
+  void updatePreviewFromFile(file);
 }
 
 function sleep(ms) {
@@ -2221,10 +2298,7 @@ function bindUploadControls() {
 
   elements.fileInput.addEventListener("change", () => {
     const file = elements.fileInput.files[0] || null;
-    elements.fileMeta.textContent = file
-      ? `${file.name} - ${formatFileSize(file.size)} - ready for upload`
-      : "No receipt selected yet.";
-    void updatePreviewFromFile(file);
+    syncSelectedReceiptFile(file);
   });
 
   elements.uploadName?.addEventListener("input", () => {
@@ -2259,8 +2333,7 @@ function bindUploadControls() {
       elements.fileInput.files = transfer.files;
     }
 
-    elements.fileMeta.textContent = `${file.name} - ${formatFileSize(file.size)} - ready for upload`;
-    void updatePreviewFromFile(file);
+    syncSelectedReceiptFile(file);
   });
 }
 
@@ -2284,11 +2357,25 @@ async function handleUpload(event) {
   }
 
   if (!isSupportedFile(file)) {
-    setUploadState("error", "slot", "Use a PDF, PNG, JPG, or JPEG receipt.");
+    setUploadState(
+      "error",
+      "slot",
+      "Only receipt PDF, PNG, JPG, or JPEG files are allowed."
+    );
     return;
   }
 
   const receiptLabel = elements.uploadName.value.trim();
+  const rawNotificationEmail = String(elements.uploadEmail?.value || "").trim();
+  const notificationEmail = normalizeEmail(rawNotificationEmail);
+  if (rawNotificationEmail && !notificationEmail) {
+    setUploadState(
+      "error",
+      "slot",
+      "Enter a valid personal email address or leave that field blank."
+    );
+    return;
+  }
 
   try {
     uploadState = {
@@ -2302,7 +2389,7 @@ async function handleUpload(event) {
     };
     setUploadState("preparing", "slot", "Requesting a secure upload slot for your account.");
 
-    const session = await requestUploadSession(file, receiptLabel);
+    const session = await requestUploadSession(file, receiptLabel, notificationEmail);
     uploadState.objectKey = session.objectKey;
 
     setUploadState("uploading", "transfer", "Uploading the receipt into the S3 intake bucket.");
@@ -2333,7 +2420,7 @@ async function handleUpload(event) {
   }
 }
 
-async function requestUploadSession(file, receiptLabel) {
+async function requestUploadSession(file, receiptLabel, notificationEmail = "") {
   const response = await apiFetch("/uploads", {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -2342,6 +2429,7 @@ async function requestUploadSession(file, receiptLabel) {
       contentType: guessContentType(file),
       uploaderName: receiptLabel,
       receiptLabel,
+      notificationEmail,
     }),
   });
 

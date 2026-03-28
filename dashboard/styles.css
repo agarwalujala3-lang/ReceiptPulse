@@ -5303,11 +5303,6 @@ body.cursor-cta .cursor-orb {
     0 0 36px rgba(96, 202, 255, 0.24);
 }
 
-.duplicate-decision-modal[data-tone="keep"] .duplicate-decision-pills span {
-  border-color: rgba(144, 222, 255, 0.22);
-  color: #dff7ff;
-}
-
 .duplicate-decision-modal[data-tone="keep"] .duplicate-decision-input {
   border-color: rgba(126, 208, 255, 0.22);
   background:
@@ -5442,28 +5437,7 @@ body.cursor-cta .cursor-orb {
 
 .duplicate-decision-copy {
   display: grid;
-  gap: 0.9rem;
-}
-
-.duplicate-decision-pills {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.duplicate-decision-pills span {
-  display: inline-flex;
-  align-items: center;
-  min-height: 32px;
-  padding: 0.32rem 0.72rem;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 198, 142, 0.2);
-  background: rgba(255, 255, 255, 0.04);
-  color: #ffe5bc;
-  font-size: 0.74rem;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
+  gap: 1rem;
 }
 
 .duplicate-decision-field {
@@ -6241,12 +6215,12 @@ body.workspace-signed-in.topbar-condensed .topbar {
 /* Final upload motion scene reset */
 
 .upload-motion-scene {
-  grid-template-columns: minmax(0, 1fr) 3.75rem minmax(0, 1fr);
+  grid-template-columns: minmax(0, 1fr) 4.5rem minmax(0, 1fr);
   grid-template-areas:
     "cloud cloud cloud"
     "receipt . processing"
     ". . ledger";
-  gap: 1rem 0;
+  gap: 1rem 0.3rem;
   min-height: 18.25rem;
   align-items: start;
 }
@@ -6293,11 +6267,19 @@ body.workspace-signed-in.topbar-condensed .topbar {
 
 .motion-receipt {
   grid-area: receipt;
-  align-self: center;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.82rem;
+  align-self: start;
 }
 
 .motion-processing {
   grid-area: processing;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.82rem;
   align-self: center;
   margin-left: 0;
 }
@@ -6307,7 +6289,7 @@ body.workspace-signed-in.topbar-condensed .topbar {
   position: absolute;
   top: 50%;
   right: 100%;
-  width: 3.75rem;
+  width: 4.5rem;
   height: 2px;
   transform: translateY(-50%);
   border-radius: 999px;
@@ -6339,6 +6321,10 @@ body.workspace-signed-in.topbar-condensed .topbar {
 
 .motion-ledger {
   grid-area: ledger;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: start;
+  gap: 0.82rem;
   margin-top: 0.1rem;
 }
 
@@ -6361,6 +6347,7 @@ body.workspace-signed-in.topbar-condensed .topbar {
 .motion-processing-copy,
 .motion-ledger-copy {
   min-width: 0;
+  width: 100%;
 }
 
 .motion-receipt-copy strong,
@@ -6374,8 +6361,24 @@ body.workspace-signed-in.topbar-condensed .topbar {
   word-break: break-word;
 }
 
-.motion-receipt-copy strong {
+.motion-receipt-mark,
+.motion-processing-core,
+.motion-ledger-ring {
+  flex-shrink: 0;
+}
+
+.motion-receipt-copy strong,
+.motion-processing-copy strong,
+.motion-ledger-copy strong {
+  display: block;
   line-height: 1.32;
+}
+
+.motion-receipt-copy span,
+.motion-processing-copy span,
+.motion-ledger-copy span {
+  display: block;
+  line-height: 1.52;
 }
 
 .table-wrap th:last-child,

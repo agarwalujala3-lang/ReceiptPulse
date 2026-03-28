@@ -615,7 +615,6 @@ const elements = {
   duplicateDecisionEyebrow: document.querySelector("#duplicateDecisionEyebrow"),
   duplicateDecisionTitle: document.querySelector("#duplicateDecisionTitle"),
   duplicateDecisionBody: document.querySelector("#duplicateDecisionBody"),
-  duplicateDecisionPills: document.querySelector("#duplicateDecisionPills"),
   duplicateDecisionField: document.querySelector("#duplicateDecisionField"),
   duplicateDecisionLabel: document.querySelector("#duplicateDecisionLabel"),
   duplicateDecisionNote: document.querySelector("#duplicateDecisionNote"),
@@ -3040,7 +3039,6 @@ async function handleDuplicateReceiptDecision(receipt) {
         eyebrow: "Upload Discarded",
         title: "Duplicate receipt was discarded.",
         body: "This repeated receipt was removed and will not change your dashboard totals, history, or results.",
-        pills: ["Discarded", "Not Stored", "Back To Upload"],
         note: "Returning you to the upload module now.",
         noteTone: "error",
         icon: "X",
@@ -3087,7 +3085,6 @@ async function handleDuplicateReceiptDecision(receipt) {
       eyebrow: "Separate Receipt Saved",
       title: "Duplicate kept as its own receipt.",
       body: "Your new receipt name was saved, and this upload will stay in the dashboard as a separate record.",
-      pills: ["Saved", "Separate Entry", "Opening Result"],
       note: "Loading the updated result view now.",
       noteTone: "ready",
       icon: "+",
@@ -3572,23 +3569,12 @@ function setDuplicateDecisionBusy(isBusy) {
   }
 }
 
-function renderDuplicateDecisionPills(pills = []) {
-  if (!elements.duplicateDecisionPills) {
-    return;
-  }
-
-  elements.duplicateDecisionPills.innerHTML = pills
-    .map((pill) => `<span>${escapeHtml(pill)}</span>`)
-    .join("");
-}
-
 function setDuplicateDecisionPresentation({
   mode = "choice",
   tone = "warning",
   eyebrow = "Duplicate Receipt Warning",
   title = "Possible duplicate upload detected.",
   body = "",
-  pills = ["Decision Needed", "Not Final Yet", "Choose One Path"],
   note = "",
   noteTone = "hint",
   icon = "!",
@@ -3619,8 +3605,6 @@ function setDuplicateDecisionPresentation({
     elements.duplicateDecisionNote.textContent = note;
     elements.duplicateDecisionNote.dataset.tone = noteTone;
   }
-
-  renderDuplicateDecisionPills(pills);
 }
 
 function canKeepDuplicateAsSeparate() {
@@ -3700,7 +3684,6 @@ async function showDuplicateDecisionOutcome({
   eyebrow,
   title,
   body,
-  pills,
   note,
   noteTone,
   icon,
@@ -3712,7 +3695,6 @@ async function showDuplicateDecisionOutcome({
     eyebrow,
     title,
     body,
-    pills,
     note,
     noteTone,
     icon,
@@ -3765,7 +3747,6 @@ function closeDuplicateDecisionDialog(result = null) {
     title: "Possible duplicate upload detected.",
     body:
       "This file looks like a receipt that already exists in your workspace. Choose whether to keep it as a separate receipt with a new name or reject it from uploads.",
-    pills: ["Decision Needed", "Not Final Yet", "Choose One Path"],
     note:
       "Give this duplicate a different name if you want to keep it as a separate receipt.",
     noteTone: "hint",
@@ -3821,7 +3802,6 @@ function openDuplicateDecisionDialog(receipt) {
     eyebrow: "Duplicate Receipt Warning",
     title: "Possible duplicate upload detected.",
     body: buildDuplicateDecisionMessage(receipt),
-    pills: ["Decision Needed", "Not Final Yet", "Choose One Path"],
     note:
       "Give this duplicate a different name if you want to keep it as a separate receipt.",
     noteTone: "hint",

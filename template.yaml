@@ -221,6 +221,7 @@ Resources:
           - GET
           - POST
           - PATCH
+          - DELETE
           - OPTIONS
         AllowOrigins:
           - "*"
@@ -286,6 +287,12 @@ Resources:
             ApiId: !Ref ReceiptApi
             Method: PATCH
             Path: /receipts/{receiptId}/review
+        DeleteReceiptRoute:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref ReceiptApi
+            Method: DELETE
+            Path: /receipts/{receiptId}
         ClearReceiptsRoute:
           Type: HttpApi
           Properties:

@@ -8,7 +8,7 @@
       name="description"
       content="ReceiptPulse is a portfolio project for receipt upload, OCR extraction, and basic expense analysis."
     />
-    <link rel="stylesheet" href="./styles.css?v=20260328n" />
+    <link rel="stylesheet" href="./styles.css?v=20260328o" />
   </head>
   <body>
     <header class="topbar">
@@ -396,6 +396,26 @@
       </div>
     </section>
 
+    <div class="rename-scrim" id="renameScrim" hidden></div>
+    <section class="rename-modal" id="renameModal" aria-hidden="true" hidden role="dialog" aria-modal="true" aria-labelledby="renameTitle">
+      <p class="eyebrow">Rename Receipt</p>
+      <h3 id="renameTitle">Rename receipt label</h3>
+      <p class="confirm-copy" id="renameBody">
+        Type a new label, or clear the field to let ReceiptPulse rebuild a shorter automatic label.
+      </p>
+      <label class="field rename-field">
+        <span>Receipt label</span>
+        <input class="text-input rename-input" id="renameInput" type="text" maxlength="120" />
+      </label>
+      <p class="rename-note" id="renameNote">
+        Leave it blank and ReceiptPulse will rebuild a shorter automatic label.
+      </p>
+      <div class="confirm-actions">
+        <button class="ghost-link ghost-button" id="renameCancel" type="button">Cancel</button>
+        <button class="primary-button rename-save-button" id="renameSave" type="button">Save Label</button>
+      </div>
+    </section>
+
     <div class="duplicate-decision-scrim" id="duplicateDecisionScrim" hidden></div>
     <section
       class="duplicate-decision-modal"
@@ -453,6 +473,6 @@
 
     <script src="./config.js?v=20260328b"></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260328s" defer></script>
+    <script src="./app.js?v=20260328t" defer></script>
   </body>
 </html>

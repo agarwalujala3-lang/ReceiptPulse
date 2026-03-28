@@ -7,6 +7,61 @@ const AUTH_SIGNIN_PATH = "./index.html";
 const AUTH_SIGNUP_PATH = "./signup.html";
 const MAX_HISTORY_ITEMS = 8;
 const DUPLICATE_DECISION_OUTCOME_DELAY_MS = 2400;
+const LABEL_CATEGORY_PREFIXES = {
+  "Food & Dining": "Food",
+  Travel: "Travel",
+  Utilities: "Utility",
+  Medical: "Medical",
+  Retail: "Retail",
+  "Office Supplies": "Office",
+  "General Expense": "Expense",
+  Uncategorized: "Receipt",
+};
+const AUTO_LABEL_IGNORED_TOKENS = new Set([
+  "and",
+  "bill",
+  "co",
+  "company",
+  "corp",
+  "corporation",
+  "copy",
+  "document",
+  "enterprises",
+  "file",
+  "group",
+  "image",
+  "img",
+  "inc",
+  "india",
+  "invoice",
+  "jpeg",
+  "jpg",
+  "limited",
+  "llc",
+  "llp",
+  "ltd",
+  "mart",
+  "of",
+  "online",
+  "pay",
+  "payment",
+  "payments",
+  "pdf",
+  "photo",
+  "png",
+  "private",
+  "pty",
+  "receipt",
+  "scan",
+  "services",
+  "solutions",
+  "statement",
+  "store",
+  "supermarket",
+  "trading",
+  "upload",
+]);
+const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 const RECEIPT_UPLOAD_TYPE_MAP = {
   "application/pdf": [".pdf"],
   "image/png": [".png"],
@@ -611,6 +666,14 @@ const elements = {
   confirmBody: document.querySelector("#confirmBody"),
   confirmAccept: document.querySelector("#confirmAccept"),
   confirmCancel: document.querySelector("#confirmCancel"),
+  renameModal: document.querySelector("#renameModal"),
+  renameScrim: document.querySelector("#renameScrim"),
+  renameTitle: document.querySelector("#renameTitle"),
+  renameBody: document.querySelector("#renameBody"),
+  renameInput: document.querySelector("#renameInput"),
+  renameNote: document.querySelector("#renameNote"),
+  renameSave: document.querySelector("#renameSave"),
+  renameCancel: document.querySelector("#renameCancel"),
   duplicateDecisionModal: document.querySelector("#duplicateDecisionModal"),
   duplicateDecisionScrim: document.querySelector("#duplicateDecisionScrim"),
   duplicateDecisionEyebrow: document.querySelector("#duplicateDecisionEyebrow"),
@@ -655,6 +718,12 @@ let uploadState = {
 let confirmState = {
   resolve: null,
   previousFocus: null,
+};
+let renameState = {
+  resolve: null,
+  previousFocus: null,
+  receipt: null,
+  busy: false,
 };
 let duplicateDecisionState = {
   resolve: null,
@@ -1148,6 +1217,7 @@ function mapReceipt(receipt) {
     duplicateOf: receipt.duplicateOf || receipt.duplicate_of || "",
     reviewReasons: receipt.reviewReasons || receipt.review_reasons || [],
     processedAt: receipt.processedAt || receipt.processed_timestamp || "",
+    date: receipt.date || "",
   };
 }
 
@@ -1165,6 +1235,101 @@ function normalizeVisualText(value) {
     .toLowerCase()
     .replace(/[^a-z0-9]+/g, " ")
     .trim();
+}
+
+function normalizeCompactToken(value) {
+  return String(value || "")
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, "");
+}
+
+function prettifyCompactToken(token) {
+  const cleaned = String(token || "").trim();
+  if (!cleaned) {
+    return "";
+  }
+  if (/[a-z]/.test(cleaned)) {
+    return cleaned.slice(0, 18);
+  }
+  return `${cleaned.charAt(0)}${cleaned.slice(1).toLowerCase()}`.slice(0, 18);
+}
+
+function getAutoLabelCategoryPrefix(receipt) {
+  const category = String(receipt?.category || "").trim();
+  if (!category) {
+    return "Receipt";
+  }
+  if (LABEL_CATEGORY_PREFIXES[category]) {
+    return LABEL_CATEGORY_PREFIXES[category];
+  }
+
+  const parts = category.replace(/[^A-Za-z0-9 ]+/g, " ").split(/\s+/).filter(Boolean);
+  if (!parts.length) {
+    return "Receipt";
+  }
+  return `${parts[0].charAt(0).toUpperCase()}${parts[0].slice(1).toLowerCase()}`.slice(0, 18);
+}
+
+function extractAutoLabelToken(value, { ignore = AUTO_LABEL_IGNORED_TOKENS } = {}) {
+  const tokens = String(value || "").match(/[A-Za-z0-9&']+/g) || [];
+  for (const token of tokens) {
+    const normalized = normalizeCompactToken(token);
+    if (normalized.length <= 1 || ignore.has(normalized)) {
+      continue;
+    }
+    return prettifyCompactToken(token);
+  }
+  return "";
+}
+
+function getAutoLabelVendorMarker(receipt) {
+  const vendor = String(receipt?.vendor || "").trim();
+  if (!vendor || vendor.toLowerCase().startsWith("unknown")) {
+    return "";
+  }
+  return extractAutoLabelToken(vendor);
+}
+
+function getAutoLabelFileMarker(receipt) {
+  const baseName = String(receipt?.fileName || "receipt").replace(/\.[^.]+$/, "");
+  return extractAutoLabelToken(baseName);
+}
+
+function getAutoLabelDateToken(receipt) {
+  const rawDate = String(receipt?.date || "").trim();
+  const dateMatch = rawDate.match(/^(\d{4})-(\d{2})-(\d{2})$/);
+  if (dateMatch) {
+    const monthIndex = Number(dateMatch[2]) - 1;
+    if (monthIndex >= 0 && monthIndex < MONTH_LABELS.length) {
+      return `${Number(dateMatch[3])}${MONTH_LABELS[monthIndex]}`;
+    }
+  }
+
+  const monthMatch = String(receipt?.expenseMonth || "").trim().match(/^(\d{4})-(\d{2})$/);
+  if (monthMatch) {
+    const monthIndex = Number(monthMatch[2]) - 1;
+    if (monthIndex >= 0 && monthIndex < MONTH_LABELS.length) {
+      return `${MONTH_LABELS[monthIndex]}${monthMatch[1].slice(-2)}`;
+    }
+  }
+
+  return "";
+}
+
+function buildCompactVisualLabel(receipt) {
+  const prefix = getAutoLabelCategoryPrefix(receipt);
+  const vendorMarker = getAutoLabelVendorMarker(receipt) || getAutoLabelFileMarker(receipt);
+  const parts = [prefix];
+  if (vendorMarker && normalizeVisualText(vendorMarker) !== normalizeVisualText(prefix)) {
+    parts.push(vendorMarker);
+  }
+
+  const dateToken = getAutoLabelDateToken(receipt);
+  if (dateToken) {
+    parts.push(dateToken);
+  }
+
+  return parts.join(" ").trim() || "Receipt";
 }
 
 function hashString(value) {
@@ -1366,7 +1531,13 @@ function getDraftTheme(labelOverride, fileName = "") {
 }
 
 function getReceiptDisplayLabel(receipt) {
-  return getReceiptLabelOverride(receipt) || receipt.category || receipt.vendor || "Receipt";
+  return (
+    getReceiptLabelOverride(receipt)
+    || buildCompactVisualLabel(receipt)
+    || receipt.category
+    || receipt.vendor
+    || "Receipt"
+  );
 }
 
 function getReceiptTheme(receipt) {
@@ -2063,6 +2234,13 @@ function renderSpotlight() {
   elements.spotlightNarrative.textContent = buildSpotlightNarrative(receipt);
   elements.spotlightActions.innerHTML = `
     <button
+      class="ghost-link ghost-button receipt-rename-button spotlight-rename-button"
+      type="button"
+      data-spotlight-rename="${escapeHtml(receipt.receiptId)}"
+    >
+      Rename Label
+    </button>
+    <button
       class="ghost-link ghost-button receipt-delete-button spotlight-delete-button"
       type="button"
       data-spotlight-delete="${escapeHtml(receipt.receiptId)}"
@@ -2070,6 +2248,11 @@ function renderSpotlight() {
       Delete This Receipt
     </button>
   `;
+  elements.spotlightActions
+    .querySelector("[data-spotlight-rename]")
+    ?.addEventListener("click", () => {
+      renameStoredReceipt(receipt.receiptId);
+    });
   elements.spotlightActions
     .querySelector("[data-spotlight-delete]")
     ?.addEventListener("click", () => {
@@ -2228,9 +2411,9 @@ function renderUploadHistory() {
               ? `<img class="history-thumb" src="${entry.previewDataUrl}" alt="${entry.fileName} preview" />`
               : `<div class="history-thumb-placeholder">${entry.previewType === "pdf" ? "PDF" : "FILE"}</div>`
           }
-          <div class="history-meta">
+            <div class="history-meta">
             <div class="history-topline">
-              <span class="history-name"><span class="receipt-icon-badge">${theme.icon}</span>${escapeHtml(entry.fileName)}</span>
+              <span class="history-name"><span class="receipt-icon-badge">${theme.icon}</span>${escapeHtml(displayLabel)}</span>
               <div class="history-badges">
                 <span class="status-tag status-${resolvedReceipt.reviewStatus.toLowerCase().replace(/_/g, "-")}">${formatLabel(resolvedReceipt.reviewStatus)}</span>
                 ${
@@ -2241,7 +2424,7 @@ function renderUploadHistory() {
               </div>
             </div>
             <div class="history-subline">
-              <strong>${escapeHtml(displayLabel)}</strong>
+              <span class="muted history-fileline">${escapeHtml(resolvedReceipt.fileName || entry.fileName)}</span>
               <span class="muted">${currencySymbol}${Number(resolvedReceipt.totalAmount || 0).toFixed(2)}</span>
             </div>
             ${
@@ -2271,6 +2454,14 @@ function renderUploadHistory() {
             }
             <div class="history-actions">
               <button
+                class="ghost-link ghost-button receipt-rename-button history-item-rename-button"
+                type="button"
+                data-history-rename="${escapeHtml(receiptDeleteId)}"
+                ${!signedIn || !receiptDeleteId ? "disabled" : ""}
+              >
+                Rename Label
+              </button>
+              <button
                 class="ghost-link ghost-button receipt-delete-button history-item-delete-button"
                 type="button"
                 data-history-delete="${escapeHtml(receiptDeleteId)}"
@@ -2285,6 +2476,12 @@ function renderUploadHistory() {
     })
     .join("");
 
+  elements.historyList.querySelectorAll("[data-history-rename]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const receiptId = button.dataset.historyRename || "";
+      renameStoredReceipt(receiptId);
+    });
+  });
   elements.historyList.querySelectorAll("[data-history-delete]").forEach((button) => {
     button.addEventListener("click", () => {
       const receiptId = button.dataset.historyDelete || "";
@@ -2592,6 +2789,13 @@ function renderReceipts() {
           <td>
             <div class="receipt-row-actions">
               <button
+                class="ghost-link ghost-button receipt-rename-button"
+                type="button"
+                data-rename-receipt="${escapeHtml(receipt.receiptId)}"
+              >
+                Rename
+              </button>
+              <button
                 class="ghost-link ghost-button receipt-delete-button"
                 type="button"
                 data-delete-receipt="${escapeHtml(receipt.receiptId)}"
@@ -2605,6 +2809,11 @@ function renderReceipts() {
     })
     .join("");
 
+  elements.receiptsBody.querySelectorAll("[data-rename-receipt]").forEach((button) => {
+    button.addEventListener("click", () => {
+      renameStoredReceipt(button.dataset.renameReceipt || "");
+    });
+  });
   elements.receiptsBody.querySelectorAll("[data-delete-receipt]").forEach((button) => {
     button.addEventListener("click", () => {
       deleteStoredReceipt(button.dataset.deleteReceipt || "");
@@ -3425,28 +3634,72 @@ function persistUploadHistory() {
   }
 }
 
+function mergeHistoryEntryWithReceipt(entry, receipt = {}) {
+  const mappedReceipt = mapReceipt(receipt);
+  return {
+    ...entry,
+    id: mappedReceipt.receiptId || entry.id,
+    receiptId: mappedReceipt.receiptId || entry.receiptId || entry.id,
+    fileName: mappedReceipt.fileName || entry.fileName || "receipt",
+    vendor: mappedReceipt.vendor || entry.vendor || "Unknown Vendor",
+    receiptLabel: mappedReceipt.receiptLabel || entry.receiptLabel || "",
+    category: mappedReceipt.category || entry.category || "Uncategorized",
+    reviewStatus: mappedReceipt.reviewStatus || entry.reviewStatus || "UNKNOWN",
+    totalAmount: mappedReceipt.totalAmount || entry.totalAmount || "0.00",
+    currencySymbol: mappedReceipt.currencySymbol || entry.currencySymbol || "$",
+    processedAt: mappedReceipt.processedAt || entry.processedAt || new Date().toISOString(),
+    isDuplicate: Boolean(mappedReceipt.isDuplicate || entry.isDuplicate),
+    duplicateOf: mappedReceipt.duplicateOf || entry.duplicateOf || "",
+    date: mappedReceipt.date || entry.date || "",
+  };
+}
+
+function syncUploadHistoryReceipt(receipt) {
+  if (!receipt?.receiptId || !uploadHistory.length) {
+    return false;
+  }
+
+  let changed = false;
+  uploadHistory = uploadHistory.map((entry) => {
+    const entryReceiptId = entry.receiptId || entry.id || "";
+    if (entryReceiptId !== receipt.receiptId) {
+      return entry;
+    }
+    changed = true;
+    return mergeHistoryEntryWithReceipt(entry, receipt);
+  });
+
+  if (changed) {
+    persistUploadHistory();
+  }
+  return changed;
+}
+
 function addUploadHistoryEntry(file, receipt, receiptLabel = "") {
   const previewType = latestPreview?.type || (guessContentType(file) === "application/pdf" ? "pdf" : "file");
   const receiptId = receipt.receiptId || `${Date.now()}`;
-  const entry = {
-    id: receiptId,
-    receiptId,
-    fileName: receipt.fileName || file.name,
-    vendor: receipt.vendor || "Unknown Vendor",
-    receiptLabel: receipt.receiptLabel || receiptLabel || "",
-    category: receipt.category || "Uncategorized",
-    reviewStatus: receipt.reviewStatus || "UNKNOWN",
-    totalAmount: receipt.totalAmount || "0.00",
-    currencySymbol: receipt.currencySymbol || "$",
-    processedAt: new Date().toISOString(),
-    durationMs: uploadState.durationMs || 0,
-    previewType,
-    previewDataUrl: latestPreview?.previewDataUrl || "",
-    isDuplicate: Boolean(receipt.isDuplicate),
-    duplicateOf: receipt.duplicateOf || "",
-  };
-
-  uploadHistory = [entry, ...uploadHistory.filter((item) => item.id !== entry.id)].slice(
+  const entry = mergeHistoryEntryWithReceipt(
+    {
+      id: receiptId,
+      receiptId,
+      fileName: file.name,
+      previewType,
+      previewDataUrl: latestPreview?.previewDataUrl || "",
+      durationMs: uploadState.durationMs || 0,
+      processedAt: new Date().toISOString(),
+      receiptLabel,
+    },
+    receipt
+  );
+  uploadHistory = [
+    {
+      ...entry,
+      previewType,
+      previewDataUrl: latestPreview?.previewDataUrl || "",
+      durationMs: uploadState.durationMs || 0,
+    },
+    ...uploadHistory.filter((item) => item.id !== entry.id),
+  ].slice(
     0,
     MAX_HISTORY_ITEMS
   );
@@ -3470,22 +3723,34 @@ function pruneLocalHistoryByReceiptId(receiptId) {
 }
 
 function reconcileUploadHistoryWithSnapshot(receipts = []) {
-  if (!Array.isArray(receipts) || !receipts.length || !uploadHistory.length) {
+  if (!Array.isArray(receipts) || !uploadHistory.length) {
     return;
   }
 
-  const liveReceiptIds = new Set(
-    receipts.map((entry) => entry.receiptId).filter(Boolean)
+  const receiptMap = new Map(
+    receipts.map((entry) => {
+      const mapped = mapReceipt(entry);
+      return [mapped.receiptId, mapped];
+    })
   );
   const previousLength = uploadHistory.length;
-  uploadHistory = uploadHistory.filter((entry) => {
-    const receiptId = entry.receiptId || entry.id || "";
-    return !receiptId || liveReceiptIds.has(receiptId);
-  });
+  uploadHistory = uploadHistory
+    .filter((entry) => {
+      const receiptId = entry.receiptId || entry.id || "";
+      return !receiptId || receiptMap.has(receiptId);
+    })
+    .map((entry) => {
+      const receiptId = entry.receiptId || entry.id || "";
+      const liveReceipt = receiptMap.get(receiptId);
+      return liveReceipt ? mergeHistoryEntryWithReceipt(entry, liveReceipt) : entry;
+    });
 
   if (uploadHistory.length !== previousLength) {
     persistUploadHistory();
+    return;
   }
+
+  persistUploadHistory();
 }
 
 async function updatePreviewFromFile(file) {
@@ -3620,6 +3885,10 @@ function bindHistoryControls() {
   elements.confirmAccept?.addEventListener("click", () => closeConfirmDialog(true));
   elements.confirmCancel?.addEventListener("click", () => closeConfirmDialog(false));
   elements.confirmScrim?.addEventListener("click", () => closeConfirmDialog(false));
+  elements.renameSave?.addEventListener("click", () => resolveRenameDialog(elements.renameInput?.value ?? ""));
+  elements.renameCancel?.addEventListener("click", () => closeRenameDialog(null));
+  elements.renameScrim?.addEventListener("click", () => closeRenameDialog(null));
+  elements.renameInput?.addEventListener("input", updateRenameNote);
   elements.duplicateDecisionLabel?.addEventListener("input", updateDuplicateDecisionNote);
   elements.duplicateDecisionKeep?.addEventListener("click", () => {
     if (!canKeepDuplicateAsSeparate() || duplicateDecisionState.busy) {
@@ -3655,7 +3924,22 @@ function bindHistoryControls() {
       return;
     }
 
+    if (!elements.renameModal?.hidden) {
+      if (event.key === "Enter" && event.target === elements.renameInput) {
+        event.preventDefault();
+        resolveRenameDialog(elements.renameInput?.value ?? "");
+      } else if (event.key === "Escape") {
+        event.preventDefault();
+        closeRenameDialog(null);
+      }
+      return;
+    }
+
     if (event.key === "Escape") {
+      if (!elements.renameModal?.hidden) {
+        closeRenameDialog(null);
+        return;
+      }
       if (!elements.confirmModal?.hidden) {
         closeConfirmDialog(false);
         return;
@@ -3705,6 +3989,129 @@ function closeConfirmDialog(confirmed = false) {
   if (resolve) {
     resolve(confirmed);
   }
+}
+
+function getSuggestedRenameLabel(receipt) {
+  return buildCompactVisualLabel(receipt).slice(0, 120);
+}
+
+function updateRenameNote() {
+  if (!elements.renameNote) {
+    return;
+  }
+
+  const typedLabel = String(elements.renameInput?.value || "").trim();
+  const suggestedLabel = getSuggestedRenameLabel(renameState.receipt);
+  elements.renameNote.textContent = typedLabel
+    ? `This receipt will be renamed to "${typedLabel}".`
+    : `Leave it blank and ReceiptPulse will rebuild a shorter label like "${suggestedLabel}".`;
+}
+
+function setRenameBusy(isBusy) {
+  renameState.busy = isBusy;
+  if (elements.renameInput) {
+    elements.renameInput.disabled = isBusy;
+  }
+  if (elements.renameSave) {
+    elements.renameSave.disabled = isBusy;
+    elements.renameSave.textContent = isBusy ? "Saving Label..." : "Save Label";
+  }
+  if (elements.renameCancel) {
+    elements.renameCancel.disabled = isBusy;
+  }
+}
+
+function resolveRenameDialog(result) {
+  if (renameState.busy) {
+    return;
+  }
+  const resolve = renameState.resolve;
+  renameState.resolve = null;
+  if (resolve) {
+    resolve(result);
+  }
+}
+
+function closeRenameDialog(result = null) {
+  const { renameModal, renameScrim } = elements;
+  if (!renameModal || !renameScrim) {
+    if (renameState.resolve) {
+      const resolve = renameState.resolve;
+      renameState.resolve = null;
+      resolve(result);
+    }
+    return;
+  }
+
+  renameModal.classList.remove("is-open");
+  renameScrim.classList.remove("is-open");
+  renameModal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("rename-modal-open");
+
+  const resolve = renameState.resolve;
+  const previousFocus = renameState.previousFocus;
+  renameState.resolve = null;
+  renameState.previousFocus = null;
+  renameState.receipt = null;
+  renameState.busy = false;
+
+  window.setTimeout(() => {
+    renameModal.hidden = true;
+    renameScrim.hidden = true;
+  }, 180);
+
+  if (elements.renameInput) {
+    elements.renameInput.value = "";
+    elements.renameInput.disabled = false;
+  }
+  setRenameBusy(false);
+
+  if (previousFocus?.focus) {
+    previousFocus.focus();
+  }
+
+  if (resolve) {
+    resolve(result);
+  }
+}
+
+function openRenameDialog(receipt) {
+  const { renameModal, renameScrim, renameTitle, renameBody, renameInput } = elements;
+  const currentLabel = getReceiptDisplayLabel(receipt);
+  const suggestedLabel = getSuggestedRenameLabel(receipt);
+
+  if (!renameModal || !renameScrim || !renameTitle || !renameBody || !renameInput) {
+    return Promise.resolve(window.prompt("Rename this receipt label. Leave it blank to rebuild the automatic label.", currentLabel));
+  }
+
+  if (renameState.resolve) {
+    closeRenameDialog(null);
+  }
+
+  renameState.previousFocus = document.activeElement;
+  renameState.receipt = receipt;
+  renameTitle.textContent = `Rename ${currentLabel}`;
+  renameBody.textContent =
+    "Type a new receipt label, or clear the field to let ReceiptPulse rebuild a shorter automatic label from the receipt type, store, and date.";
+  renameInput.value = currentLabel;
+  renameInput.placeholder = suggestedLabel;
+  renameModal.hidden = false;
+  renameScrim.hidden = false;
+  renameModal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("rename-modal-open");
+  updateRenameNote();
+  setRenameBusy(false);
+
+  window.requestAnimationFrame(() => {
+    renameModal.classList.add("is-open");
+    renameScrim.classList.add("is-open");
+    renameInput.focus();
+    renameInput.select();
+  });
+
+  return new Promise((resolve) => {
+    renameState.resolve = resolve;
+  });
 }
 
 function setDuplicateDecisionBusy(isBusy) {
@@ -3850,7 +4257,7 @@ function suggestSeparateReceiptLabel(receipt) {
     return "Receipt Visit 2";
   }
 
-  const baseLabel = getReceiptDisplayLabel(receipt).replace(/\s+visit\s+\d+$/i, "").trim();
+  const baseLabel = buildCompactVisualLabel(receipt).replace(/\s+visit\s+\d+$/i, "").trim();
   const duplicateSummary = getDuplicateVisitSummary(receipt);
   const visitNumber = Math.max(2, duplicateSummary?.visitCount || 2);
   return `${baseLabel} Visit ${visitNumber}`.trim().slice(0, 120);
@@ -4198,6 +4605,57 @@ async function deleteStoredReceipt(receiptId) {
   } catch (error) {
     console.error("Single receipt deletion failed.", error);
     window.alert(error.message || "Unable to delete the selected receipt.");
+  }
+}
+
+async function renameStoredReceipt(receiptId) {
+  if (!apiBase || !isSignedIn() || !receiptId) {
+    return;
+  }
+
+  const receipt =
+    (dashboardData?.receipts || []).find((entry) => entry.receiptId === receiptId)
+    || (activeDashboardView?.receipts || []).find((entry) => entry.receiptId === receiptId)
+    || uploadHistory.find((entry) => (entry.receiptId || entry.id) === receiptId);
+  if (!receipt) {
+    window.alert("Unable to find that receipt in the current view.");
+    return;
+  }
+
+  const nextLabel = await openRenameDialog(receipt);
+  if (nextLabel === null || renameState.busy) {
+    return;
+  }
+
+  try {
+    setRenameBusy(true);
+    const response = await apiFetch(`/receipts/${encodeURIComponent(receiptId)}/review`, {
+      method: "PATCH",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        action: "rename_label",
+        receiptLabel: String(nextLabel || "").trim(),
+      }),
+    });
+    if (!response.ok) {
+      throw new Error(`Unable to rename this receipt (${response.status}).`);
+    }
+
+    const payload = await response.json();
+    const renamedReceipt = mapReceipt(payload.receipt || receipt);
+    syncUploadHistoryReceipt(renamedReceipt);
+    if (uploadState.receipt?.receiptId === receiptId) {
+      uploadState.receipt = renamedReceipt;
+    }
+    await refreshLiveSnapshot();
+    renderUploadHistory();
+    closeRenameDialog(String(nextLabel || "").trim());
+    elements.statusNote.textContent = payload.message || "Receipt label updated.";
+  } catch (error) {
+    console.error("Receipt rename failed.", error);
+    setRenameBusy(false);
+    closeRenameDialog(null);
+    window.alert(error.message || "Unable to rename this receipt.");
   }
 }
 

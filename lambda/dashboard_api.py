@@ -28,6 +28,58 @@ ALLOWED_UPLOAD_TYPES = {
 }
 _SNAPSHOT_CACHE = {}
 EMAIL_PATTERN = re.compile(r"^[^@\s]+@[^@\s]+\.[^@\s]+$")
+LABEL_CATEGORY_PREFIXES = {
+    "Food & Dining": "Food",
+    "Travel": "Travel",
+    "Utilities": "Utility",
+    "Medical": "Medical",
+    "Retail": "Retail",
+    "Office Supplies": "Office",
+    "General Expense": "Expense",
+    "Uncategorized": "Receipt",
+}
+IGNORED_VENDOR_TOKENS = {
+    "and",
+    "co",
+    "company",
+    "corp",
+    "corporation",
+    "enterprises",
+    "group",
+    "inc",
+    "india",
+    "limited",
+    "llc",
+    "llp",
+    "ltd",
+    "mart",
+    "of",
+    "online",
+    "pay",
+    "payment",
+    "payments",
+    "private",
+    "pty",
+    "services",
+    "solutions",
+    "store",
+    "supermarket",
+    "trading",
+}
+MONTH_LABELS = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+]
 
 
 class ApiError(Exception):
@@ -204,9 +256,12 @@ def query_user_receipts(user_id):
             "confidence_score, expense_month, uploaded_by, receipt_label, s3_path, "
             "processed_timestamp, is_duplicate, review_reasons, file_name, "
             "currency_symbol, duplicate_of, item_count, user_id, user_email, user_name, "
-            "created_at, #receipt_key"
+            "created_at, #receipt_key, #receipt_date"
         ),
-        "ExpressionAttributeNames": {"#receipt_key": "key"},
+        "ExpressionAttributeNames": {
+            "#receipt_key": "key",
+            "#receipt_date": "date",
+        },
         "ScanIndexForward": False,
     }
     page = table.query(**query_args)
@@ -548,6 +603,8 @@ def update_review_status(receipt_id, payload, identity):
         return reject_receipt_upload(table, receipt_id, identity)
     if action == "keep_separate":
         return keep_duplicate_receipt(table, receipt_id, payload, identity)
+    if action == "rename_label":
+        return rename_receipt_label(table, receipt_id, payload, identity)
 
     review_status = payload.get("reviewStatus", "REVIEWED")
     reviewer = identity["user_email"] or identity["user_name"] or "workspace-user"
@@ -609,6 +666,114 @@ def get_receipt_base_label(receipt):
     return file_name or "Receipt"
 
 
+def prettify_label_token(token):
+    cleaned = str(token or "").strip()
+    if not cleaned:
+        return ""
+    if re.search(r"[a-z]", cleaned):
+        return cleaned[:18]
+    return cleaned.title()[:18]
+
+
+def normalize_vendor_token(token):
+    return re.sub(r"[^a-z0-9]+", "", str(token or "").lower())
+
+
+def extract_label_vendor_marker(receipt):
+    vendor = str(receipt.get("vendor") or "").strip()
+    if not vendor or vendor.lower().startswith("unknown"):
+        return ""
+
+    for token in re.findall(r"[A-Za-z0-9&']+", vendor):
+        normalized = normalize_vendor_token(token)
+        if len(normalized) <= 1 or normalized in IGNORED_VENDOR_TOKENS:
+            continue
+        return prettify_label_token(token)
+
+    return ""
+
+
+def extract_label_file_marker(receipt):
+    file_name = str(receipt.get("file_name") or "").rsplit(".", 1)[0]
+    ignore_tokens = IGNORED_VENDOR_TOKENS.union(
+        {
+            "bill",
+            "copy",
+            "document",
+            "file",
+            "image",
+            "img",
+            "invoice",
+            "jpeg",
+            "jpg",
+            "pdf",
+            "photo",
+            "png",
+            "receipt",
+            "scan",
+            "statement",
+            "upload",
+        }
+    )
+    for token in re.findall(r"[A-Za-z0-9&']+", file_name):
+        normalized = normalize_vendor_token(token)
+        if len(normalized) <= 1 or normalized in ignore_tokens:
+            continue
+        return prettify_label_token(token)
+
+    return ""
+
+
+def get_label_category_prefix(receipt):
+    category = str(receipt.get("category") or "").strip()
+    if not category:
+        return "Receipt"
+    if category in LABEL_CATEGORY_PREFIXES:
+        return LABEL_CATEGORY_PREFIXES[category]
+
+    cleaned_parts = [
+        part
+        for part in re.sub(r"[^A-Za-z0-9 ]+", " ", category).split()
+        if part
+    ]
+    if not cleaned_parts:
+        return "Receipt"
+    return cleaned_parts[0].title()[:18]
+
+
+def get_label_date_token(receipt):
+    raw_date = str(receipt.get("date") or "").strip()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw_date):
+        year, month, day = raw_date.split("-")
+        month_index = int(month) - 1
+        if 0 <= month_index < len(MONTH_LABELS):
+            return f"{int(day)}{MONTH_LABELS[month_index]}"
+
+    expense_month = str(receipt.get("expense_month") or "").strip()
+    if re.fullmatch(r"\d{4}-\d{2}", expense_month):
+        year, month = expense_month.split("-")
+        month_index = int(month) - 1
+        if 0 <= month_index < len(MONTH_LABELS):
+            return f"{MONTH_LABELS[month_index]}{year[-2:]}"
+
+    return ""
+
+
+def build_compact_receipt_label(receipt):
+    parts = [get_label_category_prefix(receipt)]
+    vendor_marker = extract_label_vendor_marker(receipt) or extract_label_file_marker(receipt)
+    if vendor_marker and normalize_label(vendor_marker) != normalize_label(parts[0]):
+        parts.append(vendor_marker)
+
+    date_token = get_label_date_token(receipt)
+    if date_token:
+        parts.append(date_token)
+
+    compact_label = " ".join(part for part in parts if part).strip() or "Receipt"
+    compact_label = re.sub(r"\s+", " ", compact_label)
+    return compact_label[:120]
+
+
 def list_duplicate_cluster_receipts(table, receipt, user_id):
     duplicate_key = str(receipt.get("duplicate_key") or "").strip()
     if not duplicate_key:
@@ -635,7 +800,7 @@ def list_duplicate_cluster_receipts(table, receipt, user_id):
 def build_auto_duplicate_label(table, receipt, user_id):
     duplicate_cluster = list_duplicate_cluster_receipts(table, receipt, user_id)
     visit_number = max(2, len(duplicate_cluster))
-    base_label = get_receipt_base_label(receipt)
+    base_label = build_compact_receipt_label(receipt)
     return f"{base_label} Visit {visit_number}".strip()[:120]
 
 
@@ -676,6 +841,67 @@ def resolve_kept_duplicate_label(table, receipt, user_id, requested_label):
         skip_receipt_id=receipt.get("receipt_id"),
     )
     return final_label, auto_generated or normalize_label(final_label) != normalize_label(requested)
+
+
+def rename_receipt_label(table, receipt_id, payload, identity):
+    receipt = get_owned_receipt(table, receipt_id, identity["user_id"])
+    requested_label = str(payload.get("receiptLabel") or "").strip()
+    auto_generated_label = not requested_label
+    candidate_label = (
+        build_compact_receipt_label(receipt)
+        if auto_generated_label
+        else requested_label[:120]
+    )
+    final_label = ensure_unique_receipt_label(
+        identity["user_id"],
+        candidate_label,
+        skip_receipt_id=receipt_id,
+    )
+    reviewed_at = datetime.now(timezone.utc).isoformat()
+    reviewer = identity["user_email"] or identity["user_name"] or "workspace-user"
+    note = (
+        str(payload.get("note") or "").strip()
+        or (
+            "Receipt label regenerated from receipt data."
+            if auto_generated_label
+            else "Receipt label renamed by the user."
+        )
+    )
+
+    try:
+        response_payload = table.update_item(
+            Key={"receipt_id": receipt_id},
+            UpdateExpression=(
+                "SET receipt_label = :receipt_label, "
+                "reviewed_by = :reviewed_by, "
+                "reviewed_at = :reviewed_at, "
+                "reviewer_note = :reviewer_note"
+            ),
+            ConditionExpression="attribute_exists(receipt_id) AND user_id = :user_id",
+            ExpressionAttributeValues={
+                ":receipt_label": final_label,
+                ":reviewed_by": reviewer,
+                ":reviewed_at": reviewed_at,
+                ":reviewer_note": note,
+                ":user_id": identity["user_id"],
+            },
+            ReturnValues="ALL_NEW",
+        )
+    except ClientError as exc:
+        if exc.response.get("Error", {}).get("Code") == "ConditionalCheckFailedException":
+            raise ApiError(404, "Receipt not found for the signed-in user.") from exc
+        raise
+
+    invalidate_snapshot_cache(identity["user_id"])
+    return {
+        "receipt": serialize_receipt(response_payload.get("Attributes", {})),
+        "message": (
+            "Receipt label regenerated from receipt data."
+            if auto_generated_label
+            else "Receipt label updated."
+        ),
+        "autoGeneratedLabel": auto_generated_label,
+    }
 
 
 def keep_duplicate_receipt(table, receipt_id, payload, identity):
@@ -877,6 +1103,7 @@ def serialize_receipt(receipt):
         "duplicateOf": receipt.get("duplicate_of"),
         "itemCount": receipt.get("item_count", 0),
         "reviewReasons": receipt.get("review_reasons", []),
+        "date": receipt.get("date"),
     }
 
 

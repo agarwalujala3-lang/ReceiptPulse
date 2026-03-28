@@ -51,6 +51,77 @@ DATE_FORMATS = (
     "%drd %b %Y",
 )
 
+LABEL_CATEGORY_PREFIXES = {
+    "Food & Dining": "Food",
+    "Travel": "Travel",
+    "Utilities": "Utility",
+    "Medical": "Medical",
+    "Retail": "Retail",
+    "Office Supplies": "Office",
+    "General Expense": "Expense",
+    "Uncategorized": "Receipt",
+}
+
+IGNORED_VENDOR_TOKENS = {
+    "and",
+    "bill",
+    "co",
+    "company",
+    "corp",
+    "corporation",
+    "copy",
+    "document",
+    "enterprises",
+    "file",
+    "group",
+    "image",
+    "img",
+    "inc",
+    "india",
+    "invoice",
+    "jpeg",
+    "jpg",
+    "limited",
+    "llc",
+    "llp",
+    "ltd",
+    "mart",
+    "of",
+    "online",
+    "pay",
+    "payment",
+    "payments",
+    "pdf",
+    "photo",
+    "png",
+    "private",
+    "pty",
+    "receipt",
+    "scan",
+    "services",
+    "solutions",
+    "statement",
+    "store",
+    "supermarket",
+    "trading",
+    "upload",
+}
+
+MONTH_LABELS = [
+    "Jan",
+    "Feb",
+    "Mar",
+    "Apr",
+    "May",
+    "Jun",
+    "Jul",
+    "Aug",
+    "Sep",
+    "Oct",
+    "Nov",
+    "Dec",
+]
+
 
 def lambda_handler(event, context):
     records = extract_event_payloads(event)
@@ -344,21 +415,7 @@ def resolve_receipt_label(receipt_data):
     existing_label = str(receipt_data.get("receipt_label") or "").strip()
     if existing_label:
         return existing_label[:120]
-
-    vendor = str(receipt_data.get("vendor") or "").strip()
-    category = str(receipt_data.get("category") or "").strip()
-    file_name = str(receipt_data.get("file_name") or "receipt").rsplit(".", 1)[0]
-    period = str(receipt_data.get("expense_month") or "").strip()
-
-    if vendor and not vendor.lower().startswith("unknown"):
-        primary = vendor
-    elif category and category.lower() != "uncategorized":
-        primary = category
-    else:
-        primary = re.sub(r"[-_]+", " ", file_name).strip() or "Receipt"
-
-    generated = f"{primary} {period}".strip()
-    return generated[:120]
+    return build_compact_receipt_label(receipt_data)
 
 
 def extract_summary_fields(expense_document, receipt_data):
@@ -553,6 +610,94 @@ def detect_currency_symbol(value):
 
 def normalize_text(value):
     return re.sub(r"\s+", " ", str(value).strip().lower())
+
+
+def prettify_label_token(token):
+    cleaned = str(token or "").strip()
+    if not cleaned:
+        return ""
+    if re.search(r"[a-z]", cleaned):
+        return cleaned[:18]
+    return cleaned.title()[:18]
+
+
+def normalize_vendor_token(token):
+    return re.sub(r"[^a-z0-9]+", "", str(token or "").lower())
+
+
+def extract_vendor_marker(receipt_data):
+    vendor = str(receipt_data.get("vendor") or "").strip()
+    if not vendor or vendor.lower().startswith("unknown"):
+        return ""
+
+    for token in re.findall(r"[A-Za-z0-9&']+", vendor):
+        normalized = normalize_vendor_token(token)
+        if len(normalized) <= 1 or normalized in IGNORED_VENDOR_TOKENS:
+            continue
+        return prettify_label_token(token)
+
+    return ""
+
+
+def extract_file_marker(receipt_data):
+    file_name = str(receipt_data.get("file_name") or "").rsplit(".", 1)[0]
+    for token in re.findall(r"[A-Za-z0-9&']+", file_name):
+        normalized = normalize_vendor_token(token)
+        if len(normalized) <= 1 or normalized in IGNORED_VENDOR_TOKENS:
+            continue
+        return prettify_label_token(token)
+
+    return ""
+
+
+def get_label_category_prefix(receipt_data):
+    category = str(receipt_data.get("category") or "").strip()
+    if not category:
+        return "Receipt"
+    if category in LABEL_CATEGORY_PREFIXES:
+        return LABEL_CATEGORY_PREFIXES[category]
+
+    cleaned_parts = [
+        part
+        for part in re.sub(r"[^A-Za-z0-9 ]+", " ", category).split()
+        if part
+    ]
+    if not cleaned_parts:
+        return "Receipt"
+    return cleaned_parts[0].title()[:18]
+
+
+def get_label_date_token(receipt_data):
+    raw_date = str(receipt_data.get("date") or "").strip()
+    if re.fullmatch(r"\d{4}-\d{2}-\d{2}", raw_date):
+        _, month, day = raw_date.split("-")
+        month_index = int(month) - 1
+        if 0 <= month_index < len(MONTH_LABELS):
+            return f"{int(day)}{MONTH_LABELS[month_index]}"
+
+    expense_month = str(receipt_data.get("expense_month") or "").strip()
+    if re.fullmatch(r"\d{4}-\d{2}", expense_month):
+        year, month = expense_month.split("-")
+        month_index = int(month) - 1
+        if 0 <= month_index < len(MONTH_LABELS):
+            return f"{MONTH_LABELS[month_index]}{year[-2:]}"
+
+    return ""
+
+
+def build_compact_receipt_label(receipt_data):
+    parts = [get_label_category_prefix(receipt_data)]
+    vendor_marker = extract_vendor_marker(receipt_data) or extract_file_marker(receipt_data)
+    if vendor_marker and normalize_text(vendor_marker) != normalize_text(parts[0]):
+        parts.append(vendor_marker)
+
+    date_token = get_label_date_token(receipt_data)
+    if date_token:
+        parts.append(date_token)
+
+    generated = " ".join(part for part in parts if part).strip() or "Receipt"
+    generated = re.sub(r"\s+", " ", generated)
+    return generated[:120]
 
 
 def build_fallback_user_id(value):

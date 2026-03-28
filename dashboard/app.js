@@ -56,7 +56,25 @@ const VISUAL_PRESETS = [
     color: "#ff8a5b",
     soft: "rgba(255, 138, 91, 0.18)",
     ring: "rgba(255, 138, 91, 0.42)",
-    keywords: ["food", "dining", "restaurant", "cafe", "coffee", "snack", "lunch", "dinner", "pizza", "burger"],
+    keywords: [
+      "food",
+      "dining",
+      "restaurant",
+      "cafe",
+      "coffee",
+      "snack",
+      "lunch",
+      "dinner",
+      "pizza",
+      "burger",
+      "zomato",
+      "swiggy",
+      "starbucks",
+      "mcdonalds",
+      "dominos",
+      "kfc",
+      "subway",
+    ],
   },
   {
     key: "shopping",
@@ -64,7 +82,24 @@ const VISUAL_PRESETS = [
     color: "#ff6fb5",
     soft: "rgba(255, 111, 181, 0.18)",
     ring: "rgba(255, 111, 181, 0.42)",
-    keywords: ["shopping", "retail", "amazon", "store", "mart", "fashion", "gift", "boutique"],
+    keywords: [
+      "shopping",
+      "retail",
+      "amazon",
+      "store",
+      "mart",
+      "fashion",
+      "gift",
+      "boutique",
+      "flipkart",
+      "myntra",
+      "walmart",
+      "target",
+      "ikea",
+      "zara",
+      "nike",
+      "adidas",
+    ],
   },
   {
     key: "travel",
@@ -72,7 +107,25 @@ const VISUAL_PRESETS = [
     color: "#63b3ff",
     soft: "rgba(99, 179, 255, 0.18)",
     ring: "rgba(99, 179, 255, 0.42)",
-    keywords: ["travel", "flight", "trip", "hotel", "uber", "cab", "ola", "taxi", "air", "booking"],
+    keywords: [
+      "travel",
+      "flight",
+      "trip",
+      "hotel",
+      "uber",
+      "cab",
+      "ola",
+      "taxi",
+      "air",
+      "booking",
+      "airbnb",
+      "train",
+      "rail",
+      "irctc",
+      "metro",
+      "bus",
+      "redbus",
+    ],
   },
   {
     key: "electricity",
@@ -80,7 +133,20 @@ const VISUAL_PRESETS = [
     color: "#ffd84d",
     soft: "rgba(255, 216, 77, 0.18)",
     ring: "rgba(255, 216, 77, 0.4)",
-    keywords: ["electricity", "electric", "power", "current", "bill", "utility", "utilities", "meter"],
+    keywords: [
+      "electricity",
+      "electric",
+      "power",
+      "current",
+      "bill",
+      "utility",
+      "utilities",
+      "meter",
+      "water",
+      "gas",
+      "sewage",
+      "biller",
+    ],
   },
   {
     key: "groceries",
@@ -88,7 +154,20 @@ const VISUAL_PRESETS = [
     color: "#63df97",
     soft: "rgba(99, 223, 151, 0.18)",
     ring: "rgba(99, 223, 151, 0.4)",
-    keywords: ["groceries", "grocery", "vegetable", "supermarket", "mart", "fresh"],
+    keywords: [
+      "groceries",
+      "grocery",
+      "vegetable",
+      "supermarket",
+      "mart",
+      "fresh",
+      "fruit",
+      "dairy",
+      "bigbasket",
+      "blinkit",
+      "instamart",
+      "dmart",
+    ],
   },
   {
     key: "medical",
@@ -96,7 +175,19 @@ const VISUAL_PRESETS = [
     color: "#65d8ff",
     soft: "rgba(101, 216, 255, 0.18)",
     ring: "rgba(101, 216, 255, 0.4)",
-    keywords: ["medical", "hospital", "clinic", "pharma", "medicine", "doctor", "health"],
+    keywords: [
+      "medical",
+      "hospital",
+      "clinic",
+      "pharma",
+      "medicine",
+      "doctor",
+      "health",
+      "apollo",
+      "chemist",
+      "diagnostic",
+      "lab",
+    ],
   },
   {
     key: "fuel",
@@ -104,7 +195,18 @@ const VISUAL_PRESETS = [
     color: "#ffb258",
     soft: "rgba(255, 178, 88, 0.18)",
     ring: "rgba(255, 178, 88, 0.4)",
-    keywords: ["fuel", "petrol", "diesel", "gas", "station"],
+    keywords: [
+      "fuel",
+      "petrol",
+      "diesel",
+      "gas",
+      "station",
+      "shell",
+      "bharat petroleum",
+      "indian oil",
+      "hpcl",
+      "bp",
+    ],
   },
   {
     key: "entertainment",
@@ -112,7 +214,19 @@ const VISUAL_PRESETS = [
     color: "#a88cff",
     soft: "rgba(168, 140, 255, 0.18)",
     ring: "rgba(168, 140, 255, 0.42)",
-    keywords: ["movie", "entertainment", "party", "game", "fun", "event", "ticket"],
+    keywords: [
+      "movie",
+      "entertainment",
+      "party",
+      "game",
+      "gaming",
+      "fun",
+      "event",
+      "ticket",
+      "cinema",
+      "concert",
+      "bookmyshow",
+    ],
   },
   {
     key: "home",
@@ -120,7 +234,17 @@ const VISUAL_PRESETS = [
     color: "#7ed6ff",
     soft: "rgba(126, 214, 255, 0.18)",
     ring: "rgba(126, 214, 255, 0.42)",
-    keywords: ["rent", "home", "house", "repair", "furniture", "decor"],
+    keywords: [
+      "rent",
+      "home",
+      "house",
+      "repair",
+      "furniture",
+      "decor",
+      "maintenance",
+      "plumbing",
+      "hardware",
+    ],
   },
   {
     key: "subscription",
@@ -128,7 +252,44 @@ const VISUAL_PRESETS = [
     color: "#62e1d9",
     soft: "rgba(98, 225, 217, 0.18)",
     ring: "rgba(98, 225, 217, 0.42)",
-    keywords: ["subscription", "internet", "wifi", "netflix", "spotify", "phone", "mobile", "broadband"],
+    keywords: [
+      "subscription",
+      "internet",
+      "wifi",
+      "netflix",
+      "spotify",
+      "phone",
+      "mobile",
+      "broadband",
+      "airtel",
+      "jio",
+      "vodafone",
+      "vi",
+      "prime",
+      "icloud",
+      "dropbox",
+      "adobe",
+      "chatgpt",
+    ],
+  },
+  {
+    key: "office",
+    icon: "💼",
+    color: "#ffa66f",
+    soft: "rgba(255, 166, 111, 0.18)",
+    ring: "rgba(255, 166, 111, 0.42)",
+    keywords: [
+      "office",
+      "stationery",
+      "supplies",
+      "printer",
+      "paper",
+      "toner",
+      "cartridge",
+      "notebook",
+      "xerox",
+      "workspace",
+    ],
   },
 ];
 const FUN_FALLBACK_SWATCHES = [
@@ -150,6 +311,7 @@ const SAFE_THEME_ICONS = {
   entertainment: "\u{1F389}",
   home: "\u{1F3E0}",
   subscription: "\u{1F4F1}",
+  office: "\u{1F4BC}",
 };
 const SAFE_FALLBACK_ICONS = [
   "\u{1F308}",
@@ -984,6 +1146,11 @@ function hashString(value) {
   );
 }
 
+function splitVisualWords(value) {
+  const normalized = normalizeVisualText(value);
+  return normalized ? normalized.split(" ").filter(Boolean) : [];
+}
+
 function getReceiptLabelOverride(receipt) {
   const label = String(receipt?.receiptLabel || "").trim();
   if (!label) {
@@ -1034,27 +1201,140 @@ function applySafeThemeIcon(theme) {
   return theme;
 }
 
-function getVisualTheme(source) {
-  const normalized = normalizeVisualText(source);
-  if (!normalized) {
-    return {
-      key: "receipt",
-      icon: "🧾",
-      color: "#7de7ff",
-      soft: "rgba(125, 231, 255, 0.18)",
-      ring: "rgba(125, 231, 255, 0.42)",
-    };
+function getDefaultVisualTheme() {
+  return {
+    key: "receipt",
+    icon: "\u{1F9FE}",
+    color: "#7de7ff",
+    soft: "rgba(125, 231, 255, 0.18)",
+    ring: "rgba(125, 231, 255, 0.42)",
+  };
+}
+
+function scoreVisualPreset(normalizedSource, sourceWords, preset, weight = 0) {
+  if (!normalizedSource) {
+    return 0;
   }
 
-  const preset = VISUAL_PRESETS.find((item) =>
-    item.keywords.some((keyword) => normalized.includes(keyword))
+  let bestScore = 0;
+
+  preset.keywords.forEach((keyword) => {
+    const normalizedKeyword = normalizeVisualText(keyword);
+    if (!normalizedKeyword) {
+      return;
+    }
+
+    const keywordWords = normalizedKeyword.split(" ").filter(Boolean);
+    const overlap = keywordWords.filter((word) => sourceWords.includes(word)).length;
+
+    if (normalizedSource === normalizedKeyword) {
+      bestScore = Math.max(bestScore, 160 + weight);
+      return;
+    }
+
+    if (normalizedSource.startsWith(`${normalizedKeyword} `)) {
+      bestScore = Math.max(bestScore, 138 + weight);
+      return;
+    }
+
+    if (normalizedSource.includes(normalizedKeyword)) {
+      bestScore = Math.max(bestScore, 122 + weight);
+      return;
+    }
+
+    if (overlap && overlap === keywordWords.length) {
+      bestScore = Math.max(bestScore, 104 + weight + overlap * 6);
+      return;
+    }
+
+    if (overlap) {
+      bestScore = Math.max(bestScore, 54 + weight + overlap * 8);
+    }
+  });
+
+  return bestScore;
+}
+
+function findVisualPresetMatch(sources = []) {
+  let bestMatch = null;
+
+  sources.forEach((source) => {
+    const normalized = normalizeVisualText(source?.value);
+    if (!normalized) {
+      return;
+    }
+
+    const sourceWords = splitVisualWords(normalized);
+    VISUAL_PRESETS.forEach((preset) => {
+      const score = scoreVisualPreset(
+        normalized,
+        sourceWords,
+        preset,
+        Number(source?.weight || 0)
+      );
+      if (!score) {
+        return;
+      }
+
+      if (!bestMatch || score > bestMatch.score) {
+        bestMatch = { preset, score };
+      }
+    });
+  });
+
+  return bestMatch ? applySafeThemeIcon(bestMatch.preset) : null;
+}
+
+function resolveThemeFromSources(sources = [], fallbackSeed = "receipt") {
+  const matchedTheme = findVisualPresetMatch(sources);
+  if (matchedTheme) {
+    return matchedTheme;
+  }
+
+  const fallbackSource = sources.find(
+    (source) => source?.allowFallback && normalizeVisualText(source.value)
+  );
+  const normalizedFallback = normalizeVisualText(
+    fallbackSource?.value || fallbackSeed || "receipt"
   );
 
-  if (preset) {
-    return applySafeThemeIcon(preset);
+  if (!normalizedFallback) {
+    return getDefaultVisualTheme();
   }
 
-  return applySafeThemeIcon(buildFallbackTheme(normalized));
+  return applySafeThemeIcon(buildFallbackTheme(normalizedFallback));
+}
+
+function getVisualTheme(source, fallbackSeed = "receipt") {
+  const normalized = normalizeVisualText(source);
+  if (!normalized) {
+    return getDefaultVisualTheme();
+  }
+
+  return resolveThemeFromSources(
+    [{ value: source, weight: 26, allowFallback: true }],
+    fallbackSeed
+  );
+}
+
+function getReceiptThemeSources(receipt) {
+  const labelOverride = getReceiptLabelOverride(receipt);
+  return [
+    { value: labelOverride, weight: 40, allowFallback: false },
+    { value: receipt?.category, weight: 34, allowFallback: true },
+    { value: receipt?.vendor, weight: 30, allowFallback: true },
+    { value: receipt?.fileName, weight: 20, allowFallback: true },
+  ];
+}
+
+function getDraftTheme(labelOverride, fileName = "") {
+  return resolveThemeFromSources(
+    [
+      { value: labelOverride, weight: 38, allowFallback: false },
+      { value: fileName, weight: 18, allowFallback: true },
+    ],
+    fileName || "receipt"
+  );
 }
 
 function getReceiptDisplayLabel(receipt) {
@@ -1062,7 +1342,10 @@ function getReceiptDisplayLabel(receipt) {
 }
 
 function getReceiptTheme(receipt) {
-  return getVisualTheme(getReceiptDisplayLabel(receipt));
+  return resolveThemeFromSources(
+    getReceiptThemeSources(receipt),
+    receipt?.category || receipt?.vendor || receipt?.fileName || "receipt"
+  );
 }
 
 function getRowThemeVars(theme) {
@@ -1558,10 +1841,8 @@ function syncUploadMotion() {
   const receiptTheme = shouldUseStoredReceiptTheme
     ? getReceiptTheme(uploadState.receipt)
     : hasActiveDraft
-      ? getVisualTheme(
-          uploadState.customLabel || currentFile?.name || uploadState.fileName || "receipt"
-        )
-      : getVisualTheme("receipt");
+      ? getDraftTheme(uploadState.customLabel, currentFile?.name || uploadState.fileName || "")
+      : getDefaultVisualTheme();
   const primaryLabel = shouldUseStoredReceiptTheme
     ? uploadState.receipt?.receiptLabel || uploadState.receipt?.fileName || "Latest receipt"
     : uploadState.customLabel ||
@@ -2703,7 +2984,7 @@ async function updatePreviewFromFile(file) {
 
   latestPreview = await createPreviewPayload(file);
   const labelOverride = elements.uploadName?.value.trim() || "";
-  const theme = getVisualTheme(labelOverride || file.name);
+  const theme = getDraftTheme(labelOverride, file.name);
 
   if (latestPreview.type === "image" && latestPreview.objectUrl) {
     elements.previewFrame.innerHTML = `<img class="preview-image" src="${latestPreview.objectUrl}" alt="${file.name} preview" />`;

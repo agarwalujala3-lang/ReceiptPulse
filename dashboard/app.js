@@ -2183,6 +2183,7 @@ function renderUploadHistory() {
       };
       const theme = getReceiptTheme(fauxReceipt);
       const displayLabel = getReceiptDisplayLabel(fauxReceipt);
+      const receiptDeleteId = entry.receiptId || entry.id || "";
 
       return `
         <article class="history-item panel" style="${getRowThemeVars(theme)}">
@@ -2205,11 +2206,31 @@ function renderUploadHistory() {
               <span class="muted">${formatRelativeTime(entry.processedAt)}</span>
               <span class="muted">${formatProcessingDuration(entry.durationMs)}</span>
             </div>
+            <div class="history-actions">
+              <button
+                class="ghost-link ghost-button receipt-delete-button history-item-delete-button"
+                type="button"
+                data-history-delete="${escapeHtml(receiptDeleteId)}"
+                ${!signedIn || !receiptDeleteId ? "disabled" : ""}
+              >
+                Delete Receipt
+              </button>
+            </div>
           </div>
         </article>
       `;
     })
     .join("");
+
+  elements.historyList.querySelectorAll("[data-history-delete]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const receiptId = button.dataset.historyDelete || "";
+      if (!receiptId) {
+        return;
+      }
+      deleteStoredReceipt(receiptId);
+    });
+  });
 }
 
 function renderMetrics() {
@@ -3966,9 +3987,9 @@ async function deleteStoredReceipt(receiptId) {
     return;
   }
 
-  const receipt = (activeDashboardView?.receipts || []).find(
-    (entry) => entry.receiptId === receiptId
-  );
+  const receipt =
+    (activeDashboardView?.receipts || []).find((entry) => entry.receiptId === receiptId)
+    || uploadHistory.find((entry) => (entry.receiptId || entry.id) === receiptId);
   const receiptLabel = receipt ? getReceiptDisplayLabel(receipt) : "this receipt";
   const shouldDelete = await openConfirmDialog({
     title: `Delete ${receiptLabel}?`,
@@ -3990,7 +4011,7 @@ async function deleteStoredReceipt(receiptId) {
     }
 
     const payload = await response.json();
-    uploadHistory = uploadHistory.filter((entry) => entry.receiptId !== receiptId);
+    uploadHistory = uploadHistory.filter((entry) => (entry.receiptId || entry.id) !== receiptId);
     persistUploadHistory();
     if (uploadState.receipt?.receiptId === receiptId) {
       uploadState.receipt = null;

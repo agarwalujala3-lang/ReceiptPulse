@@ -1609,6 +1609,7 @@ table {
   display: grid;
   gap: 0.45rem;
   align-content: start;
+  min-width: 0;
 }
 
 .history-topline,
@@ -1622,6 +1623,18 @@ table {
 
 .history-name {
   font-weight: 700;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.history-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.1rem;
+}
+
+.history-item-delete-button {
+  min-width: 8.6rem;
 }
 
 .history-empty {

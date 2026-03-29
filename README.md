@@ -1,6 +1,6 @@
 # ReceiptPulse
 
-ReceiptPulse is a serverless AWS portfolio project for receipt processing. It accepts uploaded receipts, extracts structured fields with Textract, stores the results in DynamoDB, and shows the processed data in a dashboard with review states and user sign-in.
+ReceiptPulse is a serverless AWS portfolio project for private receipt processing. Each signed-in user gets their own workspace to upload receipt files, extract structured fields with Textract, review duplicate decisions, rename labels after upload, and manage the results in a live dashboard.
 
 ## Live Demo
 
@@ -12,33 +12,36 @@ ReceiptPulse is a serverless AWS portfolio project for receipt processing. It ac
 
 This repository is meant to show a complete student or portfolio-grade cloud workflow rather than a single isolated Lambda:
 
-- receipt enrichment with category, confidence, review status, and duplicate keys
-- review and analytics API for stored receipts
-- Cognito-backed user accounts so each user only sees their own receipts
-- browser upload UI with preview, history drawer, and processing timeline
+- Cognito-backed private workspaces so each user only sees their own receipts
+- direct sign-up and sign-in pages instead of a hosted auth screen
+- receipt enrichment with category, confidence, compact auto labels, review status, and duplicate keys
+- review, snapshot, upload, rename, and delete APIs for stored receipts
+- browser upload UI with preview, history drawer, duplicate choice flow, and processing timeline
+- receipt-only validation that rejects unrelated photos or documents
 - SAM template for backend deployment
 - Amplify build configuration for static frontend hosting
 - deployment docs for AWS launch and custom-domain finish
 
 ## Architecture
 
-1. A receipt is uploaded to Amazon S3
-2. S3 triggers a Lambda function
-3. Lambda calls Amazon Textract AnalyzeExpense
-4. The processor enriches the result with:
+1. A signed-in user opens the custom auth pages and gets a private workspace through Cognito
+2. The browser requests a signed upload session for that user and uploads the file to Amazon S3
+3. S3 triggers a Lambda function
+4. Lambda calls Amazon Textract AnalyzeExpense
+5. The processor enriches the result with:
    - vendor
    - date
    - total amount
    - line items
    - category
    - confidence score
+   - compact auto label
    - duplicate key
    - review status
-5. The enriched record is stored in DynamoDB
-6. The dashboard reads the processed result back through the private API
-7. Cognito authenticates each dashboard user and issues JWTs for private API access
-8. A second Lambda exposes user-scoped analytics, review, upload, and export endpoints through HTTP API
-9. The static dashboard reads from the live API and renders the project view
+6. Non-receipt uploads are rejected before they enter the stored receipt set
+7. The enriched record is stored in DynamoDB under the signed-in user scope
+8. A second Lambda exposes user-scoped snapshot, upload, review, rename, delete, and export endpoints through HTTP API
+9. The static dashboard reads from the live API and renders history, duplicate decisions, rename actions, and analytics
 
 ## AWS Services Used
 
@@ -60,16 +63,23 @@ This repository is meant to show a complete student or portfolio-grade cloud wor
 - vendor, date, amount, and line-item extraction
 - category inference from vendors and items
 - confidence-based review routing
+- compact auto-generated labels such as `Food me&u 12Jan`
 - duplicate detection using hashed receipt signatures
+- receipt-only validation that rejects unrelated images or docs
 - in-app status updates scoped to each signed-in workspace
 
 ### API Layer
 
 - JWT-protected user-scoped routes
 - `GET /health`
+- `POST /uploads`
+- `GET /uploads/status`
 - `GET /receipts`
+- `GET /snapshot`
 - `GET /analytics`
 - `GET /exports/csv`
+- `POST /receipts/clear`
+- `DELETE /receipts/{receiptId}`
 - `PATCH /receipts/{receiptId}/review`
 
 ### Dashboard
@@ -78,10 +88,14 @@ The dashboard in [dashboard](./dashboard) is designed to present the backend cle
 
 It includes:
 
-- sign up, sign in, sign out, and session refresh for user accounts
+- separate sign-up and sign-in pages
+- sign out and switch-account actions
 - project-style overview and status cards
-- receipt upload with live preview
-- saved browser-side upload history drawer scoped per signed-in account
+- receipt upload with live preview from device storage
+- browser-side upload history drawer scoped per signed-in account
+- duplicate choice modal with keep-separate or reject actions
+- rename-label actions after upload
+- single-receipt delete actions in both the latest result and history/archive views
 - animated metric counters
 - category spend bars and donut view
 - merchant spend overview
@@ -129,16 +143,21 @@ By default it loads demo data. In live mode it reads the backend API from:
 - normalizes dates and amounts
 - calculates confidence
 - infers categories
+- generates compact auto labels
 - checks for duplicates
+- rejects non-receipt uploads
 - stores enriched records
 - stores receipt updates for in-app review and analytics
 
 ### [lambda/dashboard_api.py](./lambda/dashboard_api.py)
 
-- returns receipt lists
+- creates signed upload sessions
+- returns receipt lists and snapshots
 - builds analytics summaries
 - exports CSV
-- updates review state
+- handles duplicate decisions
+- renames labels
+- deletes individual receipts or date ranges
 
 ### [template.yaml](./template.yaml)
 
@@ -149,7 +168,7 @@ By default it loads demo data. In live mode it reads the backend API from:
 ### [amplify.yml](./amplify.yml)
 
 - publishes the dashboard as a static site
-- injects the live backend API URL and Cognito hosted UI settings through Amplify environment variables
+- injects the live backend API URL and direct Cognito settings through Amplify environment variables
 
 ### [samconfig.toml](./samconfig.toml)
 
@@ -234,7 +253,7 @@ node --check dashboard/app.js
 
 - shows event-driven cloud design
 - demonstrates AI-assisted document extraction
-- includes review logic and analytics, not just OCR
+- includes private auth, duplicate decisions, rename/delete flows, and analytics, not just OCR
 - has a clear frontend for demos without hiding the architecture
 - is deployable as a real cloud project
 

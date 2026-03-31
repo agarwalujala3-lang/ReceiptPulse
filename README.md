@@ -4,7 +4,7 @@ ReceiptPulse is a serverless AWS portfolio project for private receipt processin
 
 ## Live Demo
 
-- Frontend: [https://d2ijsg7huf2h2p.cloudfront.net/](https://d2ijsg7huf2h2p.cloudfront.net/)
+- Frontend: [https://d2ijsg7huf2h2p.cloudfront.net/](https://d2ijsg7huf2h2p.cloudfront.net/app.html?v=20260331)
 - API root: [https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/](https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/)
 - Health check: [https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/health](https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/health)
 

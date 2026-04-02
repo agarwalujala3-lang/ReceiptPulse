@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (() => {
+        try {
+          document.documentElement.dataset.uiTheme =
+            window.localStorage.getItem("receiptpulse-ui-theme") === "light" ? "light" : "dark";
+        } catch (error) {
+          document.documentElement.dataset.uiTheme = "dark";
+        }
+      })();
+    </script>
     <title>ReceiptPulse | Live Dashboard</title>
     <meta
       name="description"
@@ -18,7 +28,7 @@
       property="og:description"
       content="See the live ReceiptPulse dashboard with receipt uploads, duplicate decisions, analytics, rename flows, and private user-scoped history."
     />
-    <meta property="og:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260331a" />
+    <meta property="og:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260402a" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="ReceiptPulse live dashboard with upload, analytics, and private receipt management." />
@@ -28,19 +38,25 @@
       name="twitter:description"
       content="See the live ReceiptPulse dashboard with receipt uploads, duplicate decisions, analytics, rename flows, and private user-scoped history."
     />
-    <meta name="twitter:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260331a" />
-    <link rel="stylesheet" href="./styles.css?v=20260328o" />
+    <meta name="twitter:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260402a" />
+    <link rel="icon" type="image/svg+xml" href="./receiptpulse-mark.svg?v=20260402a" />
+    <link rel="icon" type="image/png" href="./receiptpulse-favicon.png?v=20260402a" />
+    <link rel="apple-touch-icon" href="./receiptpulse-favicon.png?v=20260402a" />
+    <link rel="stylesheet" href="./styles.css?v=20260402a" />
   </head>
   <body>
     <header class="topbar">
       <div class="topbar-row topbar-row-main">
         <div class="brand-lockup">
-          <p class="brand-mark">ReceiptPulse</p>
+          <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
+            <img class="brand-logo" src="./receiptpulse-logo.svg?v=20260402a" alt="ReceiptPulse" />
+          </a>
         </div>
         <div class="topbar-actions">
           <span class="status-pill" id="modeBadge">Project Demo</span>
           <span class="status-note" id="statusNote">Booting dashboard.</span>
           <span class="status-pill auth-summary-pill" id="authSummary">Portfolio Project</span>
+          <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button">Light Mode</button>
           <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>Create Account</button>
           <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
           <button class="ghost-link ghost-button" id="switchAccountButton" type="button" hidden>Switch Account</button>
@@ -493,6 +509,7 @@
     </section>
 
     <script src="./config.js?v=20260328b"></script>
+    <script src="./theme.js?v=20260402a" defer></script>
     <script src="./auth.js?v=20260327h" defer></script>
     <script src="./app.js?v=20260328t" defer></script>
   </body>

@@ -1,0 +1,20 @@
+<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="receiptpulseMarkTitle receiptpulseMarkDesc">
+  <title id="receiptpulseMarkTitle">ReceiptPulse mark</title>
+  <desc id="receiptpulseMarkDesc">ReceiptPulse icon showing a receipt with a pulse check.</desc>
+  <defs>
+    <linearGradient id="receiptpulseMarkFrame" x1="18" y1="14" x2="106" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8EF5FF"/>
+      <stop offset="1" stop-color="#519BFF"/>
+    </linearGradient>
+    <linearGradient id="receiptpulseMarkPulse" x1="35" y1="36" x2="83" y2="87" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#B9FFFF"/>
+      <stop offset="1" stop-color="#72C2FF"/>
+    </linearGradient>
+  </defs>
+  <rect x="8" y="8" width="112" height="112" rx="34" fill="#091827" stroke="url(#receiptpulseMarkFrame)" stroke-opacity="0.42" stroke-width="3"/>
+  <path d="M40 32H65L82 49V84C82 91.2 76.2 97 69 97H46C38.8 97 33 91.2 33 84V39C33 35.1 36.1 32 40 32Z" fill="#0C2236" stroke="url(#receiptpulseMarkFrame)" stroke-width="3" stroke-linejoin="round"/>
+  <path d="M65 32V47H80" stroke="url(#receiptpulseMarkFrame)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 72L53 80L64.5 64L71.2 70L81 56.4" stroke="url(#receiptpulseMarkPulse)" stroke-width="5.2" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M44 50H60" stroke="#8BE7FF" stroke-opacity="0.58" stroke-width="2.8" stroke-linecap="round"/>
+  <path d="M44 58H56" stroke="#8BE7FF" stroke-opacity="0.38" stroke-width="2.8" stroke-linecap="round"/>
+</svg>

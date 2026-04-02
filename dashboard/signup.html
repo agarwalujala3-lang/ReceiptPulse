@@ -3,6 +3,16 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (() => {
+        try {
+          document.documentElement.dataset.uiTheme =
+            window.localStorage.getItem("receiptpulse-ui-theme") === "light" ? "light" : "dark";
+        } catch (error) {
+          document.documentElement.dataset.uiTheme = "dark";
+        }
+      })();
+    </script>
     <title>ReceiptPulse | Create Your Private Receipt Workspace</title>
     <meta
       name="description"
@@ -18,7 +28,7 @@
       property="og:description"
       content="Create a user account, upload receipts from your device, extract data with AWS Textract, and manage everything in a private dashboard."
     />
-    <meta property="og:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260331a" />
+    <meta property="og:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260402a" />
     <meta property="og:image:width" content="1200" />
     <meta property="og:image:height" content="630" />
     <meta property="og:image:alt" content="ReceiptPulse account creation page and receipt-processing preview." />
@@ -28,17 +38,23 @@
       name="twitter:description"
       content="Create a user account, upload receipts from your device, extract data with AWS Textract, and manage everything in a private dashboard."
     />
-    <meta name="twitter:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260331a" />
-    <link rel="stylesheet" href="./styles.css?v=20260328o" />
+    <meta name="twitter:image" content="https://d2ijsg7huf2h2p.cloudfront.net/social-preview.png?v=20260402a" />
+    <link rel="icon" type="image/svg+xml" href="./receiptpulse-mark.svg?v=20260402a" />
+    <link rel="icon" type="image/png" href="./receiptpulse-favicon.png?v=20260402a" />
+    <link rel="apple-touch-icon" href="./receiptpulse-favicon.png?v=20260402a" />
+    <link rel="stylesheet" href="./styles.css?v=20260402a" />
   </head>
   <body class="auth-page auth-page-signup" data-auth-page="signup">
     <header class="topbar auth-topbar">
       <div class="topbar-row topbar-row-main">
         <div class="brand-lockup">
-          <a class="brand-mark brand-mark-link" href="./index.html">ReceiptPulse</a>
+          <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
+            <img class="brand-logo" src="./receiptpulse-logo.svg?v=20260402a" alt="ReceiptPulse" />
+          </a>
         </div>
         <div class="topbar-actions auth-topbar-actions">
           <span class="status-pill">Portfolio Project</span>
+          <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button">Light Mode</button>
           <a class="ghost-link" href="./index.html">Sign In</a>
           <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noreferrer">Source Code</a>
         </div>
@@ -174,6 +190,7 @@
     </main>
 
     <script src="./config.js?v=20260327a"></script>
+    <script src="./theme.js?v=20260402a" defer></script>
     <script src="./auth.js?v=20260327h" defer></script>
   </body>
 </html>

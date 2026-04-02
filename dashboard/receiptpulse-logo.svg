@@ -1,0 +1,21 @@
+<svg width="330" height="56" viewBox="0 0 330 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="receiptpulseLogoTitle receiptpulseLogoDesc">
+  <title id="receiptpulseLogoTitle">ReceiptPulse</title>
+  <desc id="receiptpulseLogoDesc">ReceiptPulse logo with a receipt icon and all-caps wordmark.</desc>
+  <defs>
+    <linearGradient id="receiptpulseLogoStroke" x1="6" y1="5" x2="44" y2="49" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8CF4FF"/>
+      <stop offset="1" stop-color="#4FA5FF"/>
+    </linearGradient>
+    <linearGradient id="receiptpulseLogoPulse" x1="14" y1="15" x2="34" y2="36" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#AEFDFF"/>
+      <stop offset="1" stop-color="#64BCFF"/>
+    </linearGradient>
+  </defs>
+  <rect x="0.8" y="3.8" width="48.4" height="48.4" rx="15.2" fill="#091827" stroke="url(#receiptpulseLogoStroke)" stroke-opacity="0.42" stroke-width="1.6"/>
+  <path d="M15.8 14.5H28.7L35.5 21.3V35.4C35.5 38.2 33.2 40.5 30.4 40.5H18.8C15.9 40.5 13.6 38.2 13.6 35.4V16.7C13.6 15.5 14.6 14.5 15.8 14.5Z" fill="#0C2236" stroke="url(#receiptpulseLogoStroke)" stroke-width="1.6" stroke-linejoin="round"/>
+  <path d="M28.8 14.6V20.8H35" stroke="url(#receiptpulseLogoStroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18.6 31.6L22.4 35.1L27.2 28.4L30.1 30.9L34.2 25.1" stroke="url(#receiptpulseLogoPulse)" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M18.5 21.8H25.2" stroke="#7CDFFF" stroke-opacity="0.6" stroke-width="1.4" stroke-linecap="round"/>
+  <path d="M18.5 25.4H23.6" stroke="#7CDFFF" stroke-opacity="0.4" stroke-width="1.4" stroke-linecap="round"/>
+  <text x="66" y="34" fill="#F3F8FF" font-family="'Segoe UI', 'Aptos', Arial, sans-serif" font-size="23" font-weight="800" letter-spacing="3.4">RECEIPTPULSE</text>
+</svg>

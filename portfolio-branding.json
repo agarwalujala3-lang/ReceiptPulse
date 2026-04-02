@@ -1,0 +1,55 @@
+{
+  "enabled": true,
+  "id": "receiptpulse",
+  "title": "ReceiptPulse",
+  "kind": "Flagship System",
+  "status": "Live",
+  "priority": 100,
+  "featured": true,
+  "lensPriority": {
+    "recruiter": 100,
+    "engineer": 95,
+    "founder": 92,
+    "friend": 78
+  },
+  "tags": ["aws", "backend", "full-stack", "live"],
+  "stack": ["AWS Lambda", "S3", "DynamoDB", "API Gateway", "Cognito", "Textract", "CloudFront", "JavaScript"],
+  "summary": "I built ReceiptPulse as a live AWS receipt workspace where each signed-in user can upload receipts, extract structured fields, resolve duplicates, rename labels, and manage the results inside a private dashboard.",
+  "proof": "This project proves event-driven AWS architecture, private user-scoped product flow, extraction workflows, review tooling, and full live deployment.",
+  "details": [
+    "I built a full upload-to-insight pipeline around private per-user receipt processing.",
+    "I added sign-up/sign-in, receipt-only validation, duplicate decision handling, compact auto labels, rename actions, delete actions, and analytics.",
+    "I pushed it beyond a backend demo by building a real dashboard flow around uploads, history, review, and stored results."
+  ],
+  "architecture": [
+    "Signed-in users get a private workspace through Cognito-backed auth.",
+    "Receipt uploads land in user-scoped S3 paths.",
+    "Lambda processes files, validates them, and calls Textract.",
+    "The data is normalized, categorized, labeled, and stored in DynamoDB.",
+    "API routes power uploads, history, duplicate decisions, rename/delete actions, and analytics views.",
+    "CloudFront serves the frontend experience."
+  ],
+  "tradeoff": "I optimized for a believable product-style AWS build with strong user flow first; budget analysis and deeper reporting are the next layer.",
+  "badge": "Flagship AWS build",
+  "icon": "RP",
+  "iconImage": "https://raw.githubusercontent.com/agarwalujala3-lang/ReceiptPulse/main/branding/portfolio-brand-mark.svg",
+  "lockupImage": "https://raw.githubusercontent.com/agarwalujala3-lang/ReceiptPulse/main/branding/portfolio-brand-lockup.svg",
+  "links": {
+    "live": "https://d2ijsg7huf2h2p.cloudfront.net"
+  },
+  "theme": {
+    "surface1": "rgba(247, 251, 249, 0.96)",
+    "surface2": "rgba(236, 244, 240, 0.94)",
+    "ring": "rgba(43, 104, 92, 0.14)",
+    "glow": "rgba(47, 113, 101, 0.16)",
+    "glowSoft": "rgba(143, 194, 181, 0.18)",
+    "accentStrong": "#20564d",
+    "accentSoft": "rgba(32, 86, 77, 0.12)",
+    "badgeBg": "rgba(32, 86, 77, 0.09)",
+    "badgeBorder": "rgba(32, 86, 77, 0.16)",
+    "proofBg": "linear-gradient(135deg, rgba(32, 86, 77, 0.12), rgba(104, 170, 152, 0.08))",
+    "signalBg": "rgba(255, 255, 255, 0.74)",
+    "signalBorder": "rgba(43, 104, 92, 0.1)",
+    "iconBg": "linear-gradient(145deg, rgba(239, 247, 243, 1), rgba(220, 233, 228, 0.98))"
+  }
+}

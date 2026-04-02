@@ -1,0 +1,23 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 760 180" role="img" aria-labelledby="title desc">
+  <title id="title">ReceiptPulse logo</title>
+  <desc id="desc">ReceiptPulse wordmark with the RP receipt pulse brand mark.</desc>
+  <defs>
+    <linearGradient id="rpLockBg" x1="30" y1="22" x2="130" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f6fbf8"/>
+      <stop offset="1" stop-color="#dcece6"/>
+    </linearGradient>
+    <linearGradient id="rpLockPulse" x1="45" y1="76" x2="122" y2="111" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#20564d"/>
+      <stop offset="1" stop-color="#4e8c7e"/>
+    </linearGradient>
+    <linearGradient id="rpLockText" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#224f47"/>
+      <stop offset="1" stop-color="#4d8477"/>
+    </linearGradient>
+  </defs>
+  <rect x="20" y="18" width="124" height="124" rx="30" fill="url(#rpLockBg)" stroke="#9bbcae" stroke-width="2"/>
+  <text x="82" y="72" text-anchor="middle" fill="#20564d" font-family="Fraunces, Georgia, serif" font-size="30" font-weight="700" letter-spacing="2">RP</text>
+  <path d="M42 96h20l10-17 11 31 10-19h29" fill="none" stroke="url(#rpLockPulse)" stroke-linecap="round" stroke-linejoin="round" stroke-width="6.5"/>
+  <text x="182" y="84" fill="url(#rpLockText)" font-family="Fraunces, Georgia, serif" font-size="56" font-weight="700">ReceiptPulse</text>
+  <text x="184" y="116" fill="#5f7b73" font-family="Inter, 'Segoe UI', Arial, sans-serif" font-size="22" font-weight="600" letter-spacing="1">receipt intelligence workspace</text>
+</svg>

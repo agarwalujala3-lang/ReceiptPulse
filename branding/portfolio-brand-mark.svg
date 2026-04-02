@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 160 160" role="img" aria-labelledby="title desc">
+  <title id="title">ReceiptPulse brand mark</title>
+  <desc id="desc">Rounded square mark with an RP monogram and receipt pulse line.</desc>
+  <defs>
+    <linearGradient id="rpBg" x1="22" y1="18" x2="138" y2="144" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#f6fbf8"/>
+      <stop offset="1" stop-color="#dcece6"/>
+    </linearGradient>
+    <linearGradient id="rpPulse" x1="42" y1="78" x2="122" y2="112" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#20564d"/>
+      <stop offset="1" stop-color="#4e8c7e"/>
+    </linearGradient>
+  </defs>
+  <rect x="10" y="10" width="140" height="140" rx="34" fill="url(#rpBg)" stroke="#9bbcae" stroke-width="2"/>
+  <text x="80" y="61" text-anchor="middle" fill="#20564d" font-family="Fraunces, Georgia, serif" font-size="34" font-weight="700" letter-spacing="2">RP</text>
+  <path d="M38 98h24l10-18 12 34 11-21h27" fill="none" stroke="url(#rpPulse)" stroke-linecap="round" stroke-linejoin="round" stroke-width="7"/>
+</svg>

@@ -1,9 +1,9 @@
 (() => {
   const LAUNCH_STORAGE_KEY = "receiptpulse-brand-launch-v1";
-  const VISIBLE_MS = 1750;
-  const EXIT_MS = 720;
-  const REDUCED_VISIBLE_MS = 480;
-  const REDUCED_EXIT_MS = 220;
+  const VISIBLE_MS = 2150;
+  const EXIT_MS = 760;
+  const REDUCED_VISIBLE_MS = 620;
+  const REDUCED_EXIT_MS = 260;
 
   function canUseStorage() {
     try {
@@ -51,12 +51,15 @@
     overlay.setAttribute("aria-hidden", "true");
     overlay.innerHTML = `
       <span class="brand-launch-grid" aria-hidden="true"></span>
+      <span class="brand-launch-aura brand-launch-aura--ember" aria-hidden="true"></span>
+      <span class="brand-launch-aura brand-launch-aura--mist" aria-hidden="true"></span>
+      <span class="brand-launch-blade" aria-hidden="true"></span>
       <div class="brand-launch-card">
         <span class="brand-launch-mark-shell">
           <img class="brand-launch-mark" src="./receiptpulse-mark.svg?v=20260402c" alt="" />
         </span>
         <img class="brand-launch-logo" src="./receiptpulse-logo.svg?v=20260402c" alt="ReceiptPulse" />
-        <p class="brand-launch-copy">Private receipt workspace powered by AWS.</p>
+        <p class="brand-launch-copy">Receipt breathing: first form, clean ledger.</p>
         <span class="brand-launch-progress" aria-hidden="true"><span></span></span>
       </div>
     `;

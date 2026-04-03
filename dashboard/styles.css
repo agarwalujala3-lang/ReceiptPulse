@@ -7787,3 +7787,590 @@ html[data-ui-theme="light"] .brand-launch-card {
 html[data-ui-theme="light"] .brand-launch-copy {
   color: #764734;
 }
+
+/* Final structural anime-inspired overhaul */
+
+body.slayer-ui {
+  font-family: "Sora", "Segoe UI", Arial, sans-serif;
+  position: relative;
+  overflow-x: hidden;
+}
+
+body.slayer-ui h1,
+body.slayer-ui h2,
+body.slayer-ui h3,
+body.slayer-ui .eyebrow,
+body.slayer-ui .mini-label,
+body.slayer-ui .brand-mark,
+body.slayer-ui .status-pill {
+  font-family: "Cormorant Garamond", Georgia, serif;
+}
+
+body.slayer-ui .eyebrow,
+body.slayer-ui .mini-label {
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+}
+
+.slayer-stage {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.slayer-stage-orb,
+.slayer-stage-grid,
+.slayer-stage-wave {
+  position: absolute;
+}
+
+.slayer-stage-orb {
+  filter: blur(48px);
+  border-radius: 999px;
+}
+
+.slayer-stage-orb-ember {
+  top: -6rem;
+  left: -5rem;
+  width: 22rem;
+  height: 22rem;
+  background: radial-gradient(circle, rgba(255, 123, 87, 0.28), transparent 64%);
+  animation: mistBreath 12s ease-in-out infinite alternate;
+}
+
+.slayer-stage-orb-mist {
+  top: 10%;
+  right: -6rem;
+  width: 24rem;
+  height: 24rem;
+  background: radial-gradient(circle, rgba(110, 229, 255, 0.22), transparent 66%);
+  animation: mistBreath 13s ease-in-out infinite alternate-reverse;
+}
+
+.slayer-stage-grid {
+  inset: 0;
+  opacity: 0.2;
+  background-image:
+    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.04) 1px, transparent 1px);
+  background-size: 34px 34px;
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), transparent 86%);
+}
+
+.slayer-stage-wave {
+  left: -8%;
+  right: -8%;
+  bottom: -8rem;
+  height: 20rem;
+  opacity: 0.28;
+  background:
+    radial-gradient(circle at 10% 48%, rgba(109, 226, 255, 0.22), transparent 18%),
+    radial-gradient(circle at 30% 58%, rgba(109, 226, 255, 0.18), transparent 20%),
+    radial-gradient(circle at 54% 44%, rgba(255, 123, 87, 0.18), transparent 18%),
+    radial-gradient(circle at 74% 58%, rgba(109, 226, 255, 0.2), transparent 20%),
+    radial-gradient(circle at 92% 42%, rgba(255, 123, 87, 0.16), transparent 17%);
+  animation: mistBreath 14s ease-in-out infinite;
+}
+
+body.slayer-ui > *:not(.slayer-stage) {
+  position: relative;
+  z-index: 1;
+}
+
+body.slayer-ui .topbar {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  backdrop-filter: blur(16px);
+}
+
+body.slayer-ui .topbar::before {
+  content: "";
+  position: absolute;
+  left: 1.1rem;
+  right: 1.1rem;
+  top: 0;
+  height: 3px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 197, 144, 0.2), rgba(255, 123, 87, 0.88), rgba(109, 226, 255, 0.82), rgba(255, 197, 144, 0.2));
+}
+
+body.slayer-ui .topbar-row-main {
+  align-items: center;
+}
+
+body.slayer-ui .brand-lockup {
+  display: flex;
+  align-items: center;
+  gap: 0.85rem;
+}
+
+body.slayer-ui .brand-lockup::before {
+  content: "";
+  width: 2.8rem;
+  height: 2.8rem;
+  flex-shrink: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(255, 174, 144, 0.34);
+  background:
+    radial-gradient(circle at 34% 34%, rgba(255, 212, 166, 0.86), transparent 30%),
+    conic-gradient(from 210deg, rgba(255, 123, 87, 0.9), rgba(109, 226, 255, 0.86), rgba(255, 123, 87, 0.9));
+  box-shadow: 0 0 32px rgba(255, 123, 87, 0.2);
+}
+
+body.slayer-ui .brand-mark {
+  position: relative;
+  border-radius: 18px 36px 18px 36px;
+  padding: 0.65rem 1.05rem;
+  backdrop-filter: blur(10px);
+}
+
+body.slayer-ui .brand-logo {
+  width: clamp(13.4rem, 18vw, 17.8rem);
+}
+
+body.slayer-ui.workspace-signed-in .brand-logo,
+body.workspace-signed-in.slayer-ui .brand-logo {
+  width: clamp(11.3rem, 14vw, 14rem);
+}
+
+body.slayer-ui .topbar-actions {
+  gap: 0.52rem;
+}
+
+body.slayer-ui .ghost-link,
+body.slayer-ui .ghost-button,
+body.slayer-ui .status-pill,
+body.slayer-ui .topbar-primary-button,
+body.slayer-ui .primary-button,
+body.slayer-ui .secondary-button {
+  position: relative;
+  overflow: hidden;
+  border-radius: 999px;
+  text-transform: none;
+  letter-spacing: 0.01em;
+}
+
+body.slayer-ui .ghost-link::after,
+body.slayer-ui .ghost-button::after,
+body.slayer-ui .topbar-primary-button::after,
+body.slayer-ui .primary-button::after,
+body.slayer-ui .secondary-button::after {
+  content: "";
+  position: absolute;
+  top: -120%;
+  left: -24%;
+  width: 42%;
+  height: 320%;
+  background: linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.28), transparent);
+  transform: rotate(24deg);
+  opacity: 0;
+  transition: opacity 180ms ease;
+}
+
+body.slayer-ui .ghost-link:hover::after,
+body.slayer-ui .ghost-button:hover::after,
+body.slayer-ui .topbar-primary-button:hover::after,
+body.slayer-ui .primary-button:hover::after,
+body.slayer-ui .secondary-button:hover::after {
+  opacity: 1;
+  animation: slashSweep 800ms ease-out 1;
+}
+
+body.slayer-ui .auth-shell,
+body.slayer-ui .control-grid,
+body.slayer-ui .mission-grid {
+  gap: clamp(1.2rem, 2vw, 1.8rem);
+}
+
+body.slayer-ui .auth-stage,
+body.slayer-ui .auth-panel,
+body.slayer-ui .hero,
+body.slayer-ui .upload-lab,
+body.slayer-ui .spotlight-panel,
+body.slayer-ui .table-panel,
+body.slayer-ui .history-drawer,
+body.slayer-ui .confirm-modal,
+body.slayer-ui .rename-modal,
+body.slayer-ui .duplicate-decision-modal {
+  position: relative;
+  overflow: hidden;
+  border-radius: 30px;
+  backdrop-filter: blur(14px);
+}
+
+body.slayer-ui .auth-stage::before,
+body.slayer-ui .auth-panel::before,
+body.slayer-ui .hero::before,
+body.slayer-ui .upload-lab::before,
+body.slayer-ui .spotlight-panel::before,
+body.slayer-ui .table-panel::before,
+body.slayer-ui .history-drawer::before,
+body.slayer-ui .confirm-modal::before,
+body.slayer-ui .rename-modal::before,
+body.slayer-ui .duplicate-decision-modal::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), transparent 24%),
+    repeating-linear-gradient(
+      135deg,
+      rgba(255, 255, 255, 0.02) 0px,
+      rgba(255, 255, 255, 0.02) 8px,
+      transparent 8px,
+      transparent 18px
+    );
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.8), transparent 92%);
+}
+
+body.slayer-ui .auth-stage {
+  padding: clamp(1.8rem, 3vw, 2.4rem);
+}
+
+body.slayer-ui .auth-stage-copy h1,
+body.slayer-ui .auth-panel-head h2,
+body.slayer-ui .hero-copy h2,
+body.slayer-ui .section-heading h3,
+body.slayer-ui .spotlight-panel h3,
+body.slayer-ui .confirm-modal h3,
+body.slayer-ui .rename-modal h3,
+body.slayer-ui .duplicate-decision-modal h3 {
+  font-family: "Cormorant Garamond", Georgia, serif;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 0.96;
+}
+
+body.slayer-ui .auth-stage-copy h1 {
+  font-size: clamp(3rem, 5.4vw, 5.6rem);
+  max-width: 9.5ch;
+}
+
+body.slayer-ui .auth-panel-head h2,
+body.slayer-ui .hero-copy h2 {
+  font-size: clamp(2.2rem, 4vw, 3.7rem);
+  max-width: 11ch;
+}
+
+body.slayer-ui .auth-lead,
+body.slayer-ui .hero-text,
+body.slayer-ui .topbar-text,
+body.slayer-ui .history-copy {
+  font-size: clamp(0.98rem, 1.3vw, 1.08rem);
+  line-height: 1.75;
+}
+
+body.slayer-ui .auth-highlight-grid,
+body.slayer-ui .hero-grid,
+body.slayer-ui .preview-meta {
+  gap: 0.95rem;
+}
+
+body.slayer-ui .auth-info-card,
+body.slayer-ui .glass-card,
+body.slayer-ui .preview-stat {
+  border-radius: 24px;
+  padding: 1.05rem 1rem;
+}
+
+body.slayer-ui .auth-project-strip article,
+body.slayer-ui .fun-tags span,
+body.slayer-ui .topbar-pills span {
+  border-radius: 999px;
+  padding: 0.66rem 1rem;
+}
+
+body.slayer-ui .upload-form {
+  gap: 1.15rem;
+}
+
+body.slayer-ui .dropzone {
+  position: relative;
+  border-width: 1px;
+  border-style: solid;
+  border-radius: 28px;
+  padding: 1.45rem 1.35rem;
+  overflow: hidden;
+}
+
+body.slayer-ui .dropzone::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background:
+    linear-gradient(110deg, transparent 0%, rgba(255, 255, 255, 0.08) 40%, transparent 72%),
+    linear-gradient(180deg, transparent, rgba(255, 255, 255, 0.03));
+  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.9), rgba(0, 0, 0, 0.6));
+}
+
+body.slayer-ui .drop-kicker,
+body.slayer-ui .drop-title {
+  position: relative;
+  z-index: 1;
+}
+
+body.slayer-ui .field-grid {
+  gap: 0.95rem;
+}
+
+body.slayer-ui .field span {
+  margin-bottom: 0.42rem;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+body.slayer-ui .text-input,
+body.slayer-ui .month-select,
+body.slayer-ui .period-select {
+  min-height: 3.7rem;
+  border-radius: 20px;
+  padding-inline: 1rem;
+}
+
+body.slayer-ui .upload-status-card {
+  padding: 1.1rem;
+}
+
+body.slayer-ui .upload-motion-scene {
+  position: relative;
+  border-radius: 28px;
+  padding: 1.5rem;
+  min-height: 28rem;
+}
+
+body.slayer-ui .upload-motion-scene::before {
+  content: "";
+  position: absolute;
+  inset: 1rem;
+  border-radius: 24px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  pointer-events: none;
+}
+
+body.slayer-ui .motion-cloud,
+body.slayer-ui .motion-receipt,
+body.slayer-ui .motion-processing,
+body.slayer-ui .motion-ledger {
+  border-radius: 24px;
+}
+
+body.slayer-ui .history-drawer {
+  border-radius: 30px 0 0 30px;
+}
+
+body.slayer-ui .history-item {
+  border-radius: 26px;
+}
+
+body.slayer-ui .table-wrap {
+  overflow: auto;
+}
+
+body.slayer-ui .table-panel table {
+  border-collapse: separate;
+  border-spacing: 0 0.72rem;
+}
+
+body.slayer-ui .table-panel tbody tr {
+  backdrop-filter: blur(10px);
+}
+
+body.slayer-ui .table-panel td,
+body.slayer-ui .table-panel th {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+body.slayer-ui .table-panel tbody td:first-child,
+body.slayer-ui .table-panel thead th:first-child {
+  border-top-left-radius: 18px;
+  border-bottom-left-radius: 18px;
+}
+
+body.slayer-ui .table-panel tbody td:last-child,
+body.slayer-ui .table-panel thead th:last-child {
+  border-top-right-radius: 18px;
+  border-bottom-right-radius: 18px;
+}
+
+body.slayer-ui .confirm-actions,
+body.slayer-ui .duplicate-decision-actions,
+body.slayer-ui .hero-actions,
+body.slayer-ui .history-toolbar {
+  gap: 0.8rem;
+  flex-wrap: wrap;
+}
+
+html[data-ui-theme="dark"] body.slayer-ui {
+  color: #f7efe8;
+}
+
+html[data-ui-theme="dark"] body.slayer-ui .auth-stage,
+html[data-ui-theme="dark"] body.slayer-ui .hero {
+  box-shadow:
+    0 28px 50px rgba(4, 5, 12, 0.48),
+    0 0 0 1px rgba(255, 135, 102, 0.09) inset;
+}
+
+html[data-ui-theme="dark"] body.slayer-ui .topbar,
+html[data-ui-theme="dark"] body.slayer-ui .auth-stage,
+html[data-ui-theme="dark"] body.slayer-ui .auth-panel,
+html[data-ui-theme="dark"] body.slayer-ui .hero,
+html[data-ui-theme="dark"] body.slayer-ui .upload-lab,
+html[data-ui-theme="dark"] body.slayer-ui .spotlight-panel,
+html[data-ui-theme="dark"] body.slayer-ui .history-drawer,
+html[data-ui-theme="dark"] body.slayer-ui .confirm-modal,
+html[data-ui-theme="dark"] body.slayer-ui .rename-modal,
+html[data-ui-theme="dark"] body.slayer-ui .duplicate-decision-modal,
+html[data-ui-theme="dark"] body.slayer-ui .table-panel,
+html[data-ui-theme="dark"] body.slayer-ui .glass-card,
+html[data-ui-theme="dark"] body.slayer-ui .auth-info-card,
+html[data-ui-theme="dark"] body.slayer-ui .history-item,
+html[data-ui-theme="dark"] body.slayer-ui .preview-stat {
+  background:
+    radial-gradient(circle at 92% 0%, rgba(104, 224, 255, 0.12), transparent 30%),
+    radial-gradient(circle at 8% 100%, rgba(248, 63, 90, 0.14), transparent 34%),
+    linear-gradient(165deg, rgba(18, 13, 20, 0.95), rgba(10, 11, 17, 0.94)) !important;
+}
+
+html[data-ui-theme="dark"] body.slayer-ui .ghost-link,
+html[data-ui-theme="dark"] body.slayer-ui .ghost-button,
+html[data-ui-theme="dark"] body.slayer-ui .status-pill,
+html[data-ui-theme="dark"] body.slayer-ui .fun-tags span,
+html[data-ui-theme="dark"] body.slayer-ui .topbar-pills span,
+html[data-ui-theme="dark"] body.slayer-ui .auth-project-strip article {
+  background:
+    linear-gradient(140deg, rgba(63, 24, 34, 0.84), rgba(25, 28, 43, 0.8)) !important;
+  color: #ffeadd;
+}
+
+html[data-ui-theme="dark"] body.slayer-ui .text-input,
+html[data-ui-theme="dark"] body.slayer-ui .month-select,
+html[data-ui-theme="dark"] body.slayer-ui .period-select,
+html[data-ui-theme="dark"] body.slayer-ui .dropzone {
+  color: #ffefe4;
+  background:
+    linear-gradient(180deg, rgba(31, 20, 29, 0.92), rgba(20, 20, 31, 0.9)) !important;
+}
+
+html[data-ui-theme="light"] body.slayer-ui {
+  color: #43241b;
+}
+
+html[data-ui-theme="light"] .slayer-stage-grid {
+  opacity: 0.16;
+  background-image:
+    linear-gradient(rgba(183, 138, 118, 0.1) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(183, 138, 118, 0.1) 1px, transparent 1px);
+}
+
+html[data-ui-theme="light"] body.slayer-ui .topbar,
+html[data-ui-theme="light"] body.slayer-ui .auth-stage,
+html[data-ui-theme="light"] body.slayer-ui .auth-panel,
+html[data-ui-theme="light"] body.slayer-ui .hero,
+html[data-ui-theme="light"] body.slayer-ui .upload-lab,
+html[data-ui-theme="light"] body.slayer-ui .spotlight-panel,
+html[data-ui-theme="light"] body.slayer-ui .history-drawer,
+html[data-ui-theme="light"] body.slayer-ui .confirm-modal,
+html[data-ui-theme="light"] body.slayer-ui .rename-modal,
+html[data-ui-theme="light"] body.slayer-ui .duplicate-decision-modal,
+html[data-ui-theme="light"] body.slayer-ui .table-panel,
+html[data-ui-theme="light"] body.slayer-ui .glass-card,
+html[data-ui-theme="light"] body.slayer-ui .auth-info-card,
+html[data-ui-theme="light"] body.slayer-ui .history-item,
+html[data-ui-theme="light"] body.slayer-ui .preview-stat {
+  background:
+    radial-gradient(circle at 92% 0%, rgba(112, 225, 245, 0.16), transparent 30%),
+    radial-gradient(circle at 8% 100%, rgba(255, 185, 140, 0.18), transparent 34%),
+    linear-gradient(180deg, rgba(255, 251, 244, 0.98), rgba(255, 242, 225, 0.96)) !important;
+  color: #42251d;
+}
+
+html[data-ui-theme="light"] body.slayer-ui .ghost-link,
+html[data-ui-theme="light"] body.slayer-ui .ghost-button,
+html[data-ui-theme="light"] body.slayer-ui .status-pill,
+html[data-ui-theme="light"] body.slayer-ui .fun-tags span,
+html[data-ui-theme="light"] body.slayer-ui .topbar-pills span,
+html[data-ui-theme="light"] body.slayer-ui .auth-project-strip article {
+  background: linear-gradient(180deg, rgba(255, 249, 240, 0.98), rgba(255, 238, 214, 0.94)) !important;
+  color: #6b3324;
+}
+
+html[data-ui-theme="light"] body.slayer-ui .text-input,
+html[data-ui-theme="light"] body.slayer-ui .month-select,
+html[data-ui-theme="light"] body.slayer-ui .period-select,
+html[data-ui-theme="light"] body.slayer-ui .dropzone {
+  color: #49281f;
+  background: linear-gradient(180deg, rgba(255, 253, 247, 0.98), rgba(255, 243, 227, 0.96)) !important;
+}
+
+html[data-ui-theme="light"] body.slayer-ui .auth-stage-copy h1,
+html[data-ui-theme="light"] body.slayer-ui .auth-panel-head h2,
+html[data-ui-theme="light"] body.slayer-ui .hero-copy h2 {
+  color: #592b22;
+}
+
+@media (max-width: 1040px) {
+  body.slayer-ui .brand-lockup::before {
+    width: 2.35rem;
+    height: 2.35rem;
+  }
+
+  body.slayer-ui .brand-logo {
+    width: clamp(11.8rem, 28vw, 15rem);
+  }
+
+  body.slayer-ui .auth-stage-copy h1 {
+    max-width: 10.5ch;
+    font-size: clamp(2.6rem, 7vw, 4.6rem);
+  }
+}
+
+@media (max-width: 760px) {
+  .slayer-stage-wave {
+    bottom: -10rem;
+    height: 16rem;
+  }
+
+  body.slayer-ui .topbar {
+    border-radius: 24px;
+  }
+
+  body.slayer-ui .brand-lockup::before {
+    display: none;
+  }
+
+  body.slayer-ui .brand-logo {
+    width: clamp(10.6rem, 48vw, 13rem);
+  }
+
+  body.slayer-ui.workspace-signed-in .brand-logo,
+  body.workspace-signed-in.slayer-ui .brand-logo {
+    width: clamp(9.4rem, 44vw, 11.3rem);
+  }
+
+  body.slayer-ui .auth-stage,
+  body.slayer-ui .auth-panel,
+  body.slayer-ui .hero,
+  body.slayer-ui .upload-lab,
+  body.slayer-ui .spotlight-panel,
+  body.slayer-ui .table-panel {
+    border-radius: 24px;
+  }
+
+  body.slayer-ui .auth-stage-copy h1,
+  body.slayer-ui .auth-panel-head h2,
+  body.slayer-ui .hero-copy h2 {
+    line-height: 1;
+  }
+
+  body.slayer-ui .upload-motion-scene {
+    min-height: auto;
+    padding: 1.1rem;
+  }
+}

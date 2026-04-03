@@ -1,21 +1,26 @@
-<svg width="330" height="56" viewBox="0 0 330 56" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="receiptpulseLogoTitle receiptpulseLogoDesc">
+<svg width="396" height="74" viewBox="0 0 396 74" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="receiptpulseLogoTitle receiptpulseLogoDesc">
   <title id="receiptpulseLogoTitle">ReceiptPulse</title>
-  <desc id="receiptpulseLogoDesc">ReceiptPulse logo with a receipt icon and all-caps wordmark.</desc>
+  <desc id="receiptpulseLogoDesc">ReceiptPulse logo with receipt icon and bold two-level wordmark.</desc>
   <defs>
-    <linearGradient id="receiptpulseLogoStroke" x1="6" y1="5" x2="44" y2="49" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#8CF4FF"/>
-      <stop offset="1" stop-color="#4FA5FF"/>
+    <linearGradient id="logoFrame" x1="6" y1="7" x2="58" y2="63" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#95F9FF"/>
+      <stop offset="1" stop-color="#5EA5FF"/>
     </linearGradient>
-    <linearGradient id="receiptpulseLogoPulse" x1="14" y1="15" x2="34" y2="36" gradientUnits="userSpaceOnUse">
-      <stop stop-color="#AEFDFF"/>
-      <stop offset="1" stop-color="#64BCFF"/>
+    <linearGradient id="logoPulse" x1="20" y1="21" x2="44" y2="46" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#BCFDFF"/>
+      <stop offset="1" stop-color="#74C4FF"/>
+    </linearGradient>
+    <linearGradient id="logoWordPulse" x1="109" y1="35" x2="229" y2="71" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#A7FDFF"/>
+      <stop offset="1" stop-color="#6CB8FF"/>
     </linearGradient>
   </defs>
-  <rect x="0.8" y="3.8" width="48.4" height="48.4" rx="15.2" fill="#091827" stroke="url(#receiptpulseLogoStroke)" stroke-opacity="0.42" stroke-width="1.6"/>
-  <path d="M15.8 14.5H28.7L35.5 21.3V35.4C35.5 38.2 33.2 40.5 30.4 40.5H18.8C15.9 40.5 13.6 38.2 13.6 35.4V16.7C13.6 15.5 14.6 14.5 15.8 14.5Z" fill="#0C2236" stroke="url(#receiptpulseLogoStroke)" stroke-width="1.6" stroke-linejoin="round"/>
-  <path d="M28.8 14.6V20.8H35" stroke="url(#receiptpulseLogoStroke)" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M18.6 31.6L22.4 35.1L27.2 28.4L30.1 30.9L34.2 25.1" stroke="url(#receiptpulseLogoPulse)" stroke-width="2.35" stroke-linecap="round" stroke-linejoin="round"/>
-  <path d="M18.5 21.8H25.2" stroke="#7CDFFF" stroke-opacity="0.6" stroke-width="1.4" stroke-linecap="round"/>
-  <path d="M18.5 25.4H23.6" stroke="#7CDFFF" stroke-opacity="0.4" stroke-width="1.4" stroke-linecap="round"/>
-  <text x="66" y="34" fill="#F3F8FF" font-family="'Segoe UI', 'Aptos', Arial, sans-serif" font-size="23" font-weight="800" letter-spacing="3.4">RECEIPTPULSE</text>
+  <rect x="3.6" y="4.8" width="64.8" height="64.8" rx="20" fill="#0A1A2A" stroke="url(#logoFrame)" stroke-opacity="0.48" stroke-width="1.9"/>
+  <path d="M20.4 18.5H39L49.6 29.1V49.5C49.6 53.7 46.2 57.1 42 57.1H24.4C20.2 57.1 16.8 53.7 16.8 49.5V22.1C16.8 20.1 18.4 18.5 20.4 18.5Z" fill="#0D263E" stroke="url(#logoFrame)" stroke-width="2.05" stroke-linejoin="round"/>
+  <path d="M39.1 18.6V28.3H48.8" stroke="url(#logoFrame)" stroke-width="2.05" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24.6 42.8L30.3 47.9L37.8 37.4L42.4 41.2L48.8 32.2" stroke="url(#logoPulse)" stroke-width="3.35" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M24.5 29.8H34.9" stroke="#8BDFFF" stroke-opacity="0.64" stroke-width="1.85" stroke-linecap="round"/>
+  <path d="M24.5 34.8H31.8" stroke="#8BDFFF" stroke-opacity="0.44" stroke-width="1.85" stroke-linecap="round"/>
+  <text x="82" y="30" fill="#E6F5FF" font-family="'Segoe UI', 'Aptos', Arial, sans-serif" font-size="15" font-weight="700" letter-spacing="4.6">RECEIPT</text>
+  <text x="82" y="62" fill="url(#logoWordPulse)" font-family="'Segoe UI', 'Aptos', Arial, sans-serif" font-size="36" font-weight="850" letter-spacing="1.9">PULSE</text>
 </svg>

@@ -1,0 +1,49 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="darkSceneTitle darkSceneDesc">
+  <title id="darkSceneTitle">Anime-inspired dark slayer scene</title>
+  <desc id="darkSceneDesc">Original moonlit scene with a swordsman silhouette, torii gate, mist, flames, and wave energy.</desc>
+  <defs>
+    <linearGradient id="darkSky" x1="800" y1="0" x2="800" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#070910"/>
+      <stop offset="0.45" stop-color="#101421"/>
+      <stop offset="1" stop-color="#170C16"/>
+    </linearGradient>
+    <radialGradient id="moonGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1225 165) rotate(90) scale(150)">
+      <stop stop-color="#FFF1D6" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#FFF1D6" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="waterArc" x1="1090" y1="618" x2="1538" y2="528" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7EEBFF" stop-opacity="0"/>
+      <stop offset="0.45" stop-color="#8AEFFF"/>
+      <stop offset="1" stop-color="#D1FFFF" stop-opacity="0.18"/>
+    </linearGradient>
+    <linearGradient id="emberArc" x1="46" y1="620" x2="522" y2="512" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FF7C4D" stop-opacity="0"/>
+      <stop offset="0.42" stop-color="#FF8F63"/>
+      <stop offset="1" stop-color="#FFD2A0" stop-opacity="0.2"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#darkSky)"/>
+  <rect width="1600" height="900" fill="url(#moonGlow)"/>
+  <circle cx="1225" cy="165" r="84" fill="#FFF0D3" fill-opacity="0.88"/>
+  <circle cx="1225" cy="165" r="150" fill="url(#moonGlow)"/>
+  <path d="M0 520L142 472L296 512L446 446L612 498L748 458L934 522L1072 458L1210 520L1338 478L1484 534L1600 500V900H0V520Z" fill="#121725"/>
+  <path d="M0 620L132 590L250 616L368 560L506 620L642 586L772 652L904 592L1040 646L1146 598L1288 670L1392 626L1514 678L1600 646V900H0V620Z" fill="#191017"/>
+  <path d="M0 742L150 702L274 726L404 694L548 742L658 710L806 768L962 718L1110 768L1248 724L1396 770L1600 720V900H0V742Z" fill="#110D16"/>
+  <path d="M265 575H290V760H265V575Z" fill="#271218"/>
+  <path d="M366 575H392V760H366V575Z" fill="#271218"/>
+  <path d="M228 566H432V600H228V566Z" fill="#36171D"/>
+  <path d="M250 525H410V554H250V525Z" fill="#4A1D24"/>
+  <path d="M313 480H340V565H313V480Z" fill="#30161B"/>
+  <path d="M802 690L862 614L898 574L938 618L930 706L1006 802L910 802L862 754L846 802L758 802L798 726L802 690Z" fill="#07090F"/>
+  <circle cx="874" cy="556" r="28" fill="#080A10"/>
+  <path d="M934 622L986 564L1000 574L956 640L1038 716L1026 730L932 648L934 622Z" fill="#080A10"/>
+  <path d="M850 594L800 636L790 622L842 570L850 594Z" fill="#080A10"/>
+  <path d="M1045 614C1138 528 1256 500 1466 532" stroke="url(#waterArc)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M1086 662C1194 598 1326 586 1534 620" stroke="url(#waterArc)" stroke-width="11" stroke-linecap="round" stroke-opacity="0.74"/>
+  <path d="M60 632C186 560 324 536 510 566" stroke="url(#emberArc)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M114 692C230 634 354 624 496 664" stroke="url(#emberArc)" stroke-width="11" stroke-linecap="round" stroke-opacity="0.72"/>
+  <circle cx="170" cy="598" r="6" fill="#FFB583"/>
+  <circle cx="226" cy="548" r="4" fill="#FFC9A6"/>
+  <circle cx="1310" cy="536" r="6" fill="#A6F7FF"/>
+  <circle cx="1370" cy="572" r="4" fill="#D4FFFF"/>
+</svg>

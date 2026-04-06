@@ -1,0 +1,49 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="lightSceneTitle lightSceneDesc">
+  <title id="lightSceneTitle">Anime-inspired light slayer scene</title>
+  <desc id="lightSceneDesc">Original dawn scene with a swordsman silhouette, torii gate, mist, warm sky, and flowing energy.</desc>
+  <defs>
+    <linearGradient id="lightSky" x1="800" y1="0" x2="800" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFDF7"/>
+      <stop offset="0.46" stop-color="#FFF2DF"/>
+      <stop offset="1" stop-color="#FFE7CF"/>
+    </linearGradient>
+    <radialGradient id="sunGlow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1174 186) rotate(90) scale(172)">
+      <stop stop-color="#FFE5BF" stop-opacity="0.88"/>
+      <stop offset="1" stop-color="#FFE5BF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="lightWaterArc" x1="1060" y1="620" x2="1520" y2="540" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#7FDFF8" stop-opacity="0"/>
+      <stop offset="0.46" stop-color="#6DCDEB"/>
+      <stop offset="1" stop-color="#D6FAFF" stop-opacity="0.22"/>
+    </linearGradient>
+    <linearGradient id="lightEmberArc" x1="62" y1="620" x2="540" y2="520" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F39A72" stop-opacity="0"/>
+      <stop offset="0.44" stop-color="#F08D62"/>
+      <stop offset="1" stop-color="#FFE0B8" stop-opacity="0.22"/>
+    </linearGradient>
+  </defs>
+  <rect width="1600" height="900" fill="url(#lightSky)"/>
+  <rect width="1600" height="900" fill="url(#sunGlow)"/>
+  <circle cx="1174" cy="186" r="92" fill="#FFF2D8"/>
+  <circle cx="1174" cy="186" r="172" fill="url(#sunGlow)"/>
+  <path d="M0 522L166 478L304 522L442 468L622 526L786 474L972 540L1122 480L1268 536L1402 492L1510 536L1600 512V900H0V522Z" fill="#D7C3B4"/>
+  <path d="M0 624L120 590L264 628L392 582L548 644L680 606L826 664L972 612L1120 670L1254 622L1406 678L1600 634V900H0V624Z" fill="#BFA392"/>
+  <path d="M0 742L152 704L286 734L428 694L560 748L710 706L842 772L1004 722L1142 770L1284 726L1436 774L1600 728V900H0V742Z" fill="#9D8173"/>
+  <path d="M252 576H278V758H252V576Z" fill="#8B4D45"/>
+  <path d="M350 576H376V758H350V576Z" fill="#8B4D45"/>
+  <path d="M214 566H412V598H214V566Z" fill="#A65349"/>
+  <path d="M240 524H390V552H240V524Z" fill="#BF6151"/>
+  <path d="M300 478H326V565H300V478Z" fill="#8B4D45"/>
+  <path d="M790 692L852 616L892 574L930 618L922 706L998 802L902 802L852 752L838 802L750 802L788 726L790 692Z" fill="#56423F"/>
+  <circle cx="864" cy="556" r="28" fill="#5C4743"/>
+  <path d="M926 624L978 566L992 576L948 642L1030 718L1018 730L924 648L926 624Z" fill="#56423F"/>
+  <path d="M840 594L792 636L782 622L832 570L840 594Z" fill="#56423F"/>
+  <path d="M1044 616C1140 530 1260 504 1472 536" stroke="url(#lightWaterArc)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M1080 664C1190 602 1328 592 1530 626" stroke="url(#lightWaterArc)" stroke-width="11" stroke-linecap="round" stroke-opacity="0.74"/>
+  <path d="M70 634C194 562 330 540 520 570" stroke="url(#lightEmberArc)" stroke-width="16" stroke-linecap="round"/>
+  <path d="M122 694C236 636 360 626 506 666" stroke="url(#lightEmberArc)" stroke-width="11" stroke-linecap="round" stroke-opacity="0.72"/>
+  <circle cx="180" cy="600" r="6" fill="#F5AA78"/>
+  <circle cx="240" cy="552" r="4" fill="#FFD7B6"/>
+  <circle cx="1314" cy="538" r="6" fill="#8CE4F7"/>
+  <circle cx="1374" cy="572" r="4" fill="#DDFBFF"/>
+</svg>

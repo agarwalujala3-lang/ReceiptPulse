@@ -54,6 +54,7 @@
       <span class="brand-launch-aura brand-launch-aura--ember" aria-hidden="true"></span>
       <span class="brand-launch-aura brand-launch-aura--mist" aria-hidden="true"></span>
       <span class="brand-launch-blade" aria-hidden="true"></span>
+      <span class="brand-launch-character" data-scene-asset="splash" aria-hidden="true"></span>
       <div class="brand-launch-card">
         <span class="brand-launch-mark-shell">
           <img class="brand-launch-mark" src="./receiptpulse-mark.svg?v=20260402c" alt="" />

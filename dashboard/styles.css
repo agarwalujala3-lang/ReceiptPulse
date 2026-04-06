@@ -7732,6 +7732,21 @@ html[data-ui-theme="light"] .grid-sheen {
   filter: blur(34px);
 }
 
+.brand-launch-character {
+  position: absolute;
+  inset: 7% auto 0 -3%;
+  width: min(30rem, 40vw);
+  background: var(--slayer-splash-url) left center / contain no-repeat;
+  opacity: 0;
+  filter: drop-shadow(0 18px 38px rgba(0, 0, 0, 0.26));
+  mask-image: linear-gradient(90deg, rgba(0, 0, 0, 0.92), transparent 94%);
+  transition: opacity 300ms ease;
+}
+
+html.slayer-has-splash-asset .brand-launch-character {
+  opacity: 0.34;
+}
+
 .brand-launch-aura--ember {
   background: radial-gradient(circle at 14% 36%, rgba(248, 63, 90, 0.34), transparent 42%);
   animation: mistBreath 7.5s ease-in-out infinite;
@@ -7822,8 +7837,60 @@ body.slayer-ui .mini-label {
 
 .slayer-stage-orb,
 .slayer-stage-grid,
-.slayer-stage-wave {
+.slayer-stage-wave,
+.slayer-scene-backdrop,
+.slayer-scene-cast,
+.slayer-scene-portal {
   position: absolute;
+}
+
+.slayer-scene-backdrop,
+.slayer-scene-cast,
+.slayer-scene-portal {
+  opacity: 0;
+  transition: opacity 380ms ease;
+}
+
+.slayer-scene-backdrop.is-ready,
+.slayer-scene-cast.is-ready,
+.slayer-scene-portal.is-ready {
+  opacity: 1;
+}
+
+.slayer-scene-backdrop {
+  inset: -3%;
+  background: var(--scene-asset-url) center center / cover no-repeat;
+}
+
+.slayer-scene-backdrop-dark {
+  mix-blend-mode: screen;
+}
+
+.slayer-scene-backdrop-light {
+  mix-blend-mode: multiply;
+}
+
+.slayer-scene-cast {
+  left: 50%;
+  bottom: -2%;
+  width: min(72rem, 86vw);
+  aspect-ratio: 16 / 8;
+  background: var(--scene-asset-url) center bottom / contain no-repeat;
+  transform: translateX(-50%);
+  filter: drop-shadow(0 24px 44px rgba(0, 0, 0, 0.24));
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.92) 18%, rgba(0, 0, 0, 0.98) 76%, transparent 100%);
+}
+
+.slayer-scene-portal {
+  right: -6%;
+  top: 6%;
+  width: min(30rem, 34vw);
+  height: 88%;
+  background: var(--scene-asset-url) center center / cover no-repeat;
+  border-radius: 36px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.28);
+  mix-blend-mode: screen;
+  mask-image: linear-gradient(180deg, transparent 0%, rgba(0, 0, 0, 0.95) 14%, rgba(0, 0, 0, 0.95) 86%, transparent 100%);
 }
 
 .slayer-stage-orb {
@@ -8337,6 +8404,16 @@ html[data-ui-theme="light"] body.slayer-ui .hero-copy h2 {
     height: 16rem;
   }
 
+  .slayer-scene-cast {
+    width: 96vw;
+    bottom: -4%;
+  }
+
+  .slayer-scene-portal {
+    width: 42vw;
+    right: -12%;
+  }
+
   body.slayer-ui .topbar {
     border-radius: 24px;
   }
@@ -8373,4 +8450,167 @@ html[data-ui-theme="light"] body.slayer-ui .hero-copy h2 {
     min-height: auto;
     padding: 1.1rem;
   }
+
+  .brand-launch-character {
+    display: none;
+  }
+}
+
+@keyframes sceneFloat {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1.04);
+  }
+  50% {
+    transform: translate3d(-1.6%, 0.8%, 0) scale(1.08);
+  }
+  100% {
+    transform: translate3d(1.4%, -0.8%, 0) scale(1.05);
+  }
+}
+
+@keyframes petalDrift {
+  0% {
+    transform: translateY(-4%) translateX(0);
+    opacity: 0.18;
+  }
+  50% {
+    transform: translateY(3%) translateX(1.2%);
+    opacity: 0.34;
+  }
+  100% {
+    transform: translateY(-2%) translateX(-1%);
+    opacity: 0.2;
+  }
+}
+
+.slayer-stage::before,
+.slayer-stage::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+
+.slayer-stage::before {
+  inset: -2%;
+  background:
+    linear-gradient(180deg, rgba(0, 0, 0, 0.06), transparent 32%, rgba(0, 0, 0, 0.18) 100%),
+    url("./slayer-scene-dark.svg?v=20260403d") center bottom / cover no-repeat;
+  opacity: 0.86;
+  transform-origin: center center;
+  animation: sceneFloat 26s ease-in-out infinite alternate;
+}
+
+.slayer-stage::after {
+  inset: -6%;
+  background:
+    radial-gradient(circle at 8% 22%, rgba(255, 208, 171, 0.16), transparent 12%),
+    radial-gradient(circle at 18% 58%, rgba(255, 138, 111, 0.12), transparent 10%),
+    radial-gradient(circle at 74% 22%, rgba(122, 233, 255, 0.14), transparent 10%),
+    radial-gradient(circle at 82% 62%, rgba(255, 194, 154, 0.1), transparent 9%),
+    radial-gradient(circle at 56% 16%, rgba(255, 255, 255, 0.08), transparent 8%);
+  mix-blend-mode: screen;
+  animation: petalDrift 18s ease-in-out infinite alternate;
+}
+
+html[data-ui-theme="light"] .slayer-stage::before {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 32%, rgba(150, 108, 78, 0.08) 100%),
+    url("./slayer-scene-light.svg?v=20260403d") center bottom / cover no-repeat;
+  opacity: 0.94;
+}
+
+html[data-ui-theme="dark"] .slayer-scene-backdrop-dark.is-ready {
+  opacity: 0.3;
+}
+
+html[data-ui-theme="dark"] .slayer-scene-cast.is-ready {
+  opacity: 0.44;
+}
+
+html[data-ui-theme="dark"] .slayer-scene-portal.is-ready {
+  opacity: 0.3;
+}
+
+html[data-ui-theme="light"] .slayer-scene-backdrop-light.is-ready {
+  opacity: 0.24;
+}
+
+html[data-ui-theme="light"] .slayer-scene-cast.is-ready {
+  opacity: 0.28;
+}
+
+html[data-ui-theme="light"] .slayer-scene-portal.is-ready {
+  opacity: 0.2;
+}
+
+body.slayer-ui .hero::after,
+body.slayer-ui .auth-stage::after,
+body.slayer-ui .upload-lab::after {
+  content: "";
+  position: absolute;
+  inset: auto -6% -18% auto;
+  width: min(36vw, 26rem);
+  aspect-ratio: 1;
+  pointer-events: none;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.08), transparent 54%),
+    conic-gradient(
+      from 210deg,
+      rgba(255, 128, 94, 0.36),
+      rgba(255, 218, 171, 0.1),
+      rgba(113, 229, 255, 0.34),
+      rgba(255, 128, 94, 0.32)
+    );
+  filter: blur(2px);
+  opacity: 0.46;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.88) 30%, transparent 72%);
+  animation: flameBlade 9s ease infinite;
+}
+
+body.slayer-ui .auth-panel::after,
+body.slayer-ui .spotlight-panel::after,
+body.slayer-ui .duplicate-decision-modal::after {
+  content: "";
+  position: absolute;
+  top: -1px;
+  right: 1.4rem;
+  width: 6.6rem;
+  height: 2px;
+  border-radius: 999px;
+  background: linear-gradient(90deg, rgba(255, 205, 169, 0.08), rgba(255, 124, 87, 0.9), rgba(109, 226, 255, 0.78));
+  box-shadow: 0 0 22px rgba(255, 124, 87, 0.18);
+}
+
+body.slayer-ui .upload-motion-scene {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent),
+    linear-gradient(135deg, rgba(255, 127, 92, 0.08), transparent 34%),
+    linear-gradient(225deg, rgba(109, 226, 255, 0.08), transparent 42%) !important;
+}
+
+html[data-ui-theme="light"] body.slayer-ui .upload-motion-scene {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.46), rgba(255, 255, 255, 0.08)),
+    linear-gradient(135deg, rgba(255, 185, 140, 0.14), transparent 34%),
+    linear-gradient(225deg, rgba(109, 226, 255, 0.12), transparent 42%) !important;
+}
+
+body.slayer-ui .motion-cloud,
+body.slayer-ui .motion-processing,
+body.slayer-ui .motion-ledger,
+body.slayer-ui .motion-receipt {
+  box-shadow:
+    0 18px 34px rgba(6, 10, 18, 0.24),
+    0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+}
+
+html[data-ui-theme="light"] body.slayer-ui .motion-cloud,
+html[data-ui-theme="light"] body.slayer-ui .motion-processing,
+html[data-ui-theme="light"] body.slayer-ui .motion-ledger,
+html[data-ui-theme="light"] body.slayer-ui .motion-receipt {
+  box-shadow:
+    0 14px 28px rgba(171, 123, 89, 0.16),
+    0 0 0 1px rgba(255, 255, 255, 0.7) inset;
 }

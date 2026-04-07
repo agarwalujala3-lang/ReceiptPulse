@@ -614,6 +614,9 @@ const elements = {
   authSummary: document.querySelector("#authSummary"),
   authCta: document.querySelector("#authCta"),
   authSecondaryCta: document.querySelector("#authSecondaryCta"),
+  workspaceGuard: document.querySelector("#workspaceGuard"),
+  guardSignIn: document.querySelector("#guardSignIn"),
+  guardSignUp: document.querySelector("#guardSignUp"),
   switchAccountButton: document.querySelector("#switchAccountButton"),
   signOutButton: document.querySelector("#signOutButton"),
   riskHeadline: document.querySelector("#riskHeadline"),
@@ -1029,8 +1032,10 @@ function updateAuthUI() {
   const authBusy = ["refreshing", "restoring"].includes(authState.status);
   const authRestoring = authState.status === "restoring";
   const hideAuthEntry = signedIn || !configured || authRestoring;
+  const workspaceLocked = configured && !signedIn && !authRestoring;
 
   document.body.classList.toggle("workspace-signed-in", signedIn);
+  document.body.classList.toggle("workspace-locked", workspaceLocked);
 
   if (elements.authSummary) {
     elements.authSummary.textContent = signedIn
@@ -1079,6 +1084,18 @@ function updateAuthUI() {
     }
   }
 
+  if (elements.workspaceGuard) {
+    elements.workspaceGuard.hidden = !workspaceLocked;
+  }
+  if (elements.guardSignIn) {
+    elements.guardSignIn.disabled = authBusy;
+    elements.guardSignIn.hidden = !workspaceLocked;
+  }
+  if (elements.guardSignUp) {
+    elements.guardSignUp.disabled = authBusy;
+    elements.guardSignUp.hidden = !workspaceLocked;
+  }
+
   if (elements.uploadAccount) {
     elements.uploadAccount.value = signedIn
       ? authState.user.name || "Workspace user"
@@ -1119,6 +1136,20 @@ function bindAuthControls() {
   if (elements.authSecondaryCta && elements.authSecondaryCta.dataset.bound !== "true") {
     elements.authSecondaryCta.dataset.bound = "true";
     elements.authSecondaryCta.addEventListener("click", () => {
+      goToSignUpPage();
+    });
+  }
+
+  if (elements.guardSignIn && elements.guardSignIn.dataset.bound !== "true") {
+    elements.guardSignIn.dataset.bound = "true";
+    elements.guardSignIn.addEventListener("click", () => {
+      goToSignInPage();
+    });
+  }
+
+  if (elements.guardSignUp && elements.guardSignUp.dataset.bound !== "true") {
+    elements.guardSignUp.dataset.bound = "true";
+    elements.guardSignUp.addEventListener("click", () => {
       goToSignUpPage();
     });
   }
@@ -4978,6 +5009,7 @@ async function initializeApp() {
 bindAuthControls();
 bindUploadControls();
 bindHistoryControls();
+closeHistoryDrawer();
 bindArchiveControls();
 setArchiveVisibility(false);
 initTopbarScrollFX();

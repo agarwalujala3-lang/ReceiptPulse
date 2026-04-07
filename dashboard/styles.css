@@ -7649,6 +7649,50 @@ html[data-ui-theme="light"] body.cinema-ui .dropzone {
   color: #1f2a36;
 }
 
+.history-drawer[hidden] {
+  display: none !important;
+}
+
+body:not(.history-open) .history-drawer {
+  pointer-events: none;
+}
+
+.workspace-guard {
+  margin: 0.9rem auto 0;
+  padding: 1rem 1.05rem;
+  border-radius: 20px;
+}
+
+.workspace-guard h3 {
+  margin: 0.2rem 0 0.45rem;
+  font-size: clamp(1.02rem, 1.5vw, 1.2rem);
+}
+
+.workspace-guard p {
+  margin: 0;
+  color: var(--muted);
+}
+
+.workspace-guard-actions {
+  margin-top: 0.85rem;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+}
+
+body.workspace-locked .ops-strip,
+body.workspace-locked .metrics-grid,
+body.workspace-locked .insight-layout,
+body.workspace-locked #receiptsTable {
+  opacity: 0.35;
+  pointer-events: none;
+  filter: saturate(0.75);
+}
+
+body.workspace-locked #uploadLab {
+  box-shadow: 0 0 0 1px rgba(255, 184, 122, 0.32) inset;
+}
+
 @keyframes cinemaFloat {
   0% {
     transform: translate3d(0, 0, 0);

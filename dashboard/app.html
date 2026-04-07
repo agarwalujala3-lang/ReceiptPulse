@@ -48,7 +48,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260406a" />
+    <link rel="stylesheet" href="./styles.css?v=20260407b" />
   </head>
   <body class="cinema-ui">
     <div class="cinema-stage" aria-hidden="true">
@@ -104,6 +104,16 @@
         <div class="range-summary" id="rangeSummary" aria-live="polite"></div>
       </div>
     </header>
+
+    <section class="panel workspace-guard" id="workspaceGuard" hidden>
+      <p class="eyebrow">Private Workspace Lock</p>
+      <h3>Sign in required to view your personal receipts and past uploads.</h3>
+      <p>Your data stays isolated per account. Sign in to continue, or switch to another account.</p>
+      <div class="workspace-guard-actions">
+        <button class="primary-button" id="guardSignIn" type="button">Sign In</button>
+        <button class="ghost-link ghost-button" id="guardSignUp" type="button">Create Account</button>
+      </div>
+    </section>
 
     <main class="shell">
       <section class="control-grid">
@@ -524,6 +534,6 @@
     <script src="./theme.js?v=20260402a" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260407a" defer></script>
+    <script src="./app.js?v=20260407b" defer></script>
   </body>
 </html>

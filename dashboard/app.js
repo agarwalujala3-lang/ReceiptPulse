@@ -1070,6 +1070,15 @@ function updateAuthUI() {
     elements.switchAccountButton.textContent = "Switch Account";
   }
 
+  if (elements.historyToggle) {
+    elements.historyToggle.hidden = !signedIn;
+    elements.historyToggle.style.display = signedIn ? "" : "none";
+    elements.historyToggle.disabled = authBusy || !signedIn;
+    if (!signedIn) {
+      closeHistoryDrawer();
+    }
+  }
+
   if (elements.uploadAccount) {
     elements.uploadAccount.value = signedIn
       ? authState.user.name || "Workspace user"
@@ -1159,7 +1168,11 @@ async function loadDashboard() {
     new URLSearchParams(window.location.search).get("api") ||
     window.RECEIPTPULSE_CONFIG?.apiBaseUrl ||
     "";
-  dashboardData = cloneDashboardState(FALLBACK_DASHBOARD);
+  const configured = isAuthConfigured();
+  const signedIn = isSignedIn();
+  dashboardData = configured && !signedIn
+    ? buildSignedOutDashboardState()
+    : cloneDashboardState(FALLBACK_DASHBOARD);
   renderDashboard();
 
   if (!apiBase) {
@@ -1644,6 +1657,13 @@ function adaptSnapshotPayload(snapshot) {
   const adapted = adaptApiPayload(snapshot.analytics || {}, snapshot.receipts || []);
   adapted.generatedAt = snapshot.generatedAt || new Date().toISOString();
   return adapted;
+}
+
+function buildSignedOutDashboardState() {
+  const emptyState = adaptApiPayload({}, []);
+  emptyState.generatedAt = new Date().toISOString();
+  emptyState.heroHeadline = "Sign in to load receipts tied to your own account.";
+  return emptyState;
 }
 
 function getReceiptDate(receipt) {
@@ -3867,12 +3887,19 @@ function bindHistoryControls() {
 
   elements.historyToggle.dataset.bound = "true";
   elements.historyToggle.addEventListener("click", () => {
-    document.body.classList.toggle("history-open");
-    const isOpen = document.body.classList.contains("history-open");
-    elements.historyDrawer?.setAttribute("aria-hidden", isOpen ? "false" : "true");
-    if (elements.historyScrim) {
-      elements.historyScrim.hidden = !isOpen;
+    const isOpen = !document.body.classList.contains("history-open");
+    if (isOpen) {
+      document.body.classList.add("history-open");
+      if (elements.historyDrawer) {
+        elements.historyDrawer.hidden = false;
+        elements.historyDrawer.setAttribute("aria-hidden", "false");
+      }
+      if (elements.historyScrim) {
+        elements.historyScrim.hidden = false;
+      }
+      return;
     }
+    closeHistoryDrawer();
   });
 
   elements.historyClose?.addEventListener("click", closeHistoryDrawer);
@@ -3951,7 +3978,10 @@ function bindHistoryControls() {
 
 function closeHistoryDrawer() {
   document.body.classList.remove("history-open");
-  elements.historyDrawer?.setAttribute("aria-hidden", "true");
+  if (elements.historyDrawer) {
+    elements.historyDrawer.setAttribute("aria-hidden", "true");
+    elements.historyDrawer.hidden = true;
+  }
   if (elements.historyScrim) {
     elements.historyScrim.hidden = true;
   }

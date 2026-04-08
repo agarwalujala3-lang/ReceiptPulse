@@ -1,3 +1,23 @@
+<p align="center">
+  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="420" />
+</p>
+
+<p align="center">
+  Serverless AWS receipt workspace with private uploads, Textract extraction, duplicate review, and a live dashboard that feels product-grade.
+</p>
+
+<p align="center">
+  <a href="https://d2ijsg7huf2h2p.cloudfront.net/app.html?v=20260331">Live App</a>
+  |
+  <a href="https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com/health">API Health</a>
+  |
+  <a href="dashboard/receiptpulse-github-preview.svg?v=20260408a">Brand Preview</a>
+</p>
+
+<p align="center">
+  <img src="dashboard/receiptpulse-github-preview.svg?v=20260408a" alt="ReceiptPulse preview showing the AWS receipt-processing workflow and live dashboard proof." width="100%" />
+</p>
+
 # ReceiptPulse
 
 ReceiptPulse is a serverless AWS portfolio project for private receipt processing. Each signed-in user gets their own workspace to upload receipt files, extract structured fields with Textract, review duplicate decisions, rename labels after upload, and manage the results in a live dashboard.

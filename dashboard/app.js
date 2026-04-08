@@ -736,6 +736,7 @@ let duplicateDecisionState = {
   busy: false,
   pendingAction: "",
   outcomeTimer: 0,
+  scrollLockY: 0,
 };
 let authState = {
   status: "idle",
@@ -4044,7 +4045,7 @@ function closeConfirmDialog(confirmed = false) {
   }, 180);
 
   if (previousFocus?.focus) {
-    previousFocus.focus();
+    focusWithoutScroll(previousFocus);
   }
 
   if (resolve) {
@@ -4375,6 +4376,32 @@ async function showDuplicateDecisionOutcome({
   });
 }
 
+function focusWithoutScroll(element) {
+  if (!element?.focus) {
+    return;
+  }
+  try {
+    element.focus({ preventScroll: true });
+  } catch (error) {
+    element.focus();
+  }
+}
+
+function lockDuplicateDecisionViewport() {
+  const scrollY = window.scrollY || window.pageYOffset || 0;
+  duplicateDecisionState.scrollLockY = scrollY;
+  document.body.style.top = `-${scrollY}px`;
+  document.body.classList.add("duplicate-decision-open");
+}
+
+function unlockDuplicateDecisionViewport() {
+  const scrollY = Number(duplicateDecisionState.scrollLockY || 0);
+  document.body.classList.remove("duplicate-decision-open");
+  document.body.style.top = "";
+  duplicateDecisionState.scrollLockY = 0;
+  window.scrollTo(0, scrollY);
+}
+
 function closeDuplicateDecisionDialog(result = null) {
   const { duplicateDecisionModal, duplicateDecisionScrim } = elements;
   if (!duplicateDecisionModal || !duplicateDecisionScrim) {
@@ -4389,7 +4416,7 @@ function closeDuplicateDecisionDialog(result = null) {
   duplicateDecisionModal.classList.remove("is-open");
   duplicateDecisionScrim.classList.remove("is-open");
   duplicateDecisionModal.setAttribute("aria-hidden", "true");
-  document.body.classList.remove("duplicate-decision-open");
+  unlockDuplicateDecisionViewport();
   window.clearTimeout(duplicateDecisionState.outcomeTimer);
 
   const resolve = duplicateDecisionState.resolve;
@@ -4479,15 +4506,14 @@ function openDuplicateDecisionDialog(receipt) {
   duplicateDecisionModal.hidden = false;
   duplicateDecisionScrim.hidden = false;
   duplicateDecisionModal.setAttribute("aria-hidden", "false");
-  document.body.classList.add("duplicate-decision-open");
+  lockDuplicateDecisionViewport();
   updateDuplicateDecisionNote();
   setDuplicateDecisionBusy(false);
 
   window.requestAnimationFrame(() => {
     duplicateDecisionModal.classList.add("is-open");
     duplicateDecisionScrim.classList.add("is-open");
-    duplicateDecisionLabel.focus();
-    duplicateDecisionLabel.select();
+    focusWithoutScroll(duplicateDecisionModal);
   });
 
   return new Promise((resolve) => {

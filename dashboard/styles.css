@@ -7811,6 +7811,248 @@ html[data-ui-theme="light"] .brand-launch {
     linear-gradient(160deg, rgba(240, 245, 252, 0.96), rgba(230, 238, 248, 0.94));
 }
 
+/* Final light-mode palette and modal tuning */
+
+html[data-ui-theme="light"] {
+  --text: #2b3342;
+  --muted: #5e697c;
+  --panel-border: rgba(184, 143, 104, 0.2);
+  --accent-soft: rgba(255, 176, 124, 0.16);
+  --shadow: 0 24px 54px rgba(176, 142, 111, 0.14);
+}
+
+html[data-ui-theme="light"] body.cinema-ui,
+html[data-ui-theme="light"] body.auth-page.cinema-ui {
+  color: var(--text);
+  background:
+    radial-gradient(circle at 10% 8%, rgba(255, 196, 142, 0.28), transparent 28%),
+    radial-gradient(circle at 88% 14%, rgba(148, 227, 213, 0.22), transparent 26%),
+    radial-gradient(circle at 52% 100%, rgba(255, 224, 196, 0.2), transparent 32%),
+    linear-gradient(180deg, #fffaf3 0%, #fff4ea 44%, #f7ecdf 100%);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .cinema-glow-ember {
+  background: radial-gradient(circle, rgba(255, 180, 126, 0.44), transparent 72%);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .cinema-glow-ice {
+  background: radial-gradient(circle, rgba(128, 220, 210, 0.36), transparent 72%);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .cinema-grid {
+  opacity: 0.2;
+}
+
+html[data-ui-theme="light"] body.cinema-ui .topbar {
+  border-color: rgba(193, 150, 109, 0.24);
+  background:
+    radial-gradient(circle at 12% 0%, rgba(255, 203, 150, 0.18), transparent 32%),
+    linear-gradient(180deg, rgba(255, 252, 248, 0.96), rgba(255, 246, 238, 0.95));
+  box-shadow: 0 22px 46px rgba(190, 153, 118, 0.14);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .topbar::before {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.08),
+    rgba(255, 171, 107, 0.72),
+    rgba(140, 226, 205, 0.64),
+    rgba(255, 255, 255, 0.08)
+  );
+}
+
+html[data-ui-theme="light"] body.cinema-ui .panel,
+html[data-ui-theme="light"] body.cinema-ui .glass-card,
+html[data-ui-theme="light"] body.cinema-ui .auth-stage,
+html[data-ui-theme="light"] body.cinema-ui .auth-panel,
+html[data-ui-theme="light"] body.cinema-ui .upload-status-card,
+html[data-ui-theme="light"] body.cinema-ui .history-drawer,
+html[data-ui-theme="light"] body.cinema-ui .history-item,
+html[data-ui-theme="light"] body.cinema-ui .confirm-modal,
+html[data-ui-theme="light"] body.cinema-ui .rename-modal,
+html[data-ui-theme="light"] body.cinema-ui .duplicate-decision-modal,
+html[data-ui-theme="light"] body.cinema-ui .spotlight-panel,
+html[data-ui-theme="light"] body.cinema-ui .table-panel,
+html[data-ui-theme="light"] body.cinema-ui .queue-item,
+html[data-ui-theme="light"] body.cinema-ui .vendor-row,
+html[data-ui-theme="light"] body.cinema-ui .workflow-node,
+html[data-ui-theme="light"] body.cinema-ui .timeline-step,
+html[data-ui-theme="light"] body.cinema-ui .chart-row,
+html[data-ui-theme="light"] body.cinema-ui .range-summary-card {
+  color: var(--text);
+  border-color: rgba(192, 151, 112, 0.22);
+  background:
+    radial-gradient(circle at 18% 0%, rgba(255, 214, 179, 0.2), transparent 30%),
+    linear-gradient(180deg, rgba(255, 252, 249, 0.97), rgba(255, 246, 239, 0.96));
+  box-shadow: 0 22px 50px rgba(176, 142, 111, 0.13);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .upload-preview-frame,
+html[data-ui-theme="light"] body.cinema-ui .dropzone,
+html[data-ui-theme="light"] body.cinema-ui .preview-stat,
+html[data-ui-theme="light"] body.cinema-ui .select-shell,
+html[data-ui-theme="light"] body.cinema-ui .text-input,
+html[data-ui-theme="light"] body.cinema-ui .month-select,
+html[data-ui-theme="light"] body.cinema-ui .period-select {
+  color: #2b3342;
+  border-color: rgba(195, 154, 115, 0.22);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.97), rgba(255, 248, 242, 0.98)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 16px 32px rgba(180, 145, 115, 0.08);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .dropzone::before {
+  background: linear-gradient(90deg, transparent, rgba(255, 182, 120, 0.2), transparent);
+  opacity: 0.52;
+}
+
+html[data-ui-theme="light"] body.cinema-ui .preview-empty strong,
+html[data-ui-theme="light"] body.cinema-ui .preview-pdf-card strong,
+html[data-ui-theme="light"] body.cinema-ui .preview-stat strong,
+html[data-ui-theme="light"] body.cinema-ui .panel h1,
+html[data-ui-theme="light"] body.cinema-ui .panel h2,
+html[data-ui-theme="light"] body.cinema-ui .panel h3,
+html[data-ui-theme="light"] body.cinema-ui .glass-card strong,
+html[data-ui-theme="light"] body.cinema-ui .history-item strong,
+html[data-ui-theme="light"] body.cinema-ui .queue-item strong,
+html[data-ui-theme="light"] body.cinema-ui .table-panel th,
+html[data-ui-theme="light"] body.cinema-ui .table-panel td {
+  color: #243043;
+}
+
+html[data-ui-theme="light"] body.cinema-ui .preview-empty p,
+html[data-ui-theme="light"] body.cinema-ui .preview-pdf-card p,
+html[data-ui-theme="light"] body.cinema-ui .preview-stat span,
+html[data-ui-theme="light"] body.cinema-ui .status-note,
+html[data-ui-theme="light"] body.cinema-ui .topbar-text,
+html[data-ui-theme="light"] body.cinema-ui .hero-text,
+html[data-ui-theme="light"] body.cinema-ui .auth-lead,
+html[data-ui-theme="light"] body.cinema-ui .history-copy,
+html[data-ui-theme="light"] body.cinema-ui .history-note,
+html[data-ui-theme="light"] body.cinema-ui .rename-note,
+html[data-ui-theme="light"] body.cinema-ui .duplicate-decision-note,
+html[data-ui-theme="light"] body.cinema-ui .duplicate-decision-body,
+html[data-ui-theme="light"] body.cinema-ui .workflow-node p,
+html[data-ui-theme="light"] body.cinema-ui .timeline-step p,
+html[data-ui-theme="light"] body.cinema-ui .muted {
+  color: #5e697c;
+}
+
+html[data-ui-theme="light"] body.cinema-ui .mini-label,
+html[data-ui-theme="light"] body.cinema-ui .eyebrow,
+html[data-ui-theme="light"] body.cinema-ui .drop-kicker,
+html[data-ui-theme="light"] body.cinema-ui .field span {
+  color: #b56a35;
+}
+
+html[data-ui-theme="light"] body.cinema-ui .pipeline span {
+  color: #8a4e24;
+  border-color: rgba(194, 132, 83, 0.2);
+  background: linear-gradient(180deg, rgba(255, 236, 220, 0.92), rgba(255, 248, 240, 0.94));
+}
+
+html[data-ui-theme="light"] body.cinema-ui .ghost-link,
+html[data-ui-theme="light"] body.cinema-ui .ghost-button,
+html[data-ui-theme="light"] body.cinema-ui .status-pill,
+html[data-ui-theme="light"] body.cinema-ui .status-tag,
+html[data-ui-theme="light"] body.cinema-ui .topbar-pills span,
+html[data-ui-theme="light"] body.cinema-ui .fun-tags span,
+html[data-ui-theme="light"] body.cinema-ui .receipt-mini-pill {
+  color: #2d394a;
+  border-color: rgba(190, 151, 113, 0.24);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.94), rgba(255, 246, 238, 0.94));
+  box-shadow: 0 12px 24px rgba(176, 142, 111, 0.09);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .primary-button,
+html[data-ui-theme="light"] body.cinema-ui .topbar-primary-button {
+  color: #402515;
+  border-color: rgba(221, 158, 104, 0.4);
+  background: linear-gradient(120deg, #ffd7a5, #ffb39b 52%, #b8ead9);
+  box-shadow: 0 18px 34px rgba(208, 147, 94, 0.18);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .secondary-button {
+  color: #2b3342;
+  border-color: rgba(192, 151, 112, 0.22);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.92), rgba(255, 246, 238, 0.94));
+}
+
+html[data-ui-theme="light"] body.cinema-ui .text-input::placeholder {
+  color: rgba(110, 116, 128, 0.84);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .history-scrim,
+html[data-ui-theme="light"] body.cinema-ui .confirm-scrim,
+html[data-ui-theme="light"] body.cinema-ui .rename-scrim {
+  background: rgba(119, 93, 66, 0.16);
+  backdrop-filter: blur(8px);
+}
+
+.duplicate-decision-modal[data-tone="reject"] {
+  border-color: rgba(255, 152, 116, 0.34);
+  background:
+    radial-gradient(circle at 16% 12%, rgba(255, 212, 160, 0.18), transparent 24%),
+    radial-gradient(circle at 84% 18%, rgba(255, 109, 96, 0.24), transparent 26%),
+    linear-gradient(180deg, rgba(60, 23, 30, 0.98), rgba(31, 11, 18, 0.99));
+  box-shadow:
+    0 40px 96px rgba(25, 8, 12, 0.54),
+    0 0 0 1px rgba(255, 225, 196, 0.08),
+    0 0 100px rgba(255, 118, 92, 0.2);
+}
+
+.duplicate-decision-modal[data-tone="reject"] .duplicate-decision-shell {
+  border-color: rgba(255, 173, 136, 0.18);
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.015)),
+    linear-gradient(160deg, rgba(73, 30, 36, 0.86), rgba(35, 12, 20, 0.84));
+}
+
+.duplicate-decision-modal[data-tone="reject"] .duplicate-decision-head h3 {
+  color: #fff2ea;
+  text-shadow: 0 0 26px rgba(255, 162, 124, 0.16);
+}
+
+.duplicate-decision-modal[data-tone="reject"] .duplicate-decision-body,
+.duplicate-decision-modal[data-tone="reject"] .duplicate-decision-note {
+  color: rgba(255, 221, 207, 0.9);
+}
+
+.duplicate-decision-modal[data-tone="reject"] .duplicate-decision-note[data-tone="error"] {
+  color: #ffe7d3;
+  text-shadow: 0 0 20px rgba(255, 162, 124, 0.18);
+}
+
+.duplicate-decision-modal[data-tone="reject"] .duplicate-signal-ring {
+  border-color: rgba(255, 191, 156, 0.24);
+  box-shadow: 0 0 40px rgba(255, 122, 98, 0.16);
+}
+
+.duplicate-decision-modal[data-tone="reject"] .duplicate-signal-ring--inner {
+  border-color: rgba(255, 139, 126, 0.34);
+}
+
+.duplicate-decision-modal[data-tone="reject"] .duplicate-signal-core {
+  border-color: rgba(255, 229, 186, 0.32);
+  background:
+    linear-gradient(160deg, rgba(255, 210, 136, 0.26), rgba(255, 112, 112, 0.24)),
+    radial-gradient(circle at 32% 26%, rgba(255, 255, 255, 0.18), transparent 40%);
+  color: #fff4e8;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    0 0 42px rgba(255, 124, 94, 0.24);
+}
+
+html[data-ui-theme="light"] body.cinema-ui .duplicate-decision-modal[data-tone="reject"] {
+  border-color: rgba(221, 123, 94, 0.34);
+  background:
+    radial-gradient(circle at 14% 12%, rgba(255, 231, 204, 0.2), transparent 24%),
+    radial-gradient(circle at 86% 18%, rgba(255, 150, 130, 0.2), transparent 28%),
+    linear-gradient(180deg, rgba(96, 39, 44, 0.98), rgba(57, 20, 26, 0.98)) !important;
+}
+
 @media (max-width: 760px) {
   body.cinema-ui .topbar {
     border-radius: 22px;

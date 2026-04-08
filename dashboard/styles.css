@@ -8062,3 +8062,1101 @@ html[data-ui-theme="light"] body.cinema-ui .duplicate-decision-modal[data-tone="
     display: none;
   }
 }
+
+/* Dribbble-inspired analytics shell */
+
+body.dribbble-dashboard {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(12, 186, 198, 0.08), transparent 24%),
+    linear-gradient(180deg, #0a0a0b 0%, #111112 100%);
+}
+
+body.dribbble-dashboard .cinema-stage {
+  opacity: 0.55;
+}
+
+body.dribbble-dashboard .dashboard-shell {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: 232px minmax(0, 1fr);
+  gap: 1rem;
+  min-height: 100vh;
+  padding: 1rem;
+}
+
+body.dribbble-dashboard .dashboard-sidebar {
+  position: sticky;
+  top: 1rem;
+  align-self: start;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-content: start;
+  gap: 1.1rem;
+  min-height: calc(100vh - 2rem);
+  padding: 1.1rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(12, 12, 13, 0.98), rgba(9, 9, 10, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 22px 54px rgba(0, 0, 0, 0.32);
+  backdrop-filter: none;
+}
+
+body.dribbble-dashboard .dashboard-sidebar::before {
+  display: none;
+}
+
+body.dribbble-dashboard .brand-lockup-sidebar {
+  padding-bottom: 0.9rem;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.dribbble-dashboard .brand-mark {
+  width: 100%;
+  justify-content: flex-start;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+body.dribbble-dashboard .brand-logo {
+  width: clamp(10.2rem, 11vw, 11.8rem);
+}
+
+body.dribbble-dashboard .dashboard-nav {
+  display: grid;
+  gap: 0.45rem;
+}
+
+body.dribbble-dashboard .dashboard-nav-link {
+  display: inline-flex;
+  align-items: center;
+  min-height: 3rem;
+  padding: 0.82rem 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 16px;
+  color: #8c8f98;
+  text-decoration: none;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 180ms ease;
+}
+
+body.dribbble-dashboard .dashboard-nav-link:hover,
+body.dribbble-dashboard .dashboard-nav-link.is-active {
+  color: #f3f6fb;
+  border-color: rgba(255, 255, 255, 0.18);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.03));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+body.dribbble-dashboard .dashboard-sidebar-card {
+  display: grid;
+  gap: 0.7rem;
+  padding: 1rem;
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 20px;
+  background: linear-gradient(180deg, rgba(19, 19, 20, 0.96), rgba(13, 13, 14, 0.98));
+}
+
+body.dribbble-dashboard .dashboard-sidebar-card h3 {
+  margin: 0;
+  color: #f5f7fa;
+  font-size: 1.04rem;
+}
+
+body.dribbble-dashboard .dashboard-sidebar-card p {
+  margin: 0;
+  color: #90939c;
+  line-height: 1.62;
+}
+
+body.dribbble-dashboard .dashboard-tech-pills {
+  display: grid;
+  gap: 0.45rem;
+}
+
+body.dribbble-dashboard .dashboard-tech-pills span {
+  justify-content: flex-start;
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: #d5d7dc;
+}
+
+body.dribbble-dashboard .dashboard-sidebar-footer {
+  margin-top: auto;
+  display: grid;
+  gap: 0.5rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+body.dribbble-dashboard .dashboard-sidebar-pill {
+  width: fit-content;
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(255, 255, 255, 0.08);
+}
+
+body.dribbble-dashboard .dashboard-main {
+  min-width: 0;
+  display: grid;
+  gap: 1rem;
+}
+
+body.dribbble-dashboard .dashboard-command-bar {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 1rem 1.25rem;
+  align-items: center;
+  padding: 1.15rem 1.25rem;
+  border-color: rgba(255, 255, 255, 0.06);
+  border-radius: 24px;
+  background: linear-gradient(180deg, rgba(13, 13, 14, 0.98), rgba(10, 10, 11, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.02),
+    0 22px 54px rgba(0, 0, 0, 0.28);
+}
+
+body.dribbble-dashboard .dashboard-command-bar::before,
+body.dribbble-dashboard .dashboard-command-bar::after {
+  display: none;
+}
+
+body.dribbble-dashboard .dashboard-command-copy h1 {
+  margin: 0;
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-size: 1.55rem;
+  font-weight: 700;
+  color: #f5f7fa;
+}
+
+body.dribbble-dashboard .dashboard-command-copy .topbar-text {
+  margin-top: 0.35rem;
+  max-width: 56ch;
+  color: #898d97;
+}
+
+body.dribbble-dashboard .dashboard-command-tools {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.7rem;
+  flex-wrap: wrap;
+}
+
+body.dribbble-dashboard .dashboard-range-shell,
+body.dribbble-dashboard .dashboard-search-shell {
+  min-height: 3rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+body.dribbble-dashboard .dashboard-range-shell {
+  min-width: 13.4rem;
+}
+
+body.dribbble-dashboard .dashboard-search-shell {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0 0.95rem;
+}
+
+body.dribbble-dashboard .dashboard-search-input {
+  min-width: 11rem;
+  min-height: 0;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent !important;
+  box-shadow: none;
+  color: #dfe5ef;
+}
+
+body.dribbble-dashboard .dashboard-search-input:focus {
+  box-shadow: none;
+}
+
+body.dribbble-dashboard .dashboard-search-icon {
+  color: #7d828c;
+  font-size: 0.92rem;
+}
+
+body.dribbble-dashboard .dashboard-command-meta {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.9rem 1.1rem;
+  flex-wrap: wrap;
+}
+
+body.dribbble-dashboard .dashboard-command-pills {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  flex-wrap: wrap;
+}
+
+body.dribbble-dashboard .dashboard-command-actions {
+  justify-content: flex-end;
+}
+
+body.dribbble-dashboard .shell {
+  gap: 1rem;
+  padding: 0;
+}
+
+body.dribbble-dashboard .workspace-guard {
+  margin: 0;
+  border-radius: 24px;
+}
+
+body.dribbble-dashboard .panel,
+body.dribbble-dashboard .glass-card,
+body.dribbble-dashboard .upload-status-card,
+body.dribbble-dashboard .history-drawer,
+body.dribbble-dashboard .confirm-modal,
+body.dribbble-dashboard .rename-modal,
+body.dribbble-dashboard .duplicate-decision-modal,
+body.dribbble-dashboard .chart-row,
+body.dribbble-dashboard .vendor-row,
+body.dribbble-dashboard .queue-item,
+body.dribbble-dashboard .workflow-node,
+body.dribbble-dashboard .timeline-step,
+body.dribbble-dashboard .metric-card,
+body.dribbble-dashboard .table-panel {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(18, 18, 19, 0.98), rgba(12, 12, 13, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.025),
+    0 20px 48px rgba(0, 0, 0, 0.26);
+}
+
+body.dribbble-dashboard .panel::after,
+body.dribbble-dashboard .glass-card::after {
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), transparent 38%);
+}
+
+body.dribbble-dashboard .control-grid {
+  grid-template-columns: minmax(0, 1.12fr) minmax(330px, 0.88fr);
+  gap: 1rem;
+}
+
+body.dribbble-dashboard .hero {
+  min-height: 100%;
+  grid-template-columns: 1.1fr 0.9fr;
+  align-items: stretch;
+  background:
+    radial-gradient(circle at 62% 58%, rgba(0, 214, 255, 0.12), transparent 26%),
+    linear-gradient(180deg, rgba(18, 18, 19, 0.98), rgba(12, 12, 13, 0.98));
+}
+
+body.dribbble-dashboard .hero-copy h2,
+body.dribbble-dashboard .section-heading h3,
+body.dribbble-dashboard .section-heading-tight h3 {
+  font-family: "Manrope", "Segoe UI", sans-serif;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+}
+
+body.dribbble-dashboard .hero-copy h2 {
+  max-width: 10ch;
+  font-size: clamp(2.4rem, 4.5vw, 4rem);
+  line-height: 0.96;
+  color: #f8fafc;
+}
+
+body.dribbble-dashboard .hero::before {
+  opacity: 0.16;
+  background: linear-gradient(180deg, rgba(0, 214, 255, 0), rgba(0, 214, 255, 0.22), rgba(0, 214, 255, 0));
+}
+
+body.dribbble-dashboard .topbar-text,
+body.dribbble-dashboard .hero-text,
+body.dribbble-dashboard .spotlight-narrative,
+body.dribbble-dashboard .history-copy,
+body.dribbble-dashboard .history-note,
+body.dribbble-dashboard .upload-helper,
+body.dribbble-dashboard .workflow-node p,
+body.dribbble-dashboard .timeline-step p,
+body.dribbble-dashboard .muted {
+  color: #8d9199;
+}
+
+body.dribbble-dashboard .topbar-pills span,
+body.dribbble-dashboard .status-pill,
+body.dribbble-dashboard .ghost-link,
+body.dribbble-dashboard .ghost-button,
+body.dribbble-dashboard .receipt-mini-pill,
+body.dribbble-dashboard .filter-chip,
+body.dribbble-dashboard .status-tag {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: #d9dee6;
+  box-shadow: none;
+}
+
+body.dribbble-dashboard .primary-button,
+body.dribbble-dashboard .topbar-primary-button {
+  color: #071015;
+  border-color: rgba(53, 223, 255, 0.42);
+  background: linear-gradient(135deg, #1ff1ff, #03d6ff 68%, #62fbff);
+  box-shadow: 0 14px 28px rgba(3, 214, 255, 0.22);
+}
+
+body.dribbble-dashboard .secondary-button {
+  color: #eef3fa;
+  border-color: rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+body.dribbble-dashboard .mini-label,
+body.dribbble-dashboard .eyebrow,
+body.dribbble-dashboard .drop-kicker,
+body.dribbble-dashboard .field span {
+  color: #7f8590;
+  font-size: 0.68rem;
+  letter-spacing: 0.18em;
+}
+
+body.dribbble-dashboard .fun-tags span,
+body.dribbble-dashboard .pipeline span {
+  background: rgba(255, 255, 255, 0.03);
+  border-color: rgba(255, 255, 255, 0.06);
+  color: #d4d9e0;
+}
+
+body.dribbble-dashboard .upload-preview-frame,
+body.dribbble-dashboard .dropzone,
+body.dribbble-dashboard .preview-stat,
+body.dribbble-dashboard .text-input,
+body.dribbble-dashboard .month-select,
+body.dribbble-dashboard .period-select,
+body.dribbble-dashboard .select-shell {
+  color: #edf3fb;
+  border-color: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(15, 15, 16, 0.98), rgba(12, 12, 13, 0.98)) !important;
+  box-shadow: none;
+}
+
+body.dribbble-dashboard .text-input::placeholder,
+body.dribbble-dashboard .dashboard-search-input::placeholder {
+  color: #666c77;
+}
+
+body.dribbble-dashboard .preview-empty strong,
+body.dribbble-dashboard .preview-pdf-card strong,
+body.dribbble-dashboard .preview-stat strong,
+body.dribbble-dashboard .metric-card strong,
+body.dribbble-dashboard .vendor-row strong,
+body.dribbble-dashboard .queue-item strong,
+body.dribbble-dashboard .spotlight-title,
+body.dribbble-dashboard .chart-meta strong,
+body.dribbble-dashboard .section-heading h3,
+body.dribbble-dashboard .section-heading-tight h3 {
+  color: #f5f7fa;
+}
+
+body.dribbble-dashboard .preview-meta {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+body.dribbble-dashboard .metrics-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 1rem;
+}
+
+body.dribbble-dashboard .metric-card {
+  padding: 1.1rem 1.15rem;
+}
+
+body.dribbble-dashboard .metric-card strong {
+  margin-top: 0.6rem;
+  font-size: clamp(1.7rem, 2.1vw, 2.4rem);
+}
+
+body.dribbble-dashboard .metric-card span {
+  color: #7f8590;
+}
+
+body.dribbble-dashboard .ops-strip,
+body.dribbble-dashboard .mission-grid {
+  gap: 1rem;
+}
+
+body.dribbble-dashboard .insight-layout {
+  grid-template-columns: minmax(0, 1.12fr) minmax(320px, 0.88fr);
+  gap: 1rem;
+}
+
+body.dribbble-dashboard .trend-shell {
+  grid-template-columns: minmax(0, 1fr) 280px;
+  gap: 0.8rem;
+}
+
+body.dribbble-dashboard .bar-track,
+body.dribbble-dashboard .trend-track {
+  background: rgba(255, 255, 255, 0.06);
+}
+
+body.dribbble-dashboard .bar-fill,
+body.dribbble-dashboard .trend-fill {
+  background: linear-gradient(90deg, #00b8ff 0%, #00f0ff 58%, #25ffff 100%) !important;
+  box-shadow:
+    0 0 16px rgba(0, 214, 255, 0.3),
+    0 0 34px rgba(0, 214, 255, 0.16);
+}
+
+body.dribbble-dashboard .chart-row,
+body.dribbble-dashboard .vendor-row,
+body.dribbble-dashboard .queue-item,
+body.dribbble-dashboard .trend-bar-active {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: linear-gradient(180deg, rgba(17, 17, 18, 0.98), rgba(13, 13, 14, 0.98));
+}
+
+body.dribbble-dashboard .trend-bar-active {
+  box-shadow: inset 0 0 0 1px rgba(0, 214, 255, 0.14);
+}
+
+body.dribbble-dashboard .expense-donut {
+  box-shadow:
+    0 0 0 10px rgba(255, 255, 255, 0.02),
+    0 0 36px rgba(0, 214, 255, 0.12);
+}
+
+body.dribbble-dashboard .expense-donut::after {
+  background: linear-gradient(180deg, rgba(13, 13, 14, 0.98), rgba(10, 10, 11, 0.99));
+  box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.06);
+}
+
+body.dribbble-dashboard .expense-donut-center span,
+body.dribbble-dashboard .expense-donut-center small {
+  color: #8d9199;
+}
+
+body.dribbble-dashboard .expense-donut-center strong {
+  color: #f7fbff;
+}
+
+body.dribbble-dashboard .legend-row {
+  border-color: rgba(255, 255, 255, 0.06);
+  background: rgba(255, 255, 255, 0.02);
+}
+
+body.dribbble-dashboard .legend-swatch {
+  box-shadow: 0 0 12px rgba(0, 214, 255, 0.2);
+}
+
+body.dribbble-dashboard .table-panel table {
+  color: #f1f5fb;
+}
+
+body.dribbble-dashboard .table-panel th {
+  color: #8b909a;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+body.dribbble-dashboard .table-panel tbody tr:nth-child(odd),
+body.dribbble-dashboard .table-panel tbody tr:nth-child(even) {
+  background: transparent;
+}
+
+body.dribbble-dashboard .table-panel tbody tr {
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+body.dribbble-dashboard .history-scrim,
+body.dribbble-dashboard .confirm-scrim,
+body.dribbble-dashboard .rename-scrim {
+  background: rgba(0, 0, 0, 0.56);
+  backdrop-filter: blur(10px);
+}
+
+@media (max-width: 1180px) {
+  body.dribbble-dashboard .dashboard-shell {
+    grid-template-columns: 1fr;
+  }
+
+  body.dribbble-dashboard .dashboard-sidebar {
+    position: relative;
+    top: auto;
+    min-height: auto;
+  }
+
+  body.dribbble-dashboard .dashboard-nav {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+
+  body.dribbble-dashboard .metrics-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 920px) {
+  body.dribbble-dashboard .dashboard-command-bar,
+  body.dribbble-dashboard .control-grid,
+  body.dribbble-dashboard .insight-layout,
+  body.dribbble-dashboard .trend-shell,
+  body.dribbble-dashboard .hero {
+    grid-template-columns: 1fr;
+  }
+
+  body.dribbble-dashboard .dashboard-command-tools,
+  body.dribbble-dashboard .dashboard-command-actions {
+    justify-content: flex-start;
+  }
+
+  body.dribbble-dashboard .metrics-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 640px) {
+  body.dribbble-dashboard .dashboard-shell {
+    padding: 0.8rem;
+  }
+
+  body.dribbble-dashboard .dashboard-nav {
+    grid-template-columns: 1fr;
+  }
+
+  body.dribbble-dashboard .metrics-grid,
+  body.dribbble-dashboard .preview-meta {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Dribbble dashboard refinement */
+
+body.dribbble-dashboard .shell {
+  display: grid;
+  gap: 1rem;
+}
+
+body.dribbble-dashboard #metricsGrid {
+  order: 1;
+}
+
+body.dribbble-dashboard #analyticsBoard {
+  order: 2;
+  grid-template-columns: minmax(0, 1.28fr) minmax(300px, 0.72fr);
+  align-items: stretch;
+}
+
+body.dribbble-dashboard #analyticsBoard #analyticsSection {
+  order: 1;
+}
+
+body.dribbble-dashboard #analyticsBoard #reviewQueue {
+  order: 2;
+}
+
+body.dribbble-dashboard #overviewSection {
+  order: 3;
+}
+
+body.dribbble-dashboard #summaryBoard {
+  order: 4;
+  grid-template-columns: minmax(280px, 0.78fr) minmax(0, 1.22fr);
+}
+
+body.dribbble-dashboard #receiptsTable {
+  order: 5;
+}
+
+body.dribbble-dashboard #opsStrip {
+  order: 6;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+body.dribbble-dashboard #activityBoard {
+  order: 7;
+}
+
+body.dribbble-dashboard #workflowBoard {
+  order: 8;
+}
+
+body.dribbble-dashboard .dashboard-nav-link::before {
+  content: "";
+  width: 0.58rem;
+  height: 0.58rem;
+  border-radius: 0.18rem;
+  background: rgba(123, 129, 140, 0.75);
+  box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.05);
+}
+
+body.dribbble-dashboard .dashboard-nav-link:hover::before,
+body.dribbble-dashboard .dashboard-nav-link.is-active::before {
+  background: linear-gradient(135deg, #15f0ff, #00b6ff);
+  box-shadow:
+    0 0 14px rgba(0, 214, 255, 0.36),
+    0 0 0 1px rgba(132, 248, 255, 0.16);
+}
+
+body.dribbble-dashboard .dashboard-command-copy .eyebrow,
+body.dribbble-dashboard .section-heading .eyebrow,
+body.dribbble-dashboard .section-heading-tight .eyebrow {
+  color: #8cc8d1;
+}
+
+body.dribbble-dashboard .metric-card {
+  min-height: 152px;
+  border-radius: 22px;
+}
+
+body.dribbble-dashboard .metric-card .eyebrow {
+  color: #707682;
+  letter-spacing: 0.16em;
+}
+
+body.dribbble-dashboard .metric-card strong {
+  font-size: clamp(1.95rem, 2.3vw, 2.7rem);
+  letter-spacing: -0.05em;
+}
+
+body.dribbble-dashboard .metric-card span {
+  max-width: 24ch;
+  line-height: 1.5;
+}
+
+body.dribbble-dashboard .hero,
+body.dribbble-dashboard .upload-lab,
+body.dribbble-dashboard #analyticsSection,
+body.dribbble-dashboard #reviewQueue,
+body.dribbble-dashboard #receiptsTable,
+body.dribbble-dashboard #summaryBoard > .panel {
+  border-radius: 24px;
+}
+
+body.dribbble-dashboard .hero {
+  min-height: 100%;
+  padding: 1.35rem;
+}
+
+body.dribbble-dashboard .hero-grid {
+  align-content: start;
+}
+
+body.dribbble-dashboard .glass-card {
+  min-height: 122px;
+  border-radius: 20px;
+}
+
+body.dribbble-dashboard .upload-lab {
+  padding: 1.25rem;
+}
+
+body.dribbble-dashboard .dropzone {
+  min-height: 164px;
+  border-style: solid;
+}
+
+body.dribbble-dashboard .preview-stat,
+body.dribbble-dashboard .upload-preview-frame {
+  border-radius: 18px;
+}
+
+body.dribbble-dashboard .ops-card {
+  min-height: 138px;
+  border-radius: 22px;
+  background: linear-gradient(180deg, rgba(17, 17, 18, 0.98), rgba(13, 13, 14, 0.98));
+  border-color: rgba(255, 255, 255, 0.06);
+}
+
+body.dribbble-dashboard .spotlight-shell {
+  gap: 1rem;
+}
+
+body.dribbble-dashboard .spotlight-stat {
+  border-radius: 18px;
+}
+
+body.dribbble-dashboard .flip-card {
+  border-radius: 20px;
+}
+
+body.dribbble-dashboard .chart-row,
+body.dribbble-dashboard .vendor-row,
+body.dribbble-dashboard .queue-item,
+body.dribbble-dashboard .workflow-node,
+body.dribbble-dashboard .legend-row {
+  border-radius: 18px;
+}
+
+body.dribbble-dashboard .chart-row,
+body.dribbble-dashboard .vendor-row {
+  padding: 1rem 1.1rem;
+}
+
+body.dribbble-dashboard .receipt-icon-badge {
+  width: 1.8rem;
+  height: 1.8rem;
+  border-radius: 999px;
+  font-size: 0.82rem;
+  color: #ecfaff;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+body.dribbble-dashboard .receipt-mini-pill {
+  gap: 0.5rem;
+}
+
+body.dribbble-dashboard .trend-shell {
+  align-items: stretch;
+}
+
+body.dribbble-dashboard #trendBars {
+  min-width: 0;
+}
+
+body.dribbble-dashboard .line-chart-shell {
+  display: grid;
+  gap: 1rem;
+  min-height: 100%;
+  padding: 0.25rem 0.15rem 0.15rem;
+}
+
+body.dribbble-dashboard .line-chart-summary {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.9rem;
+  flex-wrap: wrap;
+}
+
+body.dribbble-dashboard .line-chart-copy,
+body.dribbble-dashboard .line-chart-focus {
+  display: grid;
+  gap: 0.18rem;
+}
+
+body.dribbble-dashboard .line-chart-kicker {
+  color: #7d8590;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+body.dribbble-dashboard .line-chart-copy strong,
+body.dribbble-dashboard .line-chart-focus strong {
+  color: #f8fbff;
+  font-size: clamp(1.15rem, 1.9vw, 1.55rem);
+  font-weight: 700;
+  letter-spacing: -0.04em;
+}
+
+body.dribbble-dashboard .line-chart-svg {
+  width: 100%;
+  height: auto;
+  display: block;
+}
+
+body.dribbble-dashboard .line-chart-grid-line {
+  stroke: rgba(255, 255, 255, 0.07);
+  stroke-width: 1;
+}
+
+body.dribbble-dashboard .line-chart-area {
+  fill: url(#trendAreaGradient);
+}
+
+body.dribbble-dashboard .line-chart-path-glow {
+  fill: none;
+  stroke: rgba(0, 240, 255, 0.36);
+  stroke-width: 7.5;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.dribbble-dashboard .line-chart-path {
+  fill: none;
+  stroke: #13f0ff;
+  stroke-width: 3.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+body.dribbble-dashboard .line-chart-point {
+  fill: #0f1012;
+  stroke: #87f6ff;
+  stroke-width: 2;
+}
+
+body.dribbble-dashboard .line-chart-point.is-active {
+  fill: #13f0ff;
+  stroke: #f8feff;
+  stroke-width: 2.2;
+}
+
+body.dribbble-dashboard .line-chart-axis {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.55rem;
+}
+
+body.dribbble-dashboard .line-chart-axis-label {
+  color: #6d727d;
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+body.dribbble-dashboard .line-chart-axis-label.is-active {
+  color: #dffcff;
+}
+
+body.dribbble-dashboard .expense-donut-shell {
+  display: grid;
+  align-content: start;
+  gap: 1rem;
+  padding: 0.2rem 0 0;
+}
+
+body.dribbble-dashboard .expense-donut {
+  width: clamp(188px, 20vw, 230px);
+  height: clamp(188px, 20vw, 230px);
+  margin-inline: auto;
+}
+
+body.dribbble-dashboard .expense-legend {
+  display: grid;
+  gap: 0.7rem;
+}
+
+body.dribbble-dashboard .table-panel .table-wrap {
+  overflow: auto;
+  max-height: 468px;
+  padding-right: 0.15rem;
+}
+
+body.dribbble-dashboard .table-panel table {
+  min-width: 920px;
+}
+
+body.dribbble-dashboard .table-panel tbody tr {
+  transition: background 160ms ease;
+}
+
+body.dribbble-dashboard .table-panel tbody tr:hover {
+  background: rgba(255, 255, 255, 0.025);
+}
+
+body.dribbble-dashboard .table-panel td,
+body.dribbble-dashboard .table-panel th {
+  padding-top: 1rem;
+  padding-bottom: 1rem;
+}
+
+body.dribbble-dashboard .status-auto-approved {
+  background: rgba(84, 231, 207, 0.14);
+  color: #bcfff2;
+}
+
+body.dribbble-dashboard .status-needs-review {
+  background: rgba(255, 185, 94, 0.14);
+  color: #ffe1b3;
+}
+
+body.dribbble-dashboard .status-duplicate {
+  background: rgba(255, 118, 107, 0.14);
+  color: #ffd1c7;
+}
+
+body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] {
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 196, 120, 0.26), transparent 28%),
+    radial-gradient(circle at 84% 12%, rgba(255, 120, 91, 0.28), transparent 28%),
+    linear-gradient(145deg, rgba(74, 28, 20, 0.98), rgba(32, 10, 12, 0.98));
+  border-color: rgba(255, 170, 135, 0.24);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 34px 80px rgba(19, 4, 5, 0.48);
+}
+
+body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-head h3,
+body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-body,
+body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-note,
+body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-head .eyebrow {
+  color: #fff0ea;
+}
+
+body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-shell {
+  border-color: rgba(255, 186, 145, 0.2);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.02));
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard {
+  color-scheme: light;
+  background:
+    radial-gradient(circle at 10% 10%, rgba(255, 205, 156, 0.3), transparent 24%),
+    radial-gradient(circle at 84% 12%, rgba(160, 244, 255, 0.34), transparent 26%),
+    linear-gradient(180deg, #f6efe6 0%, #eef6fb 58%, #f4f8fb 100%);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .cinema-stage {
+  opacity: 0.46;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-sidebar,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-bar,
+html[data-ui-theme="light"] body.dribbble-dashboard .panel,
+html[data-ui-theme="light"] body.dribbble-dashboard .glass-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .upload-status-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .history-drawer,
+html[data-ui-theme="light"] body.dribbble-dashboard .confirm-modal,
+html[data-ui-theme="light"] body.dribbble-dashboard .rename-modal,
+html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal,
+html[data-ui-theme="light"] body.dribbble-dashboard .chart-row,
+html[data-ui-theme="light"] body.dribbble-dashboard .vendor-row,
+html[data-ui-theme="light"] body.dribbble-dashboard .queue-item,
+html[data-ui-theme="light"] body.dribbble-dashboard .workflow-node,
+html[data-ui-theme="light"] body.dribbble-dashboard .timeline-step,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel,
+html[data-ui-theme="light"] body.dribbble-dashboard .ops-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .legend-row {
+  border-color: rgba(109, 128, 148, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 253, 0.98));
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.82),
+    0 18px 40px rgba(83, 98, 115, 0.1);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-sidebar-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-range-shell,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-search-shell,
+html[data-ui-theme="light"] body.dribbble-dashboard .dropzone,
+html[data-ui-theme="light"] body.dribbble-dashboard .upload-preview-frame,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-stat,
+html[data-ui-theme="light"] body.dribbble-dashboard .text-input,
+html[data-ui-theme="light"] body.dribbble-dashboard .month-select,
+html[data-ui-theme="light"] body.dribbble-dashboard .period-select,
+html[data-ui-theme="light"] body.dribbble-dashboard .select-shell {
+  border-color: rgba(112, 133, 153, 0.12);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(247, 250, 253, 0.98)) !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-nav-link,
+html[data-ui-theme="light"] body.dribbble-dashboard .ghost-link,
+html[data-ui-theme="light"] body.dribbble-dashboard .ghost-button,
+html[data-ui-theme="light"] body.dribbble-dashboard .status-pill,
+html[data-ui-theme="light"] body.dribbble-dashboard .receipt-mini-pill,
+html[data-ui-theme="light"] body.dribbble-dashboard .filter-chip,
+html[data-ui-theme="light"] body.dribbble-dashboard .status-tag,
+html[data-ui-theme="light"] body.dribbble-dashboard .topbar-pills span,
+html[data-ui-theme="light"] body.dribbble-dashboard .fun-tags span,
+html[data-ui-theme="light"] body.dribbble-dashboard .pipeline span {
+  background: rgba(239, 244, 249, 0.92);
+  border-color: rgba(110, 130, 150, 0.12);
+  color: #334559;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-copy h1,
+html[data-ui-theme="light"] body.dribbble-dashboard .hero-copy h2,
+html[data-ui-theme="light"] body.dribbble-dashboard .section-heading h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .section-heading-tight h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .spotlight-title,
+html[data-ui-theme="light"] body.dribbble-dashboard .chart-meta strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .vendor-row strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .queue-item strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-empty strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-pdf-card strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-stat strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-copy strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-focus strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel th,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel td {
+  color: #172635;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .topbar-text,
+html[data-ui-theme="light"] body.dribbble-dashboard .hero-text,
+html[data-ui-theme="light"] body.dribbble-dashboard .spotlight-narrative,
+html[data-ui-theme="light"] body.dribbble-dashboard .history-copy,
+html[data-ui-theme="light"] body.dribbble-dashboard .history-note,
+html[data-ui-theme="light"] body.dribbble-dashboard .upload-helper,
+html[data-ui-theme="light"] body.dribbble-dashboard .workflow-node p,
+html[data-ui-theme="light"] body.dribbble-dashboard .timeline-step p,
+html[data-ui-theme="light"] body.dribbble-dashboard .muted,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-kicker,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-axis-label,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card span {
+  color: #607388;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .hero {
+  background:
+    radial-gradient(circle at 62% 58%, rgba(0, 214, 255, 0.12), transparent 28%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(249, 251, 253, 0.98));
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .bar-track,
+html[data-ui-theme="light"] body.dribbble-dashboard .trend-track {
+  background: rgba(115, 136, 158, 0.14);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-grid-line {
+  stroke: rgba(100, 120, 140, 0.12);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-path-glow {
+  stroke: rgba(0, 182, 255, 0.18);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-path {
+  stroke: #02c7df;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-point {
+  fill: #ffffff;
+  stroke: #02c7df;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-point.is-active {
+  fill: #02c7df;
+  stroke: #ffffff;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-axis-label.is-active,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-nav-link.is-active,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-nav-link:hover {
+  color: #132434;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel tbody tr:hover {
+  background: rgba(17, 115, 140, 0.05);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .history-scrim,
+html[data-ui-theme="light"] body.dribbble-dashboard .confirm-scrim,
+html[data-ui-theme="light"] body.dribbble-dashboard .rename-scrim {
+  background: rgba(121, 132, 142, 0.18);
+  backdrop-filter: blur(12px);
+}
+
+@media (max-width: 1180px) {
+  body.dribbble-dashboard #analyticsBoard,
+  body.dribbble-dashboard #summaryBoard,
+  body.dribbble-dashboard #opsStrip {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 920px) {
+  body.dribbble-dashboard .line-chart-summary {
+    flex-direction: column;
+  }
+}

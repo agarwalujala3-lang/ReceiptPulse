@@ -48,82 +48,105 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260408d" />
+    <link rel="stylesheet" href="./styles.css?v=20260408f" />
   </head>
-  <body class="cinema-ui">
+  <body class="cinema-ui dribbble-dashboard">
     <div class="cinema-stage" aria-hidden="true">
       <span class="cinema-glow cinema-glow-ember"></span>
       <span class="cinema-glow cinema-glow-ice"></span>
       <span class="cinema-grid"></span>
       <span class="cinema-beam"></span>
     </div>
-    <header class="topbar">
-      <div class="topbar-row topbar-row-main">
-        <div class="brand-lockup">
+    <div class="dashboard-shell">
+      <header class="topbar dashboard-sidebar">
+        <div class="brand-lockup brand-lockup-sidebar">
           <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
             <img class="brand-logo" src="./receiptpulse-logo.svg?v=20260402c" alt="ReceiptPulse" />
           </a>
         </div>
-        <div class="topbar-actions">
-          <span class="status-pill" id="modeBadge">Project Demo</span>
+        <nav class="dashboard-nav" aria-label="Dashboard sections">
+          <a class="dashboard-nav-link is-active" href="#dashboardCommandBar">Overview</a>
+          <a class="dashboard-nav-link" href="#uploadLab">Uploads</a>
+          <a class="dashboard-nav-link" href="#analyticsSection">Analytics</a>
+          <a class="dashboard-nav-link" href="#reviewQueue">Reviews</a>
+          <a class="dashboard-nav-link" href="#receiptsTable">Archive</a>
+        </nav>
+        <section class="dashboard-sidebar-card">
+          <p class="eyebrow">Workspace</p>
+          <h3>Private receipt analytics.</h3>
+          <p>Uploads, duplicate decisions, archive records, and dashboard totals stay scoped to the signed-in account.</p>
+          <div class="topbar-pills dashboard-tech-pills">
+            <span>AWS Textract</span>
+            <span>Cognito Auth</span>
+            <span>DynamoDB Storage</span>
+          </div>
+        </section>
+        <div class="dashboard-sidebar-footer">
+          <span class="status-pill dashboard-sidebar-pill" id="modeBadge">Project Demo</span>
           <span class="status-note" id="statusNote">Booting dashboard.</span>
-          <span class="status-pill auth-summary-pill" id="authSummary">Portfolio Project</span>
-          <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button">Light Mode</button>
-          <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>Create Account</button>
-          <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
-          <button class="ghost-link ghost-button" id="switchAccountButton" type="button" hidden>Switch Account</button>
-          <button class="ghost-link ghost-button" id="signOutButton" type="button" hidden>Sign Out</button>
-          <button class="ghost-link ghost-button" id="historyToggle" type="button">Past Uploads</button>
-          <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noreferrer">Source Code</a>
         </div>
-      </div>
-      <div class="topbar-copy">
-        <p class="topbar-text">
-          ReceiptPulse is a cloud-based portfolio project that uploads receipt files, extracts key
-          fields with AWS, and stores them for a simple analytics dashboard.
-        </p>
-        <div class="topbar-pills">
-          <span>AWS Textract</span>
-          <span>Cognito Auth</span>
-          <span>DynamoDB Storage</span>
-        </div>
-      </div>
-      <div class="topbar-row topbar-row-range">
-        <div class="topbar-range">
-          <label class="select-shell">
-            <span>Dashboard Range</span>
-            <select class="month-select period-select" id="dashboardPeriodSelect" aria-label="Dashboard time range">
-              <option value="all">All time</option>
-              <option value="month">This month</option>
-              <option value="quarter">Last 3 months</option>
-              <option value="half">Last 6 months</option>
-              <option value="year">This year</option>
-            </select>
-          </label>
-        </div>
-        <div class="range-summary" id="rangeSummary" aria-live="polite"></div>
-      </div>
-    </header>
+      </header>
 
-    <section class="panel workspace-guard" id="workspaceGuard" hidden>
-      <p class="eyebrow">Private Workspace Lock</p>
-      <h3>Sign in required to view your personal receipts and past uploads.</h3>
-      <p>Your data stays isolated per account. Sign in to continue, or switch to another account.</p>
-      <div class="workspace-guard-actions">
-        <button class="primary-button" id="guardSignIn" type="button">Sign In</button>
-        <button class="ghost-link ghost-button" id="guardSignUp" type="button">Create Account</button>
-      </div>
-    </section>
+      <div class="dashboard-main">
+        <section class="panel dashboard-command-bar" id="dashboardCommandBar">
+          <div class="dashboard-command-copy">
+            <p class="eyebrow">Reports Analytics</p>
+            <h1>ReceiptPulse analytics</h1>
+            <p class="topbar-text">
+              Private receipt intake, OCR quality, duplicate handling, and archive reporting in one focused operations workspace.
+            </p>
+          </div>
+          <div class="dashboard-command-tools">
+            <label class="select-shell dashboard-range-shell">
+              <span>Date Range</span>
+              <select class="month-select period-select" id="dashboardPeriodSelect" aria-label="Dashboard time range">
+                <option value="all">All time</option>
+                <option value="month">This month</option>
+                <option value="quarter">Last 3 months</option>
+                <option value="half">Last 6 months</option>
+                <option value="year">This year</option>
+              </select>
+            </label>
+            <label class="dashboard-search-shell">
+              <span class="dashboard-search-icon" aria-hidden="true">&#9906;</span>
+              <input class="text-input dashboard-search-input" type="search" placeholder="Search data..." aria-label="Search dashboard" />
+            </label>
+          </div>
+          <div class="dashboard-command-meta">
+            <div class="dashboard-command-pills">
+              <span class="status-pill auth-summary-pill" id="authSummary">Portfolio Project</span>
+              <div class="range-summary" id="rangeSummary" aria-live="polite"></div>
+            </div>
+            <div class="topbar-actions dashboard-command-actions">
+              <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button">Light Mode</button>
+              <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>Create Account</button>
+              <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
+              <button class="ghost-link ghost-button" id="switchAccountButton" type="button" hidden>Switch Account</button>
+              <button class="ghost-link ghost-button" id="signOutButton" type="button" hidden>Sign Out</button>
+              <button class="ghost-link ghost-button" id="historyToggle" type="button">Past Uploads</button>
+              <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noreferrer">Source Code</a>
+            </div>
+          </div>
+        </section>
 
-    <main class="shell">
-      <section class="control-grid">
+        <section class="panel workspace-guard" id="workspaceGuard" hidden>
+          <p class="eyebrow">Private Workspace Lock</p>
+          <h3>Sign in required to view your personal receipts and past uploads.</h3>
+          <p>Your data stays isolated per account. Sign in to continue, or switch to another account.</p>
+          <div class="workspace-guard-actions">
+            <button class="primary-button" id="guardSignIn" type="button">Sign In</button>
+            <button class="ghost-link ghost-button" id="guardSignUp" type="button">Create Account</button>
+          </div>
+        </section>
+
+        <main class="shell">
+      <section class="control-grid" id="overviewSection">
         <section class="hero panel">
           <div class="hero-copy">
-            <p class="eyebrow">Portfolio Project</p>
-            <h2>Upload receipts and review the extracted expense data.</h2>
+            <p class="eyebrow">Operations Workspace</p>
+            <h2>Control private receipt intake and review live expense data.</h2>
             <p class="hero-text">
-              The project connects S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito. After
-              sign-in, a user can upload a receipt and inspect the parsed result in the dashboard.
+              ReceiptPulse connects S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito so each signed-in user can upload a receipt, inspect extraction quality, and track private reporting.
             </p>
             <div class="fun-tags">
               <span>PDF / Image Uploads</span>
@@ -138,9 +161,9 @@
           </div>
           <div class="hero-grid">
             <article class="glass-card spotlight">
-              <span class="mini-label">Project Goal</span>
-              <strong id="riskHeadline">Receipts are parsed and flagged when the extracted data looks weak.</strong>
-              <p>The focus is on showing a real backend workflow instead of only a static frontend.</p>
+              <span class="mini-label">Operations Focus</span>
+              <strong id="riskHeadline">Receipts are parsed, scored, and flagged when the extracted data looks weak.</strong>
+              <p>The dashboard stays wired to the real backend flow instead of behaving like a static concept screen.</p>
             </article>
             <article class="glass-card">
               <span class="mini-label">Pipeline Summary</span>
@@ -153,12 +176,12 @@
               </div>
             </article>
             <article class="glass-card">
-              <span class="mini-label">Manual Labels</span>
-              <p>Users can add a label before upload so the stored receipt is easier to identify during demos and testing.</p>
+              <span class="mini-label">Quick Labeling</span>
+              <p>Users can add a short label before upload so repeat visits and archive records are easier to identify later.</p>
             </article>
             <article class="glass-card">
-              <span class="mini-label">User Accounts</span>
-              <p>Authentication keeps uploaded receipts and dashboard data scoped to the signed-in account.</p>
+              <span class="mini-label">Scoped Access</span>
+              <p>Authentication keeps uploaded receipts, delete actions, and dashboard analytics scoped to the signed-in account.</p>
             </article>
           </div>
         </section>
@@ -166,8 +189,8 @@
         <aside class="panel upload-lab" id="uploadLab">
           <div class="section-heading section-heading-tight">
             <div>
-              <p class="eyebrow">Upload Module</p>
-              <h3>Upload a receipt file</h3>
+              <p class="eyebrow">Quick Intake</p>
+              <h3>Create a new receipt intake</h3>
             </div>
             <span class="status-tag status-auto-approved upload-ready-pill">Project Demo</span>
           </div>
@@ -276,7 +299,7 @@
 
       <section class="ops-strip" id="opsStrip"></section>
 
-      <section class="mission-grid">
+      <section class="mission-grid" id="activityBoard">
         <article class="panel spotlight-panel">
           <div class="section-heading section-heading-tight">
             <div>
@@ -310,12 +333,12 @@
 
       <section class="metrics-grid" id="metricsGrid"></section>
 
-      <section class="insight-layout">
+      <section class="insight-layout" id="summaryBoard">
         <article class="panel">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Category Summary</p>
-              <h3>Receipt totals grouped by category</h3>
+              <p class="eyebrow">Revenue By Category</p>
+              <h3>Spend grouped by receipt category</h3>
             </div>
           </div>
           <div id="categoryChart" class="stack-chart"></div>
@@ -325,39 +348,39 @@
           <div class="section-heading">
             <div>
               <p class="eyebrow">Vendor Summary</p>
-              <h3>Top vendors from the stored receipts</h3>
+              <h3>Top vendors across stored receipts</h3>
             </div>
           </div>
           <div id="vendorList" class="vendor-list"></div>
         </article>
       </section>
 
-      <section class="panel">
+      <section class="panel" id="workflowBoard">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Architecture Flow</p>
+            <p class="eyebrow">System Flow</p>
             <h3>What happens after a file is uploaded</h3>
           </div>
         </div>
         <div class="architecture-track" id="workflowTrack"></div>
       </section>
 
-      <section class="insight-layout">
+      <section class="insight-layout" id="analyticsBoard">
         <article class="panel" id="reviewQueue">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Review Queue</p>
+              <p class="eyebrow">Exception Queue</p>
               <h3>Receipts that need manual attention</h3>
             </div>
           </div>
           <div id="queueList" class="queue-list"></div>
         </article>
 
-        <article class="panel">
+        <article class="panel" id="analyticsSection">
           <div class="section-heading">
             <div>
-              <p class="eyebrow">Monthly View</p>
-              <h3>Spend totals and receipt count over time</h3>
+              <p class="eyebrow">Earnings Overview</p>
+              <h3>Spend totals and receipt volume over time</h3>
             </div>
             <label class="select-shell chart-select-shell">
               <span>Chart Range</span>
@@ -377,7 +400,7 @@
       <section class="panel table-panel archive-collapsed" id="receiptsTable">
         <div class="section-heading">
           <div>
-            <p class="eyebrow">Stored Receipts</p>
+            <p class="eyebrow">Detailed Report Logs</p>
             <h3>Records currently saved in the project database</h3>
           </div>
           <div class="archive-actions">
@@ -404,6 +427,8 @@
         </div>
       </section>
     </main>
+      </div>
+    </div>
 
     <div class="history-scrim" id="historyScrim" hidden></div>
     <aside class="history-drawer" id="historyDrawer" aria-hidden="true" hidden>
@@ -535,6 +560,6 @@
     <script src="./theme.js?v=20260402a" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth.js?v=20260327h" defer></script>
-    <script src="./app.js?v=20260408d" defer></script>
+    <script src="./app.js?v=20260408f" defer></script>
   </body>
 </html>

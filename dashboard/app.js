@@ -108,10 +108,10 @@ const HOW_IT_WORKS = [
 const VISUAL_PRESETS = [
   {
     key: "food",
-    icon: "🍜",
-    color: "#ff8a5b",
-    soft: "rgba(255, 138, 91, 0.18)",
-    ring: "rgba(255, 138, 91, 0.42)",
+    icon: "\u25C9",
+    color: "#ffb95e",
+    soft: "rgba(255, 185, 94, 0.18)",
+    ring: "rgba(255, 185, 94, 0.42)",
     keywords: [
       "food",
       "dining",
@@ -134,10 +134,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "shopping",
-    icon: "🛍️",
-    color: "#ff6fb5",
-    soft: "rgba(255, 111, 181, 0.18)",
-    ring: "rgba(255, 111, 181, 0.42)",
+    icon: "\u25A3",
+    color: "#58c5ff",
+    soft: "rgba(88, 197, 255, 0.18)",
+    ring: "rgba(88, 197, 255, 0.42)",
     keywords: [
       "shopping",
       "retail",
@@ -159,10 +159,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "travel",
-    icon: "✈️",
-    color: "#63b3ff",
-    soft: "rgba(99, 179, 255, 0.18)",
-    ring: "rgba(99, 179, 255, 0.42)",
+    icon: "\u2726",
+    color: "#2ad7e8",
+    soft: "rgba(42, 215, 232, 0.18)",
+    ring: "rgba(42, 215, 232, 0.42)",
     keywords: [
       "travel",
       "flight",
@@ -186,9 +186,9 @@ const VISUAL_PRESETS = [
   {
     key: "electricity",
     icon: "⚡",
-    color: "#ffd84d",
-    soft: "rgba(255, 216, 77, 0.18)",
-    ring: "rgba(255, 216, 77, 0.4)",
+    color: "#ffd166",
+    soft: "rgba(255, 209, 102, 0.18)",
+    ring: "rgba(255, 209, 102, 0.4)",
     keywords: [
       "electricity",
       "electric",
@@ -206,10 +206,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "groceries",
-    icon: "🛒",
-    color: "#63df97",
-    soft: "rgba(99, 223, 151, 0.18)",
-    ring: "rgba(99, 223, 151, 0.4)",
+    icon: "\u25C6",
+    color: "#56d89a",
+    soft: "rgba(86, 216, 154, 0.18)",
+    ring: "rgba(86, 216, 154, 0.4)",
     keywords: [
       "groceries",
       "grocery",
@@ -227,10 +227,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "medical",
-    icon: "🩺",
-    color: "#65d8ff",
-    soft: "rgba(101, 216, 255, 0.18)",
-    ring: "rgba(101, 216, 255, 0.4)",
+    icon: "\u271A",
+    color: "#78a8ff",
+    soft: "rgba(120, 168, 255, 0.18)",
+    ring: "rgba(120, 168, 255, 0.4)",
     keywords: [
       "medical",
       "hospital",
@@ -247,10 +247,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "fuel",
-    icon: "⛽",
-    color: "#ffb258",
-    soft: "rgba(255, 178, 88, 0.18)",
-    ring: "rgba(255, 178, 88, 0.4)",
+    icon: "\u2B22",
+    color: "#ff956a",
+    soft: "rgba(255, 149, 106, 0.18)",
+    ring: "rgba(255, 149, 106, 0.4)",
     keywords: [
       "fuel",
       "petrol",
@@ -266,10 +266,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "entertainment",
-    icon: "🎉",
-    color: "#a88cff",
-    soft: "rgba(168, 140, 255, 0.18)",
-    ring: "rgba(168, 140, 255, 0.42)",
+    icon: "\u2736",
+    color: "#ae8dff",
+    soft: "rgba(174, 141, 255, 0.18)",
+    ring: "rgba(174, 141, 255, 0.42)",
     keywords: [
       "movie",
       "entertainment",
@@ -286,10 +286,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "home",
-    icon: "🏠",
-    color: "#7ed6ff",
-    soft: "rgba(126, 214, 255, 0.18)",
-    ring: "rgba(126, 214, 255, 0.42)",
+    icon: "\u25A6",
+    color: "#5de2ff",
+    soft: "rgba(93, 226, 255, 0.18)",
+    ring: "rgba(93, 226, 255, 0.42)",
     keywords: [
       "rent",
       "home",
@@ -304,10 +304,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "subscription",
-    icon: "📱",
-    color: "#62e1d9",
-    soft: "rgba(98, 225, 217, 0.18)",
-    ring: "rgba(98, 225, 217, 0.42)",
+    icon: "\u25C8",
+    color: "#54e7cf",
+    soft: "rgba(84, 231, 207, 0.18)",
+    ring: "rgba(84, 231, 207, 0.42)",
     keywords: [
       "subscription",
       "internet",
@@ -330,10 +330,10 @@ const VISUAL_PRESETS = [
   },
   {
     key: "office",
-    icon: "💼",
-    color: "#ffa66f",
-    soft: "rgba(255, 166, 111, 0.18)",
-    ring: "rgba(255, 166, 111, 0.42)",
+    icon: "\u25A4",
+    color: "#d7b6ff",
+    soft: "rgba(215, 182, 255, 0.18)",
+    ring: "rgba(215, 182, 255, 0.42)",
     keywords: [
       "office",
       "stationery",
@@ -349,32 +349,32 @@ const VISUAL_PRESETS = [
   },
 ];
 const FUN_FALLBACK_SWATCHES = [
-  { icon: "🌈", color: "#ff7ecf", soft: "rgba(255, 126, 207, 0.18)", ring: "rgba(255, 126, 207, 0.42)" },
-  { icon: "✨", color: "#7de7ff", soft: "rgba(125, 231, 255, 0.18)", ring: "rgba(125, 231, 255, 0.42)" },
-  { icon: "🎈", color: "#ffae5f", soft: "rgba(255, 174, 95, 0.18)", ring: "rgba(255, 174, 95, 0.42)" },
-  { icon: "💜", color: "#b48fff", soft: "rgba(180, 143, 255, 0.18)", ring: "rgba(180, 143, 255, 0.42)" },
-  { icon: "🪄", color: "#6ee7b7", soft: "rgba(110, 231, 183, 0.18)", ring: "rgba(110, 231, 183, 0.42)" },
+  { icon: "\u25C7", color: "#7de7ff", soft: "rgba(125, 231, 255, 0.18)", ring: "rgba(125, 231, 255, 0.42)" },
+  { icon: "\u25B3", color: "#ffb95e", soft: "rgba(255, 185, 94, 0.18)", ring: "rgba(255, 185, 94, 0.42)" },
+  { icon: "\u2737", color: "#ae8dff", soft: "rgba(174, 141, 255, 0.18)", ring: "rgba(174, 141, 255, 0.42)" },
+  { icon: "\u25A7", color: "#54e7cf", soft: "rgba(84, 231, 207, 0.18)", ring: "rgba(84, 231, 207, 0.42)" },
+  { icon: "\u25C9", color: "#58c5ff", soft: "rgba(88, 197, 255, 0.18)", ring: "rgba(88, 197, 255, 0.42)" },
 ];
 const SAFE_THEME_ICONS = {
-  receipt: "\u{1F9FE}",
-  food: "\u{1F35C}",
-  shopping: "\u{1F6CD}\u{FE0F}",
-  travel: "\u{2708}\u{FE0F}",
+  receipt: "\u25CC",
+  food: "\u25C9",
+  shopping: "\u25A3",
+  travel: "\u2726",
   electricity: "\u{26A1}",
-  groceries: "\u{1F6D2}",
-  medical: "\u{1FA7A}",
-  fuel: "\u{26FD}",
-  entertainment: "\u{1F389}",
-  home: "\u{1F3E0}",
-  subscription: "\u{1F4F1}",
-  office: "\u{1F4BC}",
+  groceries: "\u25C6",
+  medical: "\u271A",
+  fuel: "\u2B22",
+  entertainment: "\u2736",
+  home: "\u25A6",
+  subscription: "\u25C8",
+  office: "\u25A4",
 };
 const SAFE_FALLBACK_ICONS = [
-  "\u{1F308}",
-  "\u{2728}",
-  "\u{1F388}",
-  "\u{1F49C}",
-  "\u{1FA84}",
+  "\u25C7",
+  "\u25B3",
+  "\u2737",
+  "\u25A7",
+  "\u25C9",
 ];
 const IGNORED_LABELS = new Set(["", "finance desk", "receiptpulse", "ops"]);
 const FALLBACK_DASHBOARD = {
@@ -2703,6 +2703,120 @@ function renderQueue() {
     .join("");
 }
 
+function buildSmoothLinePath(points) {
+  if (!points.length) {
+    return "";
+  }
+  if (points.length === 1) {
+    return `M ${points[0].x} ${points[0].y} L ${points[0].x} ${points[0].y}`;
+  }
+
+  let path = `M ${points[0].x} ${points[0].y}`;
+  for (let index = 1; index < points.length; index += 1) {
+    const previous = points[index - 1];
+    const current = points[index];
+    const midpointX = (previous.x + current.x) / 2;
+    path += ` C ${midpointX} ${previous.y}, ${midpointX} ${current.y}, ${current.x} ${current.y}`;
+  }
+  return path;
+}
+
+function buildTrendLineChartMarkup(monthlyTrend) {
+  const width = 720;
+  const height = 292;
+  const paddingX = 24;
+  const topY = 22;
+  const bottomY = 232;
+  const usableWidth = width - paddingX * 2;
+  const activeMonth = selectedExpenseMonth === "__all"
+    ? monthlyTrend[monthlyTrend.length - 1]?.month
+    : selectedExpenseMonth;
+  const maxAmount = Math.max(...monthlyTrend.map((item) => Number(item.amount || 0)), 1);
+  const minAmount = Math.min(...monthlyTrend.map((item) => Number(item.amount || 0)), 0);
+  const range = Math.max(maxAmount - minAmount, 1);
+  const stepX = monthlyTrend.length > 1 ? usableWidth / (monthlyTrend.length - 1) : usableWidth / 2;
+  const points = monthlyTrend.map((item, index) => {
+    const amount = Number(item.amount || 0);
+    const ratio = (amount - minAmount) / range;
+    return {
+      ...item,
+      amount,
+      x: paddingX + stepX * index,
+      y: bottomY - ratio * (bottomY - topY),
+    };
+  });
+  const linePath = buildSmoothLinePath(points);
+  const areaPath = `${linePath} L ${points[points.length - 1].x} ${bottomY} L ${points[0].x} ${bottomY} Z`;
+  const total = monthlyTrend.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const totalCount = monthlyTrend.reduce((sum, item) => sum + Number(item.count || 0), 0);
+  const highlightedPoint =
+    points.find((point) => point.month === activeMonth)
+    || points[points.length - 1]
+    || points[0];
+
+  return `
+    <div class="line-chart-shell">
+      <div class="line-chart-summary">
+        <div class="line-chart-copy">
+          <span class="line-chart-kicker">Spend performance</span>
+          <strong>$${total.toFixed(2)}</strong>
+          <span class="muted">${totalCount} receipts in the selected window</span>
+        </div>
+        <div class="line-chart-focus">
+          <span class="line-chart-kicker">Focus month</span>
+          <strong>${formatMonthLabel(highlightedPoint?.month || monthlyTrend[0].month)}</strong>
+          <span class="muted">$${Number(highlightedPoint?.amount || 0).toFixed(2)}</span>
+        </div>
+      </div>
+      <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Monthly spend line chart">
+        <defs>
+          <linearGradient id="trendAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.34" />
+            <stop offset="100%" stop-color="#00f0ff" stop-opacity="0.02" />
+          </linearGradient>
+          <filter id="trendGlow" x="-30%" y="-60%" width="160%" height="220%">
+            <feGaussianBlur stdDeviation="8" result="blur"></feGaussianBlur>
+            <feMerge>
+              <feMergeNode in="blur"></feMergeNode>
+              <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+          </filter>
+        </defs>
+        ${Array.from({ length: 4 }, (_, index) => {
+          const y = topY + ((bottomY - topY) / 3) * index;
+          return `<line class="line-chart-grid-line" x1="${paddingX}" y1="${y}" x2="${width - paddingX}" y2="${y}"></line>`;
+        }).join("")}
+        <path class="line-chart-area" d="${areaPath}"></path>
+        <path class="line-chart-path-glow" d="${linePath}" filter="url(#trendGlow)"></path>
+        <path class="line-chart-path" d="${linePath}"></path>
+        ${points
+          .map(
+            (point) => `
+              <circle
+                class="line-chart-point${point.month === activeMonth ? " is-active" : ""}"
+                cx="${point.x}"
+                cy="${point.y}"
+                r="${point.month === activeMonth ? 5.8 : 4}"
+              ></circle>
+            `
+          )
+          .join("")}
+      </svg>
+      <div class="line-chart-axis">
+        ${monthlyTrend
+          .map(
+            (item) => `
+              <span class="line-chart-axis-label${item.month === activeMonth ? " is-active" : ""}">
+                ${formatMonthLabel(item.month)}
+              </span>
+            `
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderTrend() {
   if (!elements.trendBars || !elements.expenseMonthSelect || !elements.expenseDonut || !elements.expenseLegend) {
     return;
@@ -2756,22 +2870,7 @@ function renderTrend() {
     )
     .join("");
 
-  const maxAmount = Math.max(...monthlyTrend.map((item) => item.amount), 1);
-  elements.trendBars.innerHTML = monthlyTrend
-    .map(
-      (item) => `
-        <div class="trend-bar ${item.month === selectedExpenseMonth ? "trend-bar-active" : ""}">
-          <div class="trend-meta">
-            <strong>${formatMonthLabel(item.month)}</strong>
-            <span class="muted">$${Number(item.amount).toFixed(2)} - ${item.count} receipts</span>
-          </div>
-          <div class="trend-track">
-            <div class="trend-fill" style="width:${(item.amount / maxAmount) * 100}%"></div>
-          </div>
-        </div>
-      `
-    )
-    .join("");
+  elements.trendBars.innerHTML = buildTrendLineChartMarkup(monthlyTrend);
 
   renderExpenseDonut();
 }

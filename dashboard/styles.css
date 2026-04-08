@@ -1701,6 +1701,15 @@ body.history-open .history-drawer {
   transform: translateX(0);
 }
 
+.history-scrim.is-open {
+  opacity: 1;
+  pointer-events: auto;
+}
+
+.history-drawer.is-open {
+  transform: translateX(0);
+}
+
 .ghost-button:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -5647,11 +5656,10 @@ body.cursor-cta .cursor-orb {
   cursor: not-allowed;
 }
 
+html.duplicate-decision-open-root,
 body.duplicate-decision-open {
   overflow: hidden;
-  position: fixed;
-  inset: 0;
-  width: 100%;
+  overscroll-behavior: none;
 }
 
 .cinema-stage,

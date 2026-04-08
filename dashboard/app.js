@@ -736,8 +736,9 @@ let duplicateDecisionState = {
   busy: false,
   pendingAction: "",
   outcomeTimer: 0,
-  scrollLockY: 0,
 };
+let historyDrawerHideTimer = 0;
+let duplicateDecisionHideTimer = 0;
 let authState = {
   status: "idle",
   tokens: loadStoredTokens(),
@@ -3919,16 +3920,9 @@ function bindHistoryControls() {
 
   elements.historyToggle.dataset.bound = "true";
   elements.historyToggle.addEventListener("click", () => {
-    const isOpen = !document.body.classList.contains("history-open");
-    if (isOpen) {
-      document.body.classList.add("history-open");
-      if (elements.historyDrawer) {
-        elements.historyDrawer.hidden = false;
-        elements.historyDrawer.setAttribute("aria-hidden", "false");
-      }
-      if (elements.historyScrim) {
-        elements.historyScrim.hidden = false;
-      }
+    const isOpen = Boolean(elements.historyDrawer?.classList.contains("is-open"));
+    if (!isOpen) {
+      openHistoryDrawer();
       return;
     }
     closeHistoryDrawer();
@@ -4009,14 +4003,23 @@ function bindHistoryControls() {
 }
 
 function closeHistoryDrawer() {
+  window.clearTimeout(historyDrawerHideTimer);
   document.body.classList.remove("history-open");
   if (elements.historyDrawer) {
+    elements.historyDrawer.classList.remove("is-open");
     elements.historyDrawer.setAttribute("aria-hidden", "true");
-    elements.historyDrawer.hidden = true;
   }
   if (elements.historyScrim) {
-    elements.historyScrim.hidden = true;
+    elements.historyScrim.classList.remove("is-open");
   }
+  historyDrawerHideTimer = window.setTimeout(() => {
+    if (elements.historyDrawer) {
+      elements.historyDrawer.hidden = true;
+    }
+    if (elements.historyScrim) {
+      elements.historyScrim.hidden = true;
+    }
+  }, 220);
 }
 
 function closeConfirmDialog(confirmed = false) {
@@ -4129,7 +4132,7 @@ function closeRenameDialog(result = null) {
   setRenameBusy(false);
 
   if (previousFocus?.focus) {
-    previousFocus.focus();
+    focusWithoutScroll(previousFocus);
   }
 
   if (resolve) {
@@ -4388,18 +4391,31 @@ function focusWithoutScroll(element) {
 }
 
 function lockDuplicateDecisionViewport() {
-  const scrollY = window.scrollY || window.pageYOffset || 0;
-  duplicateDecisionState.scrollLockY = scrollY;
-  document.body.style.top = `-${scrollY}px`;
+  document.documentElement.classList.add("duplicate-decision-open-root");
   document.body.classList.add("duplicate-decision-open");
 }
 
 function unlockDuplicateDecisionViewport() {
-  const scrollY = Number(duplicateDecisionState.scrollLockY || 0);
+  document.documentElement.classList.remove("duplicate-decision-open-root");
   document.body.classList.remove("duplicate-decision-open");
-  document.body.style.top = "";
-  duplicateDecisionState.scrollLockY = 0;
-  window.scrollTo(0, scrollY);
+}
+
+function openHistoryDrawer() {
+  if (!elements.historyDrawer || !elements.historyScrim) {
+    return;
+  }
+
+  reloadUploadHistory();
+  window.clearTimeout(historyDrawerHideTimer);
+  document.body.classList.add("history-open");
+  elements.historyDrawer.hidden = false;
+  elements.historyDrawer.setAttribute("aria-hidden", "false");
+  elements.historyScrim.hidden = false;
+
+  window.requestAnimationFrame(() => {
+    elements.historyDrawer.classList.add("is-open");
+    elements.historyScrim.classList.add("is-open");
+  });
 }
 
 function closeDuplicateDecisionDialog(result = null) {
@@ -4418,6 +4434,7 @@ function closeDuplicateDecisionDialog(result = null) {
   duplicateDecisionModal.setAttribute("aria-hidden", "true");
   unlockDuplicateDecisionViewport();
   window.clearTimeout(duplicateDecisionState.outcomeTimer);
+  window.clearTimeout(duplicateDecisionHideTimer);
 
   const resolve = duplicateDecisionState.resolve;
   const previousFocus = duplicateDecisionState.previousFocus;
@@ -4429,9 +4446,10 @@ function closeDuplicateDecisionDialog(result = null) {
   duplicateDecisionState.pendingAction = "";
   duplicateDecisionState.outcomeTimer = 0;
 
-  window.setTimeout(() => {
+  duplicateDecisionHideTimer = window.setTimeout(() => {
     duplicateDecisionModal.hidden = true;
     duplicateDecisionScrim.hidden = true;
+    duplicateDecisionHideTimer = 0;
   }, 220);
 
   setDuplicateDecisionPresentation({
@@ -4453,7 +4471,7 @@ function closeDuplicateDecisionDialog(result = null) {
   setDuplicateDecisionBusy(false);
 
   if (previousFocus?.focus) {
-    previousFocus.focus();
+    focusWithoutScroll(previousFocus);
   }
 
   if (resolve) {
@@ -4503,6 +4521,7 @@ function openDuplicateDecisionDialog(receipt) {
   });
   duplicateDecisionLabel.value = "";
   duplicateDecisionLabel.placeholder = suggestSeparateReceiptLabel(receipt);
+  window.clearTimeout(duplicateDecisionHideTimer);
   duplicateDecisionModal.hidden = false;
   duplicateDecisionScrim.hidden = false;
   duplicateDecisionModal.setAttribute("aria-hidden", "false");
@@ -4513,7 +4532,7 @@ function openDuplicateDecisionDialog(receipt) {
   window.requestAnimationFrame(() => {
     duplicateDecisionModal.classList.add("is-open");
     duplicateDecisionScrim.classList.add("is-open");
-    focusWithoutScroll(duplicateDecisionModal);
+    focusWithoutScroll(duplicateDecisionLabel);
   });
 
   return new Promise((resolve) => {

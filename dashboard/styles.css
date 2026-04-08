@@ -7757,17 +7757,19 @@ body:not(.history-open) .history-drawer {
   gap: 0.6rem;
 }
 
-body.workspace-locked .ops-strip,
-body.workspace-locked .metrics-grid,
-body.workspace-locked .insight-layout,
-body.workspace-locked #receiptsTable {
-  opacity: 0.35;
-  pointer-events: none;
-  filter: saturate(0.75);
+body.workspace-locked .shell {
+  display: none;
 }
 
-body.workspace-locked #uploadLab {
-  box-shadow: 0 0 0 1px rgba(255, 184, 122, 0.32) inset;
+body.workspace-locked .dashboard-main {
+  align-content: start;
+}
+
+body.workspace-locked .workspace-guard {
+  margin-top: 0;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.2),
+    0 0 0 1px rgba(255, 184, 122, 0.18) inset;
 }
 
 @keyframes cinemaFloat {

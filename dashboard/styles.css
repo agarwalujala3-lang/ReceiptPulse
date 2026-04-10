@@ -9162,3 +9162,153 @@ html[data-ui-theme="light"] body.dribbble-dashboard .rename-scrim {
     flex-direction: column;
   }
 }
+
+/* Final stability pass: light-mode contrast + duplicate modal layering */
+
+.duplicate-decision-scrim {
+  z-index: 2400;
+}
+
+.duplicate-decision-modal {
+  z-index: 2401;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard {
+  color: #1e2f40;
+  background:
+    radial-gradient(circle at 8% 8%, rgba(255, 195, 146, 0.26), transparent 28%),
+    radial-gradient(circle at 88% 10%, rgba(142, 227, 222, 0.26), transparent 30%),
+    linear-gradient(180deg, #fff6ed 0%, #f9f4ec 52%, #f4efe8 100%);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-sidebar,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-bar,
+html[data-ui-theme="light"] body.dribbble-dashboard .panel,
+html[data-ui-theme="light"] body.dribbble-dashboard .glass-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .upload-status-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .history-drawer,
+html[data-ui-theme="light"] body.dribbble-dashboard .confirm-modal,
+html[data-ui-theme="light"] body.dribbble-dashboard .rename-modal,
+html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal,
+html[data-ui-theme="light"] body.dribbble-dashboard .chart-row,
+html[data-ui-theme="light"] body.dribbble-dashboard .vendor-row,
+html[data-ui-theme="light"] body.dribbble-dashboard .queue-item,
+html[data-ui-theme="light"] body.dribbble-dashboard .workflow-node,
+html[data-ui-theme="light"] body.dribbble-dashboard .timeline-step,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel,
+html[data-ui-theme="light"] body.dribbble-dashboard .ops-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .legend-row,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-sidebar-card {
+  color: #1e2f40;
+  border-color: rgba(167, 134, 103, 0.2);
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255, 221, 194, 0.22), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #fffaf5 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.84),
+    0 18px 38px rgba(147, 119, 88, 0.12);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-nav-link,
+html[data-ui-theme="light"] body.dribbble-dashboard .ghost-link,
+html[data-ui-theme="light"] body.dribbble-dashboard .ghost-button,
+html[data-ui-theme="light"] body.dribbble-dashboard .status-pill,
+html[data-ui-theme="light"] body.dribbble-dashboard .receipt-mini-pill,
+html[data-ui-theme="light"] body.dribbble-dashboard .filter-chip,
+html[data-ui-theme="light"] body.dribbble-dashboard .status-tag,
+html[data-ui-theme="light"] body.dribbble-dashboard .topbar-pills span,
+html[data-ui-theme="light"] body.dribbble-dashboard .fun-tags span,
+html[data-ui-theme="light"] body.dribbble-dashboard .pipeline span {
+  color: #2b4257;
+  border-color: rgba(167, 134, 103, 0.2);
+  background: linear-gradient(180deg, #ffffff, #fdf8f2);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-nav-link:hover,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-nav-link.is-active {
+  color: #173147;
+  border-color: rgba(88, 161, 199, 0.34);
+  background: linear-gradient(180deg, #f4fbff, #edf7ff);
+  box-shadow:
+    inset 0 0 0 1px rgba(106, 186, 219, 0.26),
+    0 10px 22px rgba(93, 143, 180, 0.14);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-search-input,
+html[data-ui-theme="light"] body.dribbble-dashboard .month-select,
+html[data-ui-theme="light"] body.dribbble-dashboard .period-select,
+html[data-ui-theme="light"] body.dribbble-dashboard .text-input {
+  color: #1f3347;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-search-input::placeholder,
+html[data-ui-theme="light"] body.dribbble-dashboard .text-input::placeholder {
+  color: #6c7d8f;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-search-icon {
+  color: #5d7389;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-sidebar-card h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-copy h1,
+html[data-ui-theme="light"] body.dribbble-dashboard .hero-copy h2,
+html[data-ui-theme="light"] body.dribbble-dashboard .section-heading h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .section-heading-tight h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .spotlight-title,
+html[data-ui-theme="light"] body.dribbble-dashboard .chart-meta strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .vendor-row strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .queue-item strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-empty strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-pdf-card strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-stat strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-copy strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-focus strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel th,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel td {
+  color: #1a2f43;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .topbar-text,
+html[data-ui-theme="light"] body.dribbble-dashboard .hero-text,
+html[data-ui-theme="light"] body.dribbble-dashboard .spotlight-narrative,
+html[data-ui-theme="light"] body.dribbble-dashboard .history-copy,
+html[data-ui-theme="light"] body.dribbble-dashboard .history-note,
+html[data-ui-theme="light"] body.dribbble-dashboard .upload-helper,
+html[data-ui-theme="light"] body.dribbble-dashboard .workflow-node p,
+html[data-ui-theme="light"] body.dribbble-dashboard .timeline-step p,
+html[data-ui-theme="light"] body.dribbble-dashboard .muted,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-kicker,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-axis-label,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card span,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-sidebar-card p {
+  color: #4f6478;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .history-scrim,
+html[data-ui-theme="light"] body.dribbble-dashboard .confirm-scrim,
+html[data-ui-theme="light"] body.dribbble-dashboard .rename-scrim {
+  background: rgba(77, 98, 118, 0.24);
+  backdrop-filter: blur(12px);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] {
+  border-color: rgba(200, 96, 72, 0.42);
+  background:
+    radial-gradient(circle at 14% 12%, rgba(255, 232, 206, 0.22), transparent 24%),
+    radial-gradient(circle at 86% 18%, rgba(255, 126, 96, 0.24), transparent 28%),
+    linear-gradient(180deg, rgba(118, 38, 38, 0.98), rgba(66, 20, 22, 0.98)) !important;
+  box-shadow:
+    0 42px 96px rgba(40, 10, 10, 0.56),
+    0 0 0 1px rgba(255, 235, 215, 0.1),
+    0 0 98px rgba(240, 110, 80, 0.24);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-head h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-body,
+html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-note,
+html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-head .eyebrow {
+  color: #fff3e9;
+}

@@ -1098,6 +1098,14 @@ function updateAuthUI() {
     elements.guardSignUp.hidden = !workspaceLocked;
   }
 
+  if (document.body.classList.contains("duplicate-decision-open") && elements.duplicateDecisionModal?.hidden) {
+    unlockDuplicateDecisionViewport();
+  }
+
+  if (document.body.classList.contains("history-open") && elements.historyDrawer?.hidden) {
+    document.body.classList.remove("history-open");
+  }
+
   if (elements.uploadAccount) {
     elements.uploadAccount.value = signedIn
       ? authState.user.name || "Workspace user"

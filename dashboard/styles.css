@@ -9312,3 +9312,102 @@ html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal[da
 html[data-ui-theme="light"] body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate-decision-head .eyebrow {
   color: #fff3e9;
 }
+
+/* Critical readability overrides (light mode) */
+
+body.dribbble-dashboard .dashboard-command-brand {
+  display: inline-flex;
+  align-items: center;
+  margin-bottom: 0.28rem;
+}
+
+body.dribbble-dashboard .dashboard-command-logo {
+  width: clamp(8.6rem, 11.5vw, 10.4rem);
+  height: auto;
+  opacity: 0.9;
+  filter: drop-shadow(0 10px 20px rgba(0, 0, 0, 0.24));
+}
+
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-stage-copy h1,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-panel-head h2,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-info-card strong,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-project-strip strong,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-switch a {
+  color: #1f3043 !important;
+}
+
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-lead,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-info-card p,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-panel-head p:last-child,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-status,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-switch,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-project-strip span {
+  color: #4f657a !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-panel,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-stage,
+html[data-ui-theme="light"] body.auth-page.cinema-ui .auth-info-card {
+  background:
+    radial-gradient(circle at 16% 0%, rgba(255, 225, 198, 0.22), transparent 30%),
+    linear-gradient(180deg, #ffffff 0%, #fffaf4 100%) !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-copy h1,
+html[data-ui-theme="light"] body.dribbble-dashboard .hero-copy h2,
+html[data-ui-theme="light"] body.dribbble-dashboard .section-heading h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .section-heading-tight h3,
+html[data-ui-theme="light"] body.dribbble-dashboard .glass-card strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-empty strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-pdf-card strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-stat strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel th,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel td,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-copy strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-focus strong {
+  color: #1a2f43 !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-copy .topbar-text,
+html[data-ui-theme="light"] body.dribbble-dashboard .hero-text,
+html[data-ui-theme="light"] body.dribbble-dashboard .glass-card p,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-empty p,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-pdf-card p,
+html[data-ui-theme="light"] body.dribbble-dashboard .preview-stat span,
+html[data-ui-theme="light"] body.dribbble-dashboard .upload-helper,
+html[data-ui-theme="light"] body.dribbble-dashboard .workflow-node p,
+html[data-ui-theme="light"] body.dribbble-dashboard .timeline-step p,
+html[data-ui-theme="light"] body.dribbble-dashboard .status-note,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-kicker,
+html[data-ui-theme="light"] body.dribbble-dashboard .line-chart-axis-label,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card span,
+html[data-ui-theme="light"] body.dribbble-dashboard .field span,
+html[data-ui-theme="light"] body.dribbble-dashboard .drop-copy {
+  color: #4f6478 !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .mini-label,
+html[data-ui-theme="light"] body.dribbble-dashboard .eyebrow,
+html[data-ui-theme="light"] body.dribbble-dashboard .drop-kicker {
+  color: #9f5f33 !important;
+  opacity: 1 !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-bar,
+html[data-ui-theme="light"] body.dribbble-dashboard .hero,
+html[data-ui-theme="light"] body.dribbble-dashboard .upload-lab,
+html[data-ui-theme="light"] body.dribbble-dashboard .ops-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .metric-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .table-panel,
+html[data-ui-theme="light"] body.dribbble-dashboard .glass-card,
+html[data-ui-theme="light"] body.dribbble-dashboard .panel {
+  backdrop-filter: none !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-logo {
+  opacity: 0.96;
+  filter: drop-shadow(0 7px 14px rgba(130, 98, 72, 0.18));
+}

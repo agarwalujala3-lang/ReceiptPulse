@@ -745,6 +745,51 @@ let authState = {
   user: null,
 };
 
+function resetTransientOverlayState() {
+  document.documentElement.classList.remove("duplicate-decision-open-root");
+  document.body.classList.remove("duplicate-decision-open", "history-open");
+
+  if (elements.historyDrawer) {
+    elements.historyDrawer.hidden = true;
+    elements.historyDrawer.classList.remove("is-open");
+    elements.historyDrawer.setAttribute("aria-hidden", "true");
+  }
+  if (elements.historyScrim) {
+    elements.historyScrim.hidden = true;
+    elements.historyScrim.classList.remove("is-open");
+  }
+
+  if (elements.confirmModal) {
+    elements.confirmModal.hidden = true;
+    elements.confirmModal.classList.remove("is-open");
+    elements.confirmModal.setAttribute("aria-hidden", "true");
+  }
+  if (elements.confirmScrim) {
+    elements.confirmScrim.hidden = true;
+    elements.confirmScrim.classList.remove("is-open");
+  }
+
+  if (elements.renameModal) {
+    elements.renameModal.hidden = true;
+    elements.renameModal.classList.remove("is-open");
+    elements.renameModal.setAttribute("aria-hidden", "true");
+  }
+  if (elements.renameScrim) {
+    elements.renameScrim.hidden = true;
+    elements.renameScrim.classList.remove("is-open");
+  }
+
+  if (elements.duplicateDecisionModal) {
+    elements.duplicateDecisionModal.hidden = true;
+    elements.duplicateDecisionModal.classList.remove("is-open");
+    elements.duplicateDecisionModal.setAttribute("aria-hidden", "true");
+  }
+  if (elements.duplicateDecisionScrim) {
+    elements.duplicateDecisionScrim.hidden = true;
+    elements.duplicateDecisionScrim.classList.remove("is-open");
+  }
+}
+
 function normalizeAuthConfig(raw) {
   if (authClient?.normalizeConfig) {
     return authClient.normalizeConfig(raw, {
@@ -5161,12 +5206,14 @@ async function initializeApp() {
 bindAuthControls();
 bindUploadControls();
 bindHistoryControls();
+resetTransientOverlayState();
 closeHistoryDrawer();
 bindArchiveControls();
 setArchiveVisibility(false);
 initTopbarScrollFX();
 initCursorFX();
 window.addEventListener("beforeunload", clearPreviewObjectUrl);
+window.addEventListener("pageshow", resetTransientOverlayState);
 initializeApp().catch((error) => {
   console.error("Unable to load dashboard.", error);
 });

@@ -9502,3 +9502,54 @@ html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-search-input {
     justify-content: flex-start;
   }
 }
+
+body.dribbble-dashboard .history-scrim {
+  z-index: 2490 !important;
+}
+
+body.dribbble-dashboard .history-drawer {
+  z-index: 2491 !important;
+  opacity: 0;
+  pointer-events: none;
+}
+
+body.history-open.dribbble-dashboard .history-drawer,
+body.dribbble-dashboard .history-drawer.is-open {
+  opacity: 1;
+  pointer-events: auto;
+  display: block !important;
+}
+
+html[data-ui-theme="dark"] body.dribbble-dashboard .dashboard-range-shell,
+html[data-ui-theme="dark"] body.dribbble-dashboard .dashboard-search-shell {
+  border-color: rgba(120, 151, 182, 0.24) !important;
+  background: linear-gradient(180deg, rgba(14, 20, 29, 0.94), rgba(10, 15, 24, 0.96)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.03),
+    0 10px 24px rgba(3, 7, 14, 0.32);
+}
+
+html[data-ui-theme="dark"] body.dribbble-dashboard .dashboard-range-shell > span,
+html[data-ui-theme="dark"] body.dribbble-dashboard .chart-select-shell > span {
+  color: #7ea2c5 !important;
+}
+
+html[data-ui-theme="dark"] body.dribbble-dashboard .dashboard-search-icon {
+  color: #90abc6 !important;
+}
+
+html[data-ui-theme="dark"] body.dribbble-dashboard .dashboard-search-input,
+html[data-ui-theme="dark"] body.dribbble-dashboard .month-select,
+html[data-ui-theme="dark"] body.dribbble-dashboard .period-select {
+  color: #e5f0fb !important;
+}
+
+html[data-ui-theme="dark"] body.dribbble-dashboard .dashboard-search-input::placeholder {
+  color: #7f97af !important;
+}
+
+html[data-ui-theme="dark"] body.dribbble-dashboard .month-select option,
+html[data-ui-theme="dark"] body.dribbble-dashboard .period-select option {
+  color: #e5f0fb;
+  background: #0d1622;
+}

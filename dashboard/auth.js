@@ -71,6 +71,21 @@
     clearLegacyPersistentTokens();
   }
 
+  function waitFor(ms) {
+    return new Promise((resolve) => window.setTimeout(resolve, ms));
+  }
+
+  function isTransientNetworkError(error) {
+    const message = String(error?.message || "").toLowerCase();
+    return (
+      error instanceof TypeError
+      || message.includes("failed to fetch")
+      || message.includes("networkerror")
+      || message.includes("load failed")
+      || message.includes("network request failed")
+    );
+  }
+
   function decodeJwtPayload(token) {
     if (!token || !token.includes(".")) {
       return {};
@@ -118,29 +133,44 @@
       throw new Error("Cognito configuration is missing the client id or region.");
     }
 
-    const response = await fetch(`https://cognito-idp.${config.region}.amazonaws.com/`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/x-amz-json-1.1",
-        "X-Amz-Target": `AWSCognitoIdentityProviderService.${target}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    const url = `https://cognito-idp.${config.region}.amazonaws.com/`;
+    const maxAttempts = 2;
 
-    if (response.ok) {
-      return response.json();
+    for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+      try {
+        const response = await fetch(url, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-amz-json-1.1",
+            "X-Amz-Target": `AWSCognitoIdentityProviderService.${target}`,
+          },
+          body: JSON.stringify(payload),
+        });
+
+        if (response.ok) {
+          return response.json();
+        }
+
+        let errorPayload = {};
+        try {
+          errorPayload = await response.json();
+        } catch (error) {
+          console.warn("Unable to parse Cognito error payload.", error);
+        }
+
+        const error = new Error(errorPayload.message || `Authentication request failed (${response.status}).`);
+        error.code = String(errorPayload.__type || errorPayload.code || "").split("#").pop() || "";
+        throw error;
+      } catch (error) {
+        if (isTransientNetworkError(error) && attempt < maxAttempts) {
+          await waitFor(350 * attempt);
+          continue;
+        }
+        throw error;
+      }
     }
 
-    let errorPayload = {};
-    try {
-      errorPayload = await response.json();
-    } catch (error) {
-      console.warn("Unable to parse Cognito error payload.", error);
-    }
-
-    const error = new Error(errorPayload.message || `Authentication request failed (${response.status}).`);
-    error.code = String(errorPayload.__type || errorPayload.code || "").split("#").pop() || "";
-    throw error;
+    throw new Error("Authentication request did not complete.");
   }
 
   function buildTokenSet(result, previousTokens = null) {
@@ -347,6 +377,9 @@
     }
     if (code === "UserNotConfirmedException") {
       return "This account is not confirmed yet. Please try signing in again in a moment.";
+    }
+    if (isTransientNetworkError(error)) {
+      return "Network issue while contacting sign-in service. Please try once more.";
     }
 
     return message || "Authentication could not be completed.";

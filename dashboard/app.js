@@ -1036,7 +1036,18 @@ async function ensureValidAccessToken() {
   return authState.tokens.accessToken;
 }
 
-async function apiFetch(path, options = {}, retry = true) {
+function isTransientNetworkError(error) {
+  const message = String(error?.message || "").toLowerCase();
+  return (
+    error instanceof TypeError
+    || message.includes("failed to fetch")
+    || message.includes("networkerror")
+    || message.includes("load failed")
+    || message.includes("network request failed")
+  );
+}
+
+async function apiFetch(path, options = {}, retry = true, networkRetries = 1) {
   if (!apiBase) {
     throw new Error("Live API is not configured for this dashboard.");
   }
@@ -1045,14 +1056,23 @@ async function apiFetch(path, options = {}, retry = true) {
   const headers = new Headers(options.headers || {});
   headers.set("Authorization", `Bearer ${token}`);
 
-  const response = await fetch(`${apiBase.replace(/\/$/, "")}${path}`, {
-    ...options,
-    headers,
-  });
+  let response;
+  try {
+    response = await fetch(`${apiBase.replace(/\/$/, "")}${path}`, {
+      ...options,
+      headers,
+    });
+  } catch (error) {
+    if (networkRetries > 0 && isTransientNetworkError(error)) {
+      await sleep(320);
+      return apiFetch(path, options, retry, networkRetries - 1);
+    }
+    throw new Error("Network request failed. Please retry once.");
+  }
 
   if (response.status === 401 && retry && authState.tokens?.refreshToken) {
     await refreshAuthSession();
-    return apiFetch(path, options, false);
+    return apiFetch(path, options, false, networkRetries);
   }
 
   if (response.status === 401) {
@@ -3662,13 +3682,27 @@ async function uploadToS3(session, file) {
     headers.set("Content-Type", guessContentType(file));
   }
 
-  const response = await fetch(session.uploadUrl, {
-    method: "PUT",
-    headers,
-    body: file,
-  });
+  const maxAttempts = 2;
+  for (let attempt = 1; attempt <= maxAttempts; attempt += 1) {
+    let response;
+    try {
+      response = await fetch(session.uploadUrl, {
+        method: "PUT",
+        headers,
+        body: file,
+      });
+    } catch (error) {
+      if (attempt < maxAttempts && isTransientNetworkError(error)) {
+        await sleep(360 * attempt);
+        continue;
+      }
+      throw new Error("Upload request failed due to network issue. Please try once more.");
+    }
 
-  if (!response.ok) {
+    if (response.ok) {
+      return;
+    }
+
     throw new Error(`Upload to S3 failed (${response.status}).`);
   }
 }
@@ -4561,13 +4595,18 @@ function openHistoryDrawer() {
   window.clearTimeout(historyDrawerHideTimer);
   document.body.classList.add("history-open");
   elements.historyDrawer.hidden = false;
+  elements.historyDrawer.removeAttribute("hidden");
   elements.historyDrawer.setAttribute("aria-hidden", "false");
   elements.historyScrim.hidden = false;
+  elements.historyScrim.removeAttribute("hidden");
 
-  window.requestAnimationFrame(() => {
+  const revealDrawer = () => {
     elements.historyDrawer.classList.add("is-open");
     elements.historyScrim.classList.add("is-open");
-  });
+  };
+
+  window.requestAnimationFrame(revealDrawer);
+  window.setTimeout(revealDrawer, 24);
 }
 
 function closeDuplicateDecisionDialog(result = null) {

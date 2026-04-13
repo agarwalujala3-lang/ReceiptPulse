@@ -9411,3 +9411,94 @@ html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-command-logo {
   opacity: 0.96;
   filter: drop-shadow(0 7px 14px rgba(130, 98, 72, 0.18));
 }
+
+/* Final layout/readability stability patch (April 2026) */
+
+body.dribbble-dashboard .dashboard-shell {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+body.dribbble-dashboard .dashboard-sidebar {
+  display: none !important;
+}
+
+body.dribbble-dashboard .dashboard-main {
+  width: min(100%, 1380px);
+  margin-inline: auto;
+}
+
+body.dribbble-dashboard .dashboard-command-bar {
+  grid-template-columns: minmax(0, 1fr) auto;
+}
+
+body.dribbble-dashboard .dashboard-command-tools,
+body.dribbble-dashboard .dashboard-command-actions {
+  flex-wrap: wrap;
+}
+
+body.dribbble-dashboard .history-drawer {
+  left: auto !important;
+  right: 0 !important;
+  width: min(420px, 92vw) !important;
+  max-width: 92vw;
+  transform: translateX(106%) !important;
+  visibility: hidden;
+}
+
+body.history-open.dribbble-dashboard .history-drawer,
+body.dribbble-dashboard .history-drawer.is-open {
+  transform: translateX(0) !important;
+  visibility: visible;
+}
+
+body.dribbble-dashboard .history-drawer[hidden] {
+  display: none !important;
+  visibility: hidden !important;
+  transform: translateX(106%) !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .flip-card-face {
+  border-color: rgba(120, 146, 171, 0.2) !important;
+  background:
+    radial-gradient(circle at 14% 0%, rgba(192, 231, 255, 0.26), transparent 32%),
+    linear-gradient(180deg, #f9fcff 0%, #f0f6fb 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.86),
+    0 14px 32px rgba(95, 121, 146, 0.12);
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .flip-card strong,
+html[data-ui-theme="light"] body.dribbble-dashboard .flip-card p {
+  color: #20364a !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .flip-cta {
+  color: #2d7f8d !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-range-shell > span,
+html[data-ui-theme="light"] body.dribbble-dashboard .chart-select-shell > span,
+html[data-ui-theme="light"] body.dribbble-dashboard .field > span,
+html[data-ui-theme="light"] body.dribbble-dashboard .mini-label,
+html[data-ui-theme="light"] body.dribbble-dashboard .eyebrow,
+html[data-ui-theme="light"] body.dribbble-dashboard .drop-kicker {
+  color: #995f37 !important;
+}
+
+html[data-ui-theme="light"] body.dribbble-dashboard .month-select,
+html[data-ui-theme="light"] body.dribbble-dashboard .period-select,
+html[data-ui-theme="light"] body.dribbble-dashboard .text-input,
+html[data-ui-theme="light"] body.dribbble-dashboard .dashboard-search-input {
+  color: #1d3347 !important;
+}
+
+@media (max-width: 1024px) {
+  body.dribbble-dashboard .dashboard-command-bar {
+    grid-template-columns: 1fr;
+  }
+
+  body.dribbble-dashboard .dashboard-command-tools,
+  body.dribbble-dashboard .dashboard-command-actions {
+    justify-content: flex-start;
+  }
+}

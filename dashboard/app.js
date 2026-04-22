@@ -597,7 +597,24 @@ const elements = {
   cursorRing: document.querySelector("#cursorRing"),
   cursorDrips: document.querySelector("#cursorDrips"),
   dashboardPeriodSelect: document.querySelector("#dashboardPeriodSelect"),
+  dashboardSearchInput: document.querySelector(".dashboard-search-input"),
   rangeSummary: document.querySelector("#rangeSummary"),
+  neoDashboardBoard: document.querySelector("#neoDashboardBoard"),
+  neoFigureCanvas: document.querySelector("#neoFigureCanvas"),
+  neoFigureAction: document.querySelector("#neoFigureAction"),
+  neoAssistantCopy: document.querySelector("#neoAssistantCopy"),
+  neoTotalValue: document.querySelector("#neoTotalValue"),
+  neoTotalMeta: document.querySelector("#neoTotalMeta"),
+  neoMiniBars: document.querySelector("#neoMiniBars"),
+  neoShareValue: document.querySelector("#neoShareValue"),
+  neoShareRing: document.querySelector("#neoShareRing"),
+  neoShareLabel: document.querySelector("#neoShareLabel"),
+  neoGaugeValue: document.querySelector("#neoGaugeValue"),
+  neoGaugeArc: document.querySelector("#neoGaugeArc"),
+  neoGaugeNote: document.querySelector("#neoGaugeNote"),
+  neoTrendBoard: document.querySelector("#neoTrendBoard"),
+  neoTransactionList: document.querySelector("#neoTransactionList"),
+  neoSpendList: document.querySelector("#neoSpendList"),
   metricsGrid: document.querySelector("#metricsGrid"),
   categoryChart: document.querySelector("#categoryChart"),
   vendorList: document.querySelector("#vendorList"),
@@ -612,6 +629,8 @@ const elements = {
   modeBadge: document.querySelector("#modeBadge"),
   statusNote: document.querySelector("#statusNote"),
   authSummary: document.querySelector("#authSummary"),
+  manageWidgetsButton: document.querySelector("#manageWidgetsButton"),
+  addWidgetButton: document.querySelector("#addWidgetButton"),
   authCta: document.querySelector("#authCta"),
   authSecondaryCta: document.querySelector("#authSecondaryCta"),
   workspaceGuard: document.querySelector("#workspaceGuard"),
@@ -619,6 +638,7 @@ const elements = {
   guardSignUp: document.querySelector("#guardSignUp"),
   switchAccountButton: document.querySelector("#switchAccountButton"),
   signOutButton: document.querySelector("#signOutButton"),
+  profileName: document.querySelector("#profileName"),
   riskHeadline: document.querySelector("#riskHeadline"),
   opsStrip: document.querySelector("#opsStrip"),
   spotlightKicker: document.querySelector("#spotlightKicker"),
@@ -702,8 +722,10 @@ let previewObjectUrl = "";
 let latestPreview = null;
 let archiveOpen = false;
 let selectedDashboardPeriod = "all";
+let dashboardSearchQuery = "";
 let selectedExpenseMonth = "";
 let donutRefreshTimer = 0;
+let neoFigureAnimationHandle = 0;
 let panelRefreshTimer = 0;
 let pendingVisualRefresh = null;
 let warningRevealTimer = 0;
@@ -751,41 +773,53 @@ function resetTransientOverlayState() {
 
   if (elements.historyDrawer) {
     elements.historyDrawer.hidden = true;
+    elements.historyDrawer.setAttribute("hidden", "");
     elements.historyDrawer.classList.remove("is-open");
     elements.historyDrawer.setAttribute("aria-hidden", "true");
+    elements.historyDrawer.style.display = "none";
+    elements.historyDrawer.style.opacity = "";
+    elements.historyDrawer.style.pointerEvents = "";
   }
   if (elements.historyScrim) {
     elements.historyScrim.hidden = true;
+    elements.historyScrim.setAttribute("hidden", "");
     elements.historyScrim.classList.remove("is-open");
+    elements.historyScrim.style.display = "none";
   }
 
   if (elements.confirmModal) {
     elements.confirmModal.hidden = true;
+    elements.confirmModal.setAttribute("hidden", "");
     elements.confirmModal.classList.remove("is-open");
     elements.confirmModal.setAttribute("aria-hidden", "true");
   }
   if (elements.confirmScrim) {
     elements.confirmScrim.hidden = true;
+    elements.confirmScrim.setAttribute("hidden", "");
     elements.confirmScrim.classList.remove("is-open");
   }
 
   if (elements.renameModal) {
     elements.renameModal.hidden = true;
+    elements.renameModal.setAttribute("hidden", "");
     elements.renameModal.classList.remove("is-open");
     elements.renameModal.setAttribute("aria-hidden", "true");
   }
   if (elements.renameScrim) {
     elements.renameScrim.hidden = true;
+    elements.renameScrim.setAttribute("hidden", "");
     elements.renameScrim.classList.remove("is-open");
   }
 
   if (elements.duplicateDecisionModal) {
     elements.duplicateDecisionModal.hidden = true;
+    elements.duplicateDecisionModal.setAttribute("hidden", "");
     elements.duplicateDecisionModal.classList.remove("is-open");
     elements.duplicateDecisionModal.setAttribute("aria-hidden", "true");
   }
   if (elements.duplicateDecisionScrim) {
     elements.duplicateDecisionScrim.hidden = true;
+    elements.duplicateDecisionScrim.setAttribute("hidden", "");
     elements.duplicateDecisionScrim.classList.remove("is-open");
   }
 }
@@ -1047,7 +1081,7 @@ function isTransientNetworkError(error) {
   );
 }
 
-async function apiFetch(path, options = {}, retry = true, networkRetries = 1) {
+async function apiFetch(path, options = {}, retry = true, networkRetries = 2) {
   if (!apiBase) {
     throw new Error("Live API is not configured for this dashboard.");
   }
@@ -1064,10 +1098,12 @@ async function apiFetch(path, options = {}, retry = true, networkRetries = 1) {
     });
   } catch (error) {
     if (networkRetries > 0 && isTransientNetworkError(error)) {
-      await sleep(320);
+      const attempt = 3 - networkRetries;
+      const backoffMs = 260 + attempt * 340;
+      await sleep(backoffMs);
       return apiFetch(path, options, retry, networkRetries - 1);
     }
-    throw new Error("Network request failed. Please retry once.");
+    throw new Error("Network request failed. Check your connection and retry.");
   }
 
   if (response.status === 401 && retry && authState.tokens?.refreshToken) {
@@ -1114,6 +1150,14 @@ function updateAuthUI() {
           : "Config Needed";
   }
 
+  if (elements.profileName) {
+    const fullName = String(authState.user?.name || "").trim();
+    const firstName = fullName ? fullName.split(/\s+/)[0] : "";
+    elements.profileName.textContent = signedIn
+      ? firstName || "Operator"
+      : "Operator";
+  }
+
   if (elements.authCta) {
     elements.authCta.hidden = hideAuthEntry;
     elements.authCta.style.display = hideAuthEntry ? "none" : "";
@@ -1145,7 +1189,7 @@ function updateAuthUI() {
   if (elements.historyToggle) {
     elements.historyToggle.hidden = !signedIn;
     elements.historyToggle.style.display = signedIn ? "" : "none";
-    elements.historyToggle.disabled = authBusy || !signedIn;
+    elements.historyToggle.disabled = !signedIn;
     if (!signedIn) {
       closeHistoryDrawer();
     }
@@ -1303,18 +1347,21 @@ async function loadDashboard() {
   }
 
   elements.modeBadge.textContent = "Syncing";
-  elements.statusNote.textContent = "Opening your workspace.";
+  elements.statusNote.textContent = "Opening workspace. Syncing latest receipts in background.";
+  elements.modeBadge.textContent = "Workspace";
 
-  try {
-    await refreshLiveSnapshot();
-    elements.modeBadge.textContent = "Workspace";
-    elements.statusNote.textContent = "Private upload space.";
-  } catch (error) {
-    console.error("Live API mode failed, falling back to demo data.", error);
-    elements.modeBadge.textContent = "Preview Mode";
-    elements.statusNote.textContent =
-      error.message || "Live sync failed, so the page is staying on its built-in sample state.";
-  }
+  // Keep the page interactive immediately after sign-in and sync live data asynchronously.
+  void refreshLiveSnapshot()
+    .then(() => {
+      elements.modeBadge.textContent = "Workspace";
+      elements.statusNote.textContent = "Private upload space.";
+    })
+    .catch((error) => {
+      console.error("Live API mode failed, falling back to demo data.", error);
+      elements.modeBadge.textContent = "Preview Mode";
+      elements.statusNote.textContent =
+        error.message || "Live sync failed, so the page is staying on its built-in sample state.";
+    });
 }
 
 function mapReceipt(receipt) {
@@ -1828,6 +1875,70 @@ function matchesDashboardPeriod(receipt, period, referenceDate) {
   return true;
 }
 
+function getNormalizedSearchTokens(searchQuery = dashboardSearchQuery) {
+  const normalizedQuery = normalizeVisualText(searchQuery || "");
+  return normalizedQuery ? normalizedQuery.split(" ").filter(Boolean) : [];
+}
+
+function matchesSearchTokens(tokens = [], source = "") {
+  if (!tokens.length) {
+    return true;
+  }
+  const normalizedSource = normalizeVisualText(source || "");
+  if (!normalizedSource) {
+    return false;
+  }
+  return tokens.every((token) => normalizedSource.includes(token));
+}
+
+function buildReceiptSearchSource(receipt) {
+  const displayLabel = getReceiptDisplayLabel(receipt);
+  return [
+    displayLabel,
+    receipt?.receiptLabel,
+    receipt?.vendor,
+    receipt?.category,
+    receipt?.fileName,
+    receipt?.uploadedBy,
+    receipt?.expenseMonth,
+    receipt?.date,
+    formatLabel(receipt?.reviewStatus || ""),
+    receipt?.receiptId,
+    Number(receipt?.totalAmount || 0).toFixed(2),
+    `${Number(receipt?.confidenceScore || 0).toFixed(1)}%`,
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
+function matchesReceiptSearchQuery(receipt, searchQuery = dashboardSearchQuery) {
+  const tokens = getNormalizedSearchTokens(searchQuery);
+  if (!tokens.length) {
+    return true;
+  }
+  return matchesSearchTokens(tokens, buildReceiptSearchSource(receipt));
+}
+
+function filterReceiptsBySearchQuery(receipts = [], searchQuery = dashboardSearchQuery) {
+  const tokens = getNormalizedSearchTokens(searchQuery);
+  if (!tokens.length) {
+    return receipts;
+  }
+  return receipts.filter((receipt) => matchesSearchTokens(tokens, buildReceiptSearchSource(receipt)));
+}
+
+function buildHistoryEntrySearchSource(entry, resolvedReceipt) {
+  return [
+    buildReceiptSearchSource(resolvedReceipt),
+    entry?.fileName,
+    entry?.previewType,
+    entry?.id,
+    formatRelativeTime(entry?.processedAt),
+  ]
+    .filter(Boolean)
+    .join(" ");
+}
+
 function buildSummaryFromReceipts(receipts) {
   const totalSpend = receipts.reduce((sum, receipt) => sum + Number(receipt.totalAmount || 0), 0);
   const receiptCount = receipts.length;
@@ -1999,17 +2110,19 @@ function buildRiskHeadlineForPeriod(summary) {
 function buildDashboardView() {
   const receipts = dashboardData?.receipts || [];
   const referenceDate = getReferenceDate();
-  const filteredReceipts = receipts.filter((receipt) =>
+  const periodScopedReceipts = receipts.filter((receipt) =>
     matchesDashboardPeriod(receipt, selectedDashboardPeriod, referenceDate)
   );
-  const summary = buildSummaryFromReceipts(filteredReceipts);
+  const searchedReceipts = filterReceiptsBySearchQuery(periodScopedReceipts, dashboardSearchQuery);
+  const summary = buildSummaryFromReceipts(searchedReceipts);
 
   return {
-    receipts: filteredReceipts,
+    receipts: searchedReceipts,
+    periodReceiptCount: periodScopedReceipts.length,
     summary,
-    topVendors: buildTopVendorsFromReceipts(filteredReceipts),
-    reviewQueue: buildReviewQueueFromReceipts(filteredReceipts),
-    monthlyTrend: buildMonthlyTrendFromReceipts(filteredReceipts),
+    topVendors: buildTopVendorsFromReceipts(searchedReceipts),
+    reviewQueue: buildReviewQueueFromReceipts(searchedReceipts),
+    monthlyTrend: buildMonthlyTrendFromReceipts(searchedReceipts),
     heroHeadline: buildRiskHeadlineForPeriod(summary),
   };
 }
@@ -2019,7 +2132,11 @@ function renderDashboard() {
   if (elements.dashboardPeriodSelect) {
     elements.dashboardPeriodSelect.value = selectedDashboardPeriod;
   }
+  if (elements.dashboardSearchInput && elements.dashboardSearchInput.value !== dashboardSearchQuery) {
+    elements.dashboardSearchInput.value = dashboardSearchQuery;
+  }
   renderRangeSummary();
+  renderNeoBoard();
   renderOpsStrip();
   renderUploadTimeline();
   renderSpotlight();
@@ -2050,26 +2167,37 @@ function renderRangeSummary() {
   const allSummary = buildSummaryFromReceipts(allReceipts);
   const visibleCount = Number(scopedSummary.receiptCount || 0);
   const totalCount = Number(allSummary.receiptCount || 0);
+  const periodScopedCount = Number(scopedView.periodReceiptCount || visibleCount);
   const hiddenCount = Math.max(totalCount - visibleCount, 0);
   const spendShare = allSummary.totalSpend
     ? Math.round((Number(scopedSummary.totalSpend || 0) / Number(allSummary.totalSpend || 1)) * 100)
     : 0;
   const periodTitle = formatDashboardPeriodTitle(selectedDashboardPeriod);
+  const searchTokens = getNormalizedSearchTokens();
+  const searchActive = searchTokens.length > 0;
+  const searchLabel = String(dashboardSearchQuery || "").trim();
   const windowInfo = getDashboardPeriodWindow(
     selectedDashboardPeriod,
     getReferenceDate(),
     allReceipts
   );
-  const hiddenText = hiddenCount
-    ? `${hiddenCount} receipt${hiddenCount === 1 ? "" : "s"} sit outside this scope.`
-    : totalCount
-      ? "Everything in your dashboard is already inside this scope."
-      : "Upload a receipt to start building a dashboard range.";
+  const hiddenText = searchActive
+    ? visibleCount
+      ? `${visibleCount} receipt${visibleCount === 1 ? "" : "s"} match "${searchLabel}" in this scope.`
+      : `No receipts match "${searchLabel}" in this scope.`
+    : hiddenCount
+      ? `${hiddenCount} receipt${hiddenCount === 1 ? "" : "s"} sit outside this scope.`
+      : totalCount
+        ? "Everything in your dashboard is already inside this scope."
+        : "Upload a receipt to start building a dashboard range.";
+  const scopeCountLabel = searchActive
+    ? `${visibleCount} / ${periodScopedCount || 0} matches`
+    : `${visibleCount} / ${totalCount || 0} receipts`;
 
   elements.rangeSummary.innerHTML = `
     <article class="range-summary-card range-summary-card--primary">
       <span class="range-summary-kicker">${escapeHtml(periodTitle)}</span>
-      <strong>${visibleCount} / ${totalCount || 0} receipts</strong>
+      <strong>${scopeCountLabel}</strong>
       <p>${escapeHtml(hiddenText)}</p>
     </article>
     <article class="range-summary-card">
@@ -2476,9 +2604,43 @@ function renderUploadHistory() {
 
   const signedIn = isSignedIn();
   const liveReceipts = dashboardData?.receipts || [];
+  const searchTokens = getNormalizedSearchTokens();
+  const searchActive = searchTokens.length > 0;
+  const searchLabel = String(dashboardSearchQuery || "").trim();
+  const resolveHistoryReceipt = (entry) => {
+    const receiptDeleteId = entry.receiptId || entry.id || "";
+    const liveReceipt = liveReceipts.find((receipt) => receipt.receiptId === receiptDeleteId);
+    return {
+      receiptDeleteId,
+      liveReceipt,
+      resolvedReceipt: liveReceipt || {
+        receiptId: receiptDeleteId,
+        category: entry.category || "Uncategorized",
+        receiptLabel: entry.receiptLabel || "",
+        vendor: entry.vendor || "Unknown Vendor",
+        totalAmount: entry.totalAmount || "0.00",
+        currencySymbol: entry.currencySymbol || "$",
+        reviewStatus: entry.reviewStatus || "UNKNOWN",
+        isDuplicate: Boolean(entry.isDuplicate),
+        duplicateOf: entry.duplicateOf || "",
+        fileName: entry.fileName || "",
+      },
+    };
+  };
+  const historyEntries = searchActive
+    ? uploadHistory.filter((entry) => {
+      const { resolvedReceipt } = resolveHistoryReceipt(entry);
+      return matchesSearchTokens(
+        searchTokens,
+        buildHistoryEntrySearchSource(entry, resolvedReceipt)
+      );
+    })
+    : uploadHistory;
 
   if (elements.historyToggle) {
-    elements.historyToggle.textContent = `Past Uploads (${uploadHistory.length})`;
+    elements.historyToggle.textContent = searchActive
+      ? `Past Uploads (${historyEntries.length}/${uploadHistory.length})`
+      : `Past Uploads (${uploadHistory.length})`;
   }
   if (elements.historyDelete) {
     elements.historyDelete.disabled = !signedIn || !dashboardData?.receipts?.length;
@@ -2506,21 +2668,18 @@ function renderUploadHistory() {
     return;
   }
 
-  elements.historyList.innerHTML = uploadHistory
+  if (searchActive && !historyEntries.length) {
+    elements.historyList.innerHTML = `
+      <article class="history-empty">
+        No past uploads match "${escapeHtml(searchLabel)}". Clear the search box to see all upload history.
+      </article>
+    `;
+    return;
+  }
+
+  elements.historyList.innerHTML = historyEntries
     .map((entry) => {
-      const receiptDeleteId = entry.receiptId || entry.id || "";
-      const liveReceipt = liveReceipts.find((receipt) => receipt.receiptId === receiptDeleteId);
-      const resolvedReceipt = liveReceipt || {
-        receiptId: receiptDeleteId,
-        category: entry.category || "Uncategorized",
-        receiptLabel: entry.receiptLabel || "",
-        vendor: entry.vendor || "Unknown Vendor",
-        totalAmount: entry.totalAmount || "0.00",
-        currencySymbol: entry.currencySymbol || "$",
-        reviewStatus: entry.reviewStatus || "UNKNOWN",
-        isDuplicate: Boolean(entry.isDuplicate),
-        duplicateOf: entry.duplicateOf || "",
-      };
+      const { receiptDeleteId, resolvedReceipt } = resolveHistoryReceipt(entry);
       const theme = getReceiptTheme(resolvedReceipt);
       const displayLabel = getReceiptDisplayLabel(resolvedReceipt);
       const duplicateSummary =
@@ -2794,7 +2953,7 @@ function buildSmoothLinePath(points) {
   return path;
 }
 
-function buildTrendLineChartMarkup(monthlyTrend) {
+function buildTrendLineChartMarkup(monthlyTrend, idPrefix = "trendMain") {
   const width = 720;
   const height = 292;
   const paddingX = 24;
@@ -2822,6 +2981,8 @@ function buildTrendLineChartMarkup(monthlyTrend) {
   const areaPath = `${linePath} L ${points[points.length - 1].x} ${bottomY} L ${points[0].x} ${bottomY} Z`;
   const total = monthlyTrend.reduce((sum, item) => sum + Number(item.amount || 0), 0);
   const totalCount = monthlyTrend.reduce((sum, item) => sum + Number(item.count || 0), 0);
+  const areaGradientId = `${idPrefix}AreaGradient`;
+  const glowId = `${idPrefix}Glow`;
   const highlightedPoint =
     points.find((point) => point.month === activeMonth)
     || points[points.length - 1]
@@ -2843,11 +3004,11 @@ function buildTrendLineChartMarkup(monthlyTrend) {
       </div>
       <svg class="line-chart-svg" viewBox="0 0 ${width} ${height}" role="img" aria-label="Monthly spend line chart">
         <defs>
-          <linearGradient id="trendAreaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+          <linearGradient id="${areaGradientId}" x1="0%" y1="0%" x2="0%" y2="100%">
             <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.34" />
             <stop offset="100%" stop-color="#00f0ff" stop-opacity="0.02" />
           </linearGradient>
-          <filter id="trendGlow" x="-30%" y="-60%" width="160%" height="220%">
+          <filter id="${glowId}" x="-30%" y="-60%" width="160%" height="220%">
             <feGaussianBlur stdDeviation="8" result="blur"></feGaussianBlur>
             <feMerge>
               <feMergeNode in="blur"></feMergeNode>
@@ -2859,8 +3020,8 @@ function buildTrendLineChartMarkup(monthlyTrend) {
           const y = topY + ((bottomY - topY) / 3) * index;
           return `<line class="line-chart-grid-line" x1="${paddingX}" y1="${y}" x2="${width - paddingX}" y2="${y}"></line>`;
         }).join("")}
-        <path class="line-chart-area" d="${areaPath}"></path>
-        <path class="line-chart-path-glow" d="${linePath}" filter="url(#trendGlow)"></path>
+        <path class="line-chart-area" d="${areaPath}" fill="url(#${areaGradientId})"></path>
+        <path class="line-chart-path-glow" d="${linePath}" filter="url(#${glowId})"></path>
         <path class="line-chart-path" d="${linePath}"></path>
         ${points
           .map(
@@ -2888,6 +3049,317 @@ function buildTrendLineChartMarkup(monthlyTrend) {
       </div>
     </div>
   `;
+}
+
+function buildTrendBarListMarkup(monthlyTrend) {
+  if (!monthlyTrend.length) {
+    return '<p class="muted">Monthly throughput appears once receipts exist in this time range.</p>';
+  }
+
+  const maxAmount = Math.max(...monthlyTrend.map((item) => Number(item.amount || 0)), 1);
+  const activeMonth = selectedExpenseMonth === "__all"
+    ? monthlyTrend[monthlyTrend.length - 1]?.month
+    : selectedExpenseMonth;
+
+  return monthlyTrend
+    .map((item) => {
+      const amount = Number(item.amount || 0);
+      const count = Number(item.count || 0);
+      const width = Math.max(10, Math.round((amount / maxAmount) * 100));
+      const countLabel = count === 1 ? "receipt" : "receipts";
+      const isActive = item.month === activeMonth;
+
+      return `
+        <article class="trend-bar ${isActive ? "trend-bar-active" : ""}">
+          <div class="trend-meta">
+            <strong>${formatMonthLabel(item.month)}</strong>
+            <span>$${amount.toFixed(2)} · ${count} ${countLabel}</span>
+          </div>
+          <div class="trend-track">
+            <span class="trend-fill" style="width:${width}%;"></span>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function buildNeoMiniBarsMarkup(monthlyTrend) {
+  if (!monthlyTrend.length) {
+    return '<p class="muted neo-empty-note">Monthly bars unlock when receipts land in this range.</p>';
+  }
+
+  const recentMonths = monthlyTrend.slice(-6);
+  const maxAmount = Math.max(...recentMonths.map((item) => Number(item.amount || 0)), 1);
+  return recentMonths
+    .map((item, index) => {
+      const barHeight = Math.max(18, Math.round((Number(item.amount || 0) / maxAmount) * 100));
+      const isActive = index === recentMonths.length - 1;
+      return `
+        <article class="neo-mini-bar${isActive ? " is-active" : ""}">
+          <span class="neo-mini-bar-fill" style="--bar-height:${barHeight}%"></span>
+          <small>${formatMonthLabel(item.month)}</small>
+        </article>
+      `;
+    })
+    .join("");
+}
+
+function renderNeoBoard() {
+  if (!elements.neoDashboardBoard) {
+    return;
+  }
+
+  const receipts = activeDashboardView?.receipts || [];
+  const summary = activeDashboardView?.summary || buildSummaryFromReceipts([]);
+  const monthlyTrend = activeDashboardView?.monthlyTrend || [];
+  const grouped = groupReceiptsByVisualLabel(receipts);
+  const latestReceipts = [...receipts]
+    .sort((left, right) => getReceiptDate(right) - getReceiptDate(left))
+    .slice(0, 4);
+  const totalValue = Number(summary.totalSpend || 0);
+  const cleanRate = summary.receiptCount
+    ? Math.round((Number(summary.autoApprovedCount || 0) / Number(summary.receiptCount || 1)) * 100)
+    : 0;
+  const topLabel = grouped[0] || null;
+  const changePercent =
+    monthlyTrend.length > 1 && Number(monthlyTrend[monthlyTrend.length - 2]?.amount || 0) > 0
+      ? Math.round(
+          ((Number(monthlyTrend[monthlyTrend.length - 1]?.amount || 0) - Number(monthlyTrend[monthlyTrend.length - 2]?.amount || 0))
+            / Number(monthlyTrend[monthlyTrend.length - 2]?.amount || 1))
+            * 100
+        )
+      : 0;
+
+  if (elements.neoAssistantCopy) {
+    elements.neoAssistantCopy.textContent = summary.receiptCount
+      ? `${summary.receiptCount} receipts in scope, $${totalValue.toFixed(2)} captured, and ${summary.needsReviewCount} still waiting for review.`
+      : "Upload the first receipt to light up the board, the motion figure, and the live metrics.";
+  }
+
+  if (elements.neoTotalValue) {
+    elements.neoTotalValue.textContent = `$${totalValue.toFixed(2)}`;
+  }
+
+  if (elements.neoTotalMeta) {
+    elements.neoTotalMeta.textContent = summary.receiptCount
+      ? `${summary.receiptCount} receipts · ${changePercent >= 0 ? "+" : ""}${changePercent}%`
+      : "No receipt volume yet";
+  }
+
+  if (elements.neoMiniBars) {
+    elements.neoMiniBars.innerHTML = buildNeoMiniBarsMarkup(monthlyTrend);
+  }
+
+  if (elements.neoShareValue) {
+    elements.neoShareValue.textContent = topLabel ? `${Math.round(topLabel.share)}%` : "0%";
+  }
+
+  if (elements.neoShareLabel) {
+    elements.neoShareLabel.textContent = topLabel ? topLabel.label : "Awaiting data";
+  }
+
+  if (elements.neoShareRing) {
+    const shareAngle = topLabel ? Math.max(10, Math.round(topLabel.share * 3.6)) : 0;
+    elements.neoShareRing.style.background = topLabel
+      ? `conic-gradient(${topLabel.theme.color} 0deg ${shareAngle}deg, rgba(80, 92, 140, 0.22) ${shareAngle}deg 360deg)`
+      : "conic-gradient(rgba(80, 92, 140, 0.22) 0deg 360deg)";
+    if (topLabel) {
+      elements.neoShareRing.style.setProperty("--neo-share-color", topLabel.theme.color);
+    }
+  }
+
+  if (elements.neoGaugeValue) {
+    elements.neoGaugeValue.textContent = `${cleanRate}%`;
+  }
+
+  if (elements.neoGaugeNote) {
+    elements.neoGaugeNote.textContent = summary.receiptCount
+      ? `${summary.autoApprovedCount} of ${summary.receiptCount} receipts posted without review.`
+      : "Quality rate appears after the first processed receipt.";
+  }
+
+  if (elements.neoGaugeArc) {
+    const gaugeAngle = Math.max(0, Math.min(180, Math.round((cleanRate / 100) * 180)));
+    elements.neoGaugeArc.style.background = `conic-gradient(from 180deg, #8b5cf6 0deg, #5d6fff ${Math.max(gaugeAngle - 24, 0)}deg, #6fe5ff ${gaugeAngle}deg, rgba(68, 77, 114, 0.2) ${gaugeAngle}deg 360deg)`;
+  }
+
+  if (elements.neoTrendBoard) {
+    elements.neoTrendBoard.innerHTML = monthlyTrend.length
+      ? buildTrendLineChartMarkup(monthlyTrend.slice(-6), "trendNeo")
+      : '<p class="muted neo-empty-note">Revenue trend appears after receipts are processed.</p>';
+  }
+
+  if (elements.neoTransactionList) {
+    elements.neoTransactionList.innerHTML = latestReceipts.length
+      ? latestReceipts
+          .map((receipt) => {
+            const theme = getReceiptTheme(receipt);
+            return `
+              <article class="neo-transaction-row" style="${getRowThemeVars(theme)}">
+                <div class="neo-transaction-copy">
+                  <strong><span class="receipt-icon-badge">${theme.icon}</span>${escapeHtml(receipt.vendor || "Unknown Vendor")}</strong>
+                  <span>${escapeHtml(getReceiptDisplayLabel(receipt))}</span>
+                </div>
+                <div class="neo-transaction-meta">
+                  <span>${escapeHtml(formatMonthLabel(receipt.expenseMonth || selectedExpenseMonth || ""))}</span>
+                  <strong>$${Number(receipt.totalAmount || 0).toFixed(2)}</strong>
+                </div>
+              </article>
+            `;
+          })
+          .join("")
+      : '<p class="muted neo-empty-note">Recent receipt activity will appear here.</p>';
+  }
+
+  if (elements.neoSpendList) {
+    const maxAmount = Math.max(...grouped.map((item) => Number(item.amount || 0)), 1);
+    elements.neoSpendList.innerHTML = grouped.length
+      ? grouped
+          .slice(0, 4)
+          .map((item) => `
+            <article class="neo-spend-row" style="${getRowThemeVars(item.theme)}">
+              <div class="neo-spend-copy">
+                <strong><span class="receipt-icon-badge">${item.theme.icon}</span>${escapeHtml(item.label)}</strong>
+                <span>$${Number(item.amount).toFixed(2)}</span>
+              </div>
+              <div class="neo-spend-track">
+                <span class="neo-spend-fill" style="width:${Math.max(12, (Number(item.amount) / maxAmount) * 100)}%; background:${item.theme.color}"></span>
+              </div>
+            </article>
+          `)
+          .join("")
+      : '<p class="muted neo-empty-note">Top labels appear after receipts are available.</p>';
+  }
+
+  startNeoFigureAnimation();
+}
+
+function startNeoFigureAnimation() {
+  const canvas = elements.neoFigureCanvas;
+  if (!canvas || canvas.dataset.bound === "true") {
+    return;
+  }
+
+  const context = canvas.getContext("2d");
+  if (!context) {
+    return;
+  }
+
+  canvas.dataset.bound = "true";
+
+  const resizeCanvas = () => {
+    const rect = canvas.getBoundingClientRect();
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.width = Math.max(280, Math.floor(rect.width * dpr));
+    canvas.height = Math.max(220, Math.floor(rect.height * dpr));
+    canvas.style.setProperty("--canvas-width", `${Math.round(rect.width)}px`);
+    canvas.style.setProperty("--canvas-height", `${Math.round(rect.height)}px`);
+  };
+
+  const drawMesh = (time) => {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    const width = canvas.width / dpr;
+    const height = canvas.height / dpr;
+    context.setTransform(1, 0, 0, 1, 0, 0);
+    context.clearRect(0, 0, canvas.width, canvas.height);
+    context.scale(dpr, dpr);
+
+    const centerX = width / 2;
+    const centerY = height / 2 - 6;
+    const radius = Math.min(width, height) * 0.24;
+    const rotationY = time * 0.00055;
+    const rotationX = Math.sin(time * 0.00033) * 0.42;
+    const latitudeCount = 18;
+    const longitudeCount = 22;
+    const mesh = [];
+
+    for (let lat = 0; lat <= latitudeCount; lat += 1) {
+      const theta = (lat / latitudeCount) * Math.PI;
+      const row = [];
+      for (let lon = 0; lon <= longitudeCount; lon += 1) {
+        const phi = (lon / longitudeCount) * Math.PI * 2;
+        const wave =
+          1
+          + 0.16 * Math.sin(theta * 3.2 + time * 0.0017)
+          + 0.12 * Math.cos(phi * 2.4 - time * 0.0012)
+          + 0.06 * Math.sin((theta + phi) * 2.1 + time * 0.0011);
+
+        let x = Math.sin(theta) * Math.cos(phi) * wave;
+        let y = Math.cos(theta) * wave * 0.9;
+        let z = Math.sin(theta) * Math.sin(phi) * wave;
+
+        const rotatedX = x * Math.cos(rotationY) - z * Math.sin(rotationY);
+        const rotatedZ = x * Math.sin(rotationY) + z * Math.cos(rotationY);
+        const rotatedY = y * Math.cos(rotationX) - rotatedZ * Math.sin(rotationX);
+        z = y * Math.sin(rotationX) + rotatedZ * Math.cos(rotationX);
+        x = rotatedX;
+        y = rotatedY;
+
+        const perspective = 1 / (1 + z * 0.46);
+        row.push({
+          x: centerX + x * radius * perspective,
+          y: centerY + y * radius * perspective,
+          z,
+        });
+      }
+      mesh.push(row);
+    }
+
+    const glow = context.createRadialGradient(centerX, centerY, radius * 0.18, centerX, centerY, radius * 1.32);
+    glow.addColorStop(0, "rgba(119, 222, 255, 0.22)");
+    glow.addColorStop(0.45, "rgba(111, 105, 255, 0.16)");
+    glow.addColorStop(1, "rgba(9, 12, 28, 0)");
+    context.fillStyle = glow;
+    context.beginPath();
+    context.arc(centerX, centerY, radius * 1.34, 0, Math.PI * 2);
+    context.fill();
+
+    for (let pass = 0; pass < 2; pass += 1) {
+      for (let lat = 0; lat < mesh.length; lat += 1) {
+        const row = mesh[lat];
+        for (let lon = 0; lon < row.length - 1; lon += 1) {
+          const point = row[lon];
+          const next = row[lon + 1];
+          const depth = (point.z + next.z + 2) / 4;
+          const alpha = pass === 0 ? 0.08 + depth * 0.16 : 0.18 + depth * 0.28;
+          context.strokeStyle =
+            lon % 2 === 0
+              ? `rgba(118, 222, 255, ${alpha.toFixed(3)})`
+              : `rgba(176, 122, 255, ${(alpha * 0.92).toFixed(3)})`;
+          context.lineWidth = pass === 0 ? 3.4 : 1.25;
+          context.beginPath();
+          context.moveTo(point.x, point.y);
+          context.lineTo(next.x, next.y);
+          context.stroke();
+        }
+      }
+
+      for (let lat = 0; lat < mesh.length - 1; lat += 1) {
+        for (let lon = 0; lon < mesh[lat].length; lon += 1) {
+          const point = mesh[lat][lon];
+          const next = mesh[lat + 1][lon];
+          const depth = (point.z + next.z + 2) / 4;
+          const alpha = pass === 0 ? 0.06 + depth * 0.14 : 0.14 + depth * 0.24;
+          context.strokeStyle =
+            lat % 2 === 0
+              ? `rgba(112, 192, 255, ${alpha.toFixed(3)})`
+              : `rgba(195, 118, 255, ${(alpha * 0.9).toFixed(3)})`;
+          context.lineWidth = pass === 0 ? 3 : 1;
+          context.beginPath();
+          context.moveTo(point.x, point.y);
+          context.lineTo(next.x, next.y);
+          context.stroke();
+        }
+      }
+    }
+
+    neoFigureAnimationHandle = window.requestAnimationFrame(drawMesh);
+  };
+
+  resizeCanvas();
+  window.addEventListener("resize", resizeCanvas);
+  neoFigureAnimationHandle = window.requestAnimationFrame(drawMesh);
 }
 
 function renderTrend() {
@@ -2943,7 +3415,7 @@ function renderTrend() {
     )
     .join("");
 
-  elements.trendBars.innerHTML = buildTrendLineChartMarkup(monthlyTrend);
+  elements.trendBars.innerHTML = buildTrendBarListMarkup(monthlyTrend.slice(-6));
 
   renderExpenseDonut();
 }
@@ -2967,13 +3439,19 @@ function renderFilters() {
 }
 
 function renderReceipts() {
+  const searchActive = getNormalizedSearchTokens().length > 0;
+  const searchLabel = String(dashboardSearchQuery || "").trim();
   const rows = (activeDashboardView?.receipts || []).filter((receipt) =>
     activeFilter === "ALL" ? true : receipt.reviewStatus === activeFilter
   );
 
   if (!rows.length) {
     elements.receiptsBody.innerHTML =
-      '<tr><td colspan="8" class="muted receipt-empty">No receipts match this filter.</td></tr>';
+      `<tr><td colspan="8" class="muted receipt-empty">${
+        searchActive
+          ? `No receipts match "${escapeHtml(searchLabel)}" for this status filter.`
+          : "No receipts match this filter."
+      }</td></tr>`;
     return;
   }
 
@@ -3382,6 +3860,28 @@ function bindUploadControls() {
     elements.fileInput?.click();
   });
 
+  elements.neoFigureAction?.addEventListener("click", () => {
+    if (isAuthConfigured() && !isSignedIn()) {
+      goToSignInPage();
+      return;
+    }
+    document.querySelector("#uploadLab")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    elements.fileInput?.click();
+  });
+
+  elements.manageWidgetsButton?.addEventListener("click", () => {
+    document.querySelector("#analyticsSection")?.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  elements.addWidgetButton?.addEventListener("click", () => {
+    if (isAuthConfigured() && !isSignedIn()) {
+      goToSignInPage();
+      return;
+    }
+    document.querySelector("#uploadLab")?.scrollIntoView({ behavior: "smooth", block: "start" });
+    elements.fileInput?.click();
+  });
+
   elements.fileInput.addEventListener("change", () => {
     const file = elements.fileInput.files[0] || null;
     syncSelectedReceiptFile(file);
@@ -3777,20 +4277,55 @@ async function refreshLiveSnapshot() {
 }
 
 function setUploadState(phase, stage, message) {
+  const normalizedMessage = normalizeUploadStateMessage(phase, stage, message);
   uploadState = {
     ...uploadState,
     phase,
     stage,
-    message,
+    message: normalizedMessage,
   };
   renderOpsStrip();
   renderUploadTimeline();
   renderSpotlight();
   syncUploadMotion();
 
-  if (shouldAutoRevealUploadWarning(phase, stage, message)) {
+  if (shouldAutoRevealUploadWarning(phase, stage, normalizedMessage)) {
     revealUploadWarning();
   }
+}
+
+function normalizeUploadStateMessage(phase, stage, message) {
+  const raw = String(message || "").replace(/\s+/g, " ").trim();
+  if (!raw) {
+    return raw;
+  }
+
+  const normalized = raw.toLowerCase();
+  if (
+    phase === "error"
+    && (
+      normalized === "failed to fetch"
+      || normalized.includes("network request failed")
+      || normalized.includes("networkerror")
+      || normalized.includes("load failed")
+      || normalized.includes("connection reset")
+      || normalized.includes("request timed out")
+    )
+  ) {
+    return "Connection hiccup while uploading. Check your internet and retry once.";
+  }
+
+  if (
+    phase === "error"
+    && stage === "quality"
+    && !normalized.startsWith("rejected")
+    && normalized.includes("receipt")
+    && normalized.includes("could not")
+  ) {
+    return "Rejected. This file does not look like a store receipt or bill. Upload a clearer receipt image or PDF.";
+  }
+
+  return raw;
 }
 
 function shouldAutoRevealUploadWarning(phase, stage, message) {
@@ -3806,6 +4341,7 @@ function shouldAutoRevealUploadWarning(phase, stage, message) {
   return (
     stage === "quality"
     || normalizedMessage.startsWith("rejected")
+    || normalizedMessage.includes("connection hiccup")
     || normalizedMessage.includes("only receipt or bill")
     || normalizedMessage.includes("could not be accepted as a receipt")
     || normalizedMessage.includes("could not be processed into a valid receipt")
@@ -4104,14 +4640,20 @@ function bindHistoryControls() {
     return;
   }
 
-  elements.historyToggle.dataset.bound = "true";
-  elements.historyToggle.addEventListener("click", () => {
+  const toggleHistoryDrawer = () => {
     const isOpen = Boolean(elements.historyDrawer?.classList.contains("is-open"));
     if (!isOpen) {
       openHistoryDrawer();
       return;
     }
     closeHistoryDrawer();
+  };
+
+  elements.historyToggle.dataset.bound = "true";
+  elements.historyToggle.addEventListener("click", (event) => {
+    event.preventDefault();
+    event.stopPropagation();
+    toggleHistoryDrawer();
   });
 
   elements.historyClose?.addEventListener("click", closeHistoryDrawer);
@@ -4188,22 +4730,42 @@ function bindHistoryControls() {
   });
 }
 
-function closeHistoryDrawer() {
+function closeHistoryDrawer(options = {}) {
+  const immediate = Boolean(options.immediate);
   window.clearTimeout(historyDrawerHideTimer);
   document.body.classList.remove("history-open");
   if (elements.historyDrawer) {
     elements.historyDrawer.classList.remove("is-open");
     elements.historyDrawer.setAttribute("aria-hidden", "true");
+    elements.historyDrawer.style.opacity = "";
+    elements.historyDrawer.style.pointerEvents = "";
   }
   if (elements.historyScrim) {
     elements.historyScrim.classList.remove("is-open");
   }
-  historyDrawerHideTimer = window.setTimeout(() => {
+  if (immediate) {
     if (elements.historyDrawer) {
       elements.historyDrawer.hidden = true;
+      elements.historyDrawer.setAttribute("hidden", "");
+      elements.historyDrawer.style.display = "none";
     }
     if (elements.historyScrim) {
       elements.historyScrim.hidden = true;
+      elements.historyScrim.setAttribute("hidden", "");
+      elements.historyScrim.style.display = "none";
+    }
+    return;
+  }
+  historyDrawerHideTimer = window.setTimeout(() => {
+    if (elements.historyDrawer) {
+      elements.historyDrawer.hidden = true;
+      elements.historyDrawer.setAttribute("hidden", "");
+      elements.historyDrawer.style.display = "none";
+    }
+    if (elements.historyScrim) {
+      elements.historyScrim.hidden = true;
+      elements.historyScrim.setAttribute("hidden", "");
+      elements.historyScrim.style.display = "none";
     }
   }, 220);
 }
@@ -4231,6 +4793,8 @@ function closeConfirmDialog(confirmed = false) {
   window.setTimeout(() => {
     confirmModal.hidden = true;
     confirmScrim.hidden = true;
+    confirmModal.setAttribute("hidden", "");
+    confirmScrim.setAttribute("hidden", "");
   }, 180);
 
   if (previousFocus?.focus) {
@@ -4309,6 +4873,8 @@ function closeRenameDialog(result = null) {
   window.setTimeout(() => {
     renameModal.hidden = true;
     renameScrim.hidden = true;
+    renameModal.setAttribute("hidden", "");
+    renameScrim.setAttribute("hidden", "");
   }, 180);
 
   if (elements.renameInput) {
@@ -4335,6 +4901,8 @@ function openRenameDialog(receipt) {
     return Promise.resolve(window.prompt("Rename this receipt label. Leave it blank to rebuild the automatic label.", currentLabel));
   }
 
+  closeHistoryDrawer({ immediate: true });
+
   if (renameState.resolve) {
     closeRenameDialog(null);
   }
@@ -4348,6 +4916,8 @@ function openRenameDialog(receipt) {
   renameInput.placeholder = suggestedLabel;
   renameModal.hidden = false;
   renameScrim.hidden = false;
+  renameModal.removeAttribute("hidden");
+  renameScrim.removeAttribute("hidden");
   renameModal.setAttribute("aria-hidden", "false");
   document.body.classList.add("rename-modal-open");
   updateRenameNote();
@@ -4591,14 +5161,25 @@ function openHistoryDrawer() {
     return;
   }
 
-  reloadUploadHistory();
+  try {
+    reloadUploadHistory();
+  } catch (error) {
+    console.error("History reload failed, opening empty drawer fallback.", error);
+    uploadHistory = [];
+    renderUploadHistory();
+  }
+
   window.clearTimeout(historyDrawerHideTimer);
   document.body.classList.add("history-open");
   elements.historyDrawer.hidden = false;
   elements.historyDrawer.removeAttribute("hidden");
   elements.historyDrawer.setAttribute("aria-hidden", "false");
+  elements.historyDrawer.style.display = "block";
+  elements.historyDrawer.style.opacity = "1";
+  elements.historyDrawer.style.pointerEvents = "auto";
   elements.historyScrim.hidden = false;
   elements.historyScrim.removeAttribute("hidden");
+  elements.historyScrim.style.display = "block";
 
   const revealDrawer = () => {
     elements.historyDrawer.classList.add("is-open");
@@ -4640,6 +5221,8 @@ function closeDuplicateDecisionDialog(result = null) {
   duplicateDecisionHideTimer = window.setTimeout(() => {
     duplicateDecisionModal.hidden = true;
     duplicateDecisionScrim.hidden = true;
+    duplicateDecisionModal.setAttribute("hidden", "");
+    duplicateDecisionScrim.setAttribute("hidden", "");
     duplicateDecisionHideTimer = 0;
   }, 220);
 
@@ -4690,6 +5273,8 @@ function openDuplicateDecisionDialog(receipt) {
     return Promise.resolve({ action: "keep", receiptLabel: label.trim() });
   }
 
+  closeHistoryDrawer({ immediate: true });
+
   if (duplicateDecisionState.resolve) {
     resolveDuplicateDecision({ action: "reject" });
     closeDuplicateDecisionDialog();
@@ -4715,6 +5300,8 @@ function openDuplicateDecisionDialog(receipt) {
   window.clearTimeout(duplicateDecisionHideTimer);
   duplicateDecisionModal.hidden = false;
   duplicateDecisionScrim.hidden = false;
+  duplicateDecisionModal.removeAttribute("hidden");
+  duplicateDecisionScrim.removeAttribute("hidden");
   duplicateDecisionModal.setAttribute("aria-hidden", "false");
   lockDuplicateDecisionViewport();
   updateDuplicateDecisionNote();
@@ -4750,6 +5337,8 @@ function openConfirmDialog({
     return Promise.resolve(window.confirm(message || title || "Please confirm this action."));
   }
 
+  closeHistoryDrawer({ immediate: true });
+
   if (confirmState.resolve) {
     closeConfirmDialog(false);
   }
@@ -4761,6 +5350,8 @@ function openConfirmDialog({
   confirmCancel.textContent = cancelLabel;
   confirmModal.hidden = false;
   confirmScrim.hidden = false;
+  confirmModal.removeAttribute("hidden");
+  confirmScrim.removeAttribute("hidden");
   confirmModal.setAttribute("aria-hidden", "false");
 
   window.requestAnimationFrame(() => {
@@ -5024,6 +5615,16 @@ function bindArchiveControls() {
     });
   }
 
+  if (elements.dashboardSearchInput && elements.dashboardSearchInput.dataset.bound !== "true") {
+    const handleSearchInput = (event) => {
+      dashboardSearchQuery = String(event.target?.value || "");
+      renderDashboard();
+    };
+    elements.dashboardSearchInput.dataset.bound = "true";
+    elements.dashboardSearchInput.addEventListener("input", handleSearchInput);
+    elements.dashboardSearchInput.addEventListener("search", handleSearchInput);
+  }
+
   if (elements.archiveToggle && elements.archiveToggle.dataset.bound !== "true") {
     elements.archiveToggle.dataset.bound = "true";
     elements.archiveToggle.addEventListener("click", () => {
@@ -5246,7 +5847,7 @@ bindAuthControls();
 bindUploadControls();
 bindHistoryControls();
 resetTransientOverlayState();
-closeHistoryDrawer();
+closeHistoryDrawer({ immediate: true });
 bindArchiveControls();
 setArchiveVisibility(false);
 initTopbarScrollFX();

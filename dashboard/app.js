@@ -824,6 +824,36 @@ function resetTransientOverlayState() {
   }
 }
 
+function reconcileTransientOverlayState() {
+  const duplicateModalOpen = Boolean(
+    elements.duplicateDecisionModal
+      && elements.duplicateDecisionModal.getAttribute("aria-hidden") === "false"
+  );
+  if (!duplicateModalOpen) {
+    unlockDuplicateDecisionViewport();
+    if (elements.duplicateDecisionModal) {
+      elements.duplicateDecisionModal.classList.remove("is-open");
+    }
+    if (elements.duplicateDecisionScrim) {
+      elements.duplicateDecisionScrim.classList.remove("is-open");
+    }
+  }
+
+  const historyDrawerOpen = Boolean(
+    elements.historyDrawer
+      && elements.historyDrawer.getAttribute("aria-hidden") === "false"
+  );
+  if (!historyDrawerOpen) {
+    document.body.classList.remove("history-open");
+    if (elements.historyDrawer) {
+      elements.historyDrawer.classList.remove("is-open");
+    }
+    if (elements.historyScrim) {
+      elements.historyScrim.classList.remove("is-open");
+    }
+  }
+}
+
 function normalizeAuthConfig(raw) {
   if (authClient?.normalizeConfig) {
     return authClient.normalizeConfig(raw, {
@@ -1207,13 +1237,7 @@ function updateAuthUI() {
     elements.guardSignUp.hidden = !workspaceLocked;
   }
 
-  if (document.body.classList.contains("duplicate-decision-open") && elements.duplicateDecisionModal?.hidden) {
-    unlockDuplicateDecisionViewport();
-  }
-
-  if (document.body.classList.contains("history-open") && elements.historyDrawer?.hidden) {
-    document.body.classList.remove("history-open");
-  }
+  reconcileTransientOverlayState();
 
   if (elements.uploadAccount) {
     elements.uploadAccount.value = signedIn
@@ -2128,6 +2152,7 @@ function buildDashboardView() {
 }
 
 function renderDashboard() {
+  reconcileTransientOverlayState();
   activeDashboardView = buildDashboardView();
   if (elements.dashboardPeriodSelect) {
     elements.dashboardPeriodSelect.value = selectedDashboardPeriod;
@@ -5854,6 +5879,7 @@ initTopbarScrollFX();
 initCursorFX();
 window.addEventListener("beforeunload", clearPreviewObjectUrl);
 window.addEventListener("pageshow", resetTransientOverlayState);
+window.addEventListener("focus", reconcileTransientOverlayState);
 initializeApp().catch((error) => {
   console.error("Unable to load dashboard.", error);
 });

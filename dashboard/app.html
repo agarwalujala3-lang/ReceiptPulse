@@ -48,9 +48,9 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260413b" />
+    <link rel="stylesheet" href="./styles.css?v=20260422a" />
   </head>
-  <body class="cinema-ui dribbble-dashboard" data-brand-launch="off">
+  <body class="cinema-ui dribbble-dashboard neuro-skin" data-brand-launch="off">
     <div class="cinema-stage" aria-hidden="true">
       <span class="cinema-glow cinema-glow-ember"></span>
       <span class="cinema-glow cinema-glow-ice"></span>
@@ -61,15 +61,30 @@
       <header class="topbar dashboard-sidebar">
         <div class="brand-lockup brand-lockup-sidebar">
           <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
-            <img class="brand-logo" src="./receiptpulse-logo.svg?v=20260402c" alt="ReceiptPulse" />
+            <img
+              class="brand-logo"
+              src="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+              alt="ReceiptPulse"
+            />
           </a>
         </div>
+        <section class="dashboard-profile-card" aria-label="Workspace profile">
+          <div class="dashboard-profile-head">
+            <img class="dashboard-profile-avatar" src="./profile-avatar.svg?v=20260414a" alt="Workspace profile avatar" />
+            <div class="dashboard-profile-copy">
+              <p class="dashboard-profile-date">Monday, March 24</p>
+              <h3>Welcome back, <span id="profileName">Operator</span>!</h3>
+            </div>
+          </div>
+        </section>
         <nav class="dashboard-nav" aria-label="Dashboard sections">
-          <a class="dashboard-nav-link is-active" href="#dashboardCommandBar">Overview</a>
-          <a class="dashboard-nav-link" href="#uploadLab">Uploads</a>
-          <a class="dashboard-nav-link" href="#analyticsSection">Analytics</a>
-          <a class="dashboard-nav-link" href="#reviewQueue">Reviews</a>
-          <a class="dashboard-nav-link" href="#receiptsTable">Archive</a>
+          <a class="dashboard-nav-link is-active" href="./app.html"><span class="dashboard-nav-icon">◉</span>Dashboard</a>
+          <a class="dashboard-nav-link" href="./profile.html"><span class="dashboard-nav-icon">◍</span>Profile</a>
+          <a class="dashboard-nav-link" href="./reports.html"><span class="dashboard-nav-icon">◎</span>Reports</a>
+          <a class="dashboard-nav-link" href="./app.html#uploadLab"><span class="dashboard-nav-icon">◌</span>Intake</a>
+          <a class="dashboard-nav-link" href="./app.html#receiptsTable"><span class="dashboard-nav-icon">◈</span>Archive</a>
         </nav>
         <section class="dashboard-sidebar-card">
           <p class="eyebrow">Workspace</p>
@@ -91,7 +106,13 @@
         <section class="panel dashboard-command-bar" id="dashboardCommandBar">
           <div class="dashboard-command-copy">
             <div class="dashboard-command-brand">
-              <img class="dashboard-command-logo" src="./receiptpulse-logo.svg?v=20260402c" alt="ReceiptPulse" />
+              <img
+                class="dashboard-command-logo"
+                src="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+                alt="ReceiptPulse"
+              />
             </div>
             <p class="eyebrow">Reports Analytics</p>
             <h1>ReceiptPulse analytics</h1>
@@ -121,6 +142,8 @@
               <div class="range-summary" id="rangeSummary" aria-live="polite"></div>
             </div>
             <div class="topbar-actions dashboard-command-actions">
+              <button class="ghost-link ghost-button" id="manageWidgetsButton" type="button">Manage Widgets</button>
+              <button class="primary-button topbar-primary-button" id="addWidgetButton" type="button">+ Add Widget</button>
               <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button">Light Mode</button>
               <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>Create Account</button>
               <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
@@ -143,6 +166,94 @@
         </section>
 
         <main class="shell">
+      <section class="neo-dashboard-board" id="neoDashboardBoard">
+        <article class="panel neo-card neo-card--assistant">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">AI Assistant</p>
+              <h3>Receipt motion intelligence</h3>
+            </div>
+            <button class="ghost-link ghost-button neo-card-action" id="neoFigureAction" type="button">Try Now</button>
+          </div>
+          <div class="neo-figure-stage" aria-hidden="true">
+            <span class="neo-figure-halo neo-figure-halo--one"></span>
+            <span class="neo-figure-halo neo-figure-halo--two"></span>
+            <canvas class="neo-figure-canvas" id="neoFigureCanvas" width="420" height="320"></canvas>
+          </div>
+          <p class="neo-card-copy" id="neoAssistantCopy">
+            Analyze workspace receipt flow, extraction quality, and store activity from one animated control board.
+          </p>
+        </article>
+
+        <article class="panel neo-card neo-card--total">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Total sale</p>
+              <h3 id="neoTotalValue">$0.00</h3>
+            </div>
+            <span class="neo-card-meta" id="neoTotalMeta">Awaiting receipts</span>
+          </div>
+          <div class="neo-mini-bars" id="neoMiniBars"></div>
+        </article>
+
+        <div class="neo-side-stack">
+          <article class="panel neo-card neo-card--share">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Category share</p>
+                <h3 id="neoShareValue">0%</h3>
+              </div>
+            </div>
+            <div class="neo-share-ring" id="neoShareRing">
+              <span id="neoShareLabel">Awaiting data</span>
+            </div>
+          </article>
+
+          <article class="panel neo-card neo-card--gauge">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Credit rate</p>
+                <h3 id="neoGaugeValue">0%</h3>
+              </div>
+            </div>
+            <div class="neo-gauge-track">
+              <span class="neo-gauge-arc" id="neoGaugeArc"></span>
+            </div>
+            <p class="neo-card-copy" id="neoGaugeNote">Receipts that posted cleanly.</p>
+          </article>
+        </div>
+
+        <article class="panel neo-card neo-card--trend">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Revenue trend</p>
+              <h3>Summary statistics</h3>
+            </div>
+          </div>
+          <div class="neo-trend-board" id="neoTrendBoard"></div>
+        </article>
+
+        <article class="panel neo-card neo-card--transactions">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Transactions</p>
+              <h3>Latest receipts</h3>
+            </div>
+          </div>
+          <div class="neo-transaction-list" id="neoTransactionList"></div>
+        </article>
+
+        <article class="panel neo-card neo-card--spending">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Spending</p>
+              <h3>Top labels</h3>
+            </div>
+          </div>
+          <div class="neo-spend-list" id="neoSpendList"></div>
+        </article>
+      </section>
+
       <section class="control-grid" id="overviewSection">
         <section class="hero panel">
           <div class="hero-copy">
@@ -560,9 +671,9 @@
     </section>
 
     <script src="./config.js?v=20260408a"></script>
-    <script src="./theme.js?v=20260402a" defer></script>
+    <script src="./theme.js?v=20260417b" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth.js?v=20260413a" defer></script>
-    <script src="./app.js?v=20260413a" defer></script>
+    <script src="./app.js?v=20260422a" defer></script>
   </body>
 </html>

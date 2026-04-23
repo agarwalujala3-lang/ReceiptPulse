@@ -5657,7 +5657,7 @@ body.cursor-cta .cursor-orb {
 }
 
 html.duplicate-decision-open-root,
-body.duplicate-decision-open {
+body.duplicate-decision-dim {
   overflow: hidden;
   overscroll-behavior: none;
 }
@@ -5669,10 +5669,10 @@ body.duplicate-decision-open {
   transition: filter 220ms ease, opacity 220ms ease, transform 220ms ease;
 }
 
-body.duplicate-decision-open .cinema-stage,
-body.duplicate-decision-open .topbar,
-body.duplicate-decision-open .workspace-guard,
-body.duplicate-decision-open .shell {
+body.duplicate-decision-dim .cinema-stage,
+body.duplicate-decision-dim .topbar,
+body.duplicate-decision-dim .workspace-guard,
+body.duplicate-decision-dim .shell {
   filter: blur(18px) saturate(0.62) brightness(0.46);
   opacity: 0.14;
   transform: scale(0.992);
@@ -12727,10 +12727,10 @@ html[data-ui-theme="light"] body.cinema-ui.dribbble-dashboard.neuro-skin .trend-
 }
 
 /* Safety fallback: if duplicate class is stale while the modal is closed, keep the page fully visible. */
-body.duplicate-decision-open:not(:has(#duplicateDecisionModal[aria-hidden="false"])) .cinema-stage,
-body.duplicate-decision-open:not(:has(#duplicateDecisionModal[aria-hidden="false"])) .topbar,
-body.duplicate-decision-open:not(:has(#duplicateDecisionModal[aria-hidden="false"])) .workspace-guard,
-body.duplicate-decision-open:not(:has(#duplicateDecisionModal[aria-hidden="false"])) .shell {
+body.duplicate-decision-dim:not(:has(#duplicateDecisionModal.is-open)) .cinema-stage,
+body.duplicate-decision-dim:not(:has(#duplicateDecisionModal.is-open)) .topbar,
+body.duplicate-decision-dim:not(:has(#duplicateDecisionModal.is-open)) .workspace-guard,
+body.duplicate-decision-dim:not(:has(#duplicateDecisionModal.is-open)) .shell {
   filter: none !important;
   opacity: 1 !important;
   transform: none !important;

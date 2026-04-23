@@ -729,6 +729,7 @@ let neoFigureAnimationHandle = 0;
 let panelRefreshTimer = 0;
 let pendingVisualRefresh = null;
 let warningRevealTimer = 0;
+let overlayReconcileTimer = 0;
 let uploadState = {
   phase: "idle",
   stage: "slot",
@@ -769,7 +770,7 @@ let authState = {
 
 function resetTransientOverlayState() {
   document.documentElement.classList.remove("duplicate-decision-open-root");
-  document.body.classList.remove("duplicate-decision-open", "history-open");
+  document.body.classList.remove("duplicate-decision-open", "duplicate-decision-dim", "history-open");
 
   if (elements.historyDrawer) {
     elements.historyDrawer.hidden = true;
@@ -827,7 +828,9 @@ function resetTransientOverlayState() {
 function reconcileTransientOverlayState() {
   const duplicateModalOpen = Boolean(
     elements.duplicateDecisionModal
+      && !elements.duplicateDecisionModal.hidden
       && elements.duplicateDecisionModal.getAttribute("aria-hidden") === "false"
+      && elements.duplicateDecisionModal.classList.contains("is-open")
   );
   if (!duplicateModalOpen) {
     unlockDuplicateDecisionViewport();
@@ -852,6 +855,13 @@ function reconcileTransientOverlayState() {
       elements.historyScrim.classList.remove("is-open");
     }
   }
+}
+
+function startOverlayReconcileWatchdog() {
+  if (overlayReconcileTimer) {
+    return;
+  }
+  overlayReconcileTimer = window.setInterval(reconcileTransientOverlayState, 900);
 }
 
 function normalizeAuthConfig(raw) {
@@ -5173,12 +5183,12 @@ function focusWithoutScroll(element) {
 
 function lockDuplicateDecisionViewport() {
   document.documentElement.classList.add("duplicate-decision-open-root");
-  document.body.classList.add("duplicate-decision-open");
+  document.body.classList.add("duplicate-decision-open", "duplicate-decision-dim");
 }
 
 function unlockDuplicateDecisionViewport() {
   document.documentElement.classList.remove("duplicate-decision-open-root");
-  document.body.classList.remove("duplicate-decision-open");
+  document.body.classList.remove("duplicate-decision-open", "duplicate-decision-dim");
 }
 
 function openHistoryDrawer() {
@@ -5877,8 +5887,14 @@ bindArchiveControls();
 setArchiveVisibility(false);
 initTopbarScrollFX();
 initCursorFX();
+startOverlayReconcileWatchdog();
 window.addEventListener("beforeunload", clearPreviewObjectUrl);
 window.addEventListener("pageshow", resetTransientOverlayState);
+window.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible") {
+    reconcileTransientOverlayState();
+  }
+});
 window.addEventListener("focus", reconcileTransientOverlayState);
 initializeApp().catch((error) => {
   console.error("Unable to load dashboard.", error);

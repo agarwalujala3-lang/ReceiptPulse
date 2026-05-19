@@ -770,7 +770,12 @@ let authState = {
 
 function resetTransientOverlayState() {
   document.documentElement.classList.remove("duplicate-decision-open-root");
-  document.body.classList.remove("duplicate-decision-open", "duplicate-decision-dim", "history-open");
+  document.body.classList.remove(
+    "duplicate-decision-open",
+    "duplicate-decision-dim",
+    "duplicate-decision-modal-active",
+    "history-open"
+  );
 
   if (elements.historyDrawer) {
     elements.historyDrawer.hidden = true;
@@ -836,23 +841,44 @@ function reconcileTransientOverlayState() {
     unlockDuplicateDecisionViewport();
     if (elements.duplicateDecisionModal) {
       elements.duplicateDecisionModal.classList.remove("is-open");
+      elements.duplicateDecisionModal.hidden = true;
+      elements.duplicateDecisionModal.setAttribute("hidden", "");
+      elements.duplicateDecisionModal.setAttribute("aria-hidden", "true");
     }
     if (elements.duplicateDecisionScrim) {
       elements.duplicateDecisionScrim.classList.remove("is-open");
+      elements.duplicateDecisionScrim.hidden = true;
+      elements.duplicateDecisionScrim.setAttribute("hidden", "");
+      elements.duplicateDecisionScrim.style.display = "none";
+      elements.duplicateDecisionScrim.style.opacity = "";
+      elements.duplicateDecisionScrim.style.pointerEvents = "";
     }
   }
 
   const historyDrawerOpen = Boolean(
     elements.historyDrawer
+      && !elements.historyDrawer.hidden
       && elements.historyDrawer.getAttribute("aria-hidden") === "false"
+      && elements.historyDrawer.classList.contains("is-open")
   );
   if (!historyDrawerOpen) {
     document.body.classList.remove("history-open");
     if (elements.historyDrawer) {
       elements.historyDrawer.classList.remove("is-open");
+      elements.historyDrawer.hidden = true;
+      elements.historyDrawer.setAttribute("hidden", "");
+      elements.historyDrawer.setAttribute("aria-hidden", "true");
+      elements.historyDrawer.style.display = "none";
+      elements.historyDrawer.style.opacity = "";
+      elements.historyDrawer.style.pointerEvents = "";
     }
     if (elements.historyScrim) {
       elements.historyScrim.classList.remove("is-open");
+      elements.historyScrim.hidden = true;
+      elements.historyScrim.setAttribute("hidden", "");
+      elements.historyScrim.style.display = "none";
+      elements.historyScrim.style.opacity = "";
+      elements.historyScrim.style.pointerEvents = "";
     }
   }
 }
@@ -3283,6 +3309,112 @@ function startNeoFigureAnimation() {
 
   canvas.dataset.bound = "true";
 
+  const stage = canvas.closest("[data-neo-figure-stage]");
+  const reduceMotionQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  const viewportQuery = window.matchMedia("(max-width: 760px)");
+  const coarsePointerQuery = window.matchMedia("(pointer: coarse)");
+  const baseRotation = { x: -0.28, y: 0.64 };
+
+  const getMotionProfile = () => {
+    const compact = viewportQuery.matches || coarsePointerQuery.matches;
+    if (compact) {
+      return {
+        autoSpin: 0.24,
+        dragYaw: 0.0062,
+        dragPitch: 0.0052,
+        inertiaYaw: 0.0063,
+        inertiaPitch: 0.0051,
+        keyStep: 0.09,
+        keyStepFast: 0.14,
+        driftAmp: 0.00072,
+        damping: 5.45,
+        velocityFloor: 0.00065,
+      };
+    }
+
+    return {
+      autoSpin: 0.34,
+      dragYaw: 0.0076,
+      dragPitch: 0.0062,
+      inertiaYaw: 0.0074,
+      inertiaPitch: 0.0059,
+      keyStep: 0.1,
+      keyStepFast: 0.16,
+      driftAmp: 0.00086,
+      damping: 5.2,
+      velocityFloor: 0.0007,
+    };
+  };
+
+  const state = {
+    rotX: baseRotation.x,
+    rotY: baseRotation.y,
+    velocityX: 0,
+    velocityY: 0,
+    dragging: false,
+    pointerId: null,
+    startX: 0,
+    startY: 0,
+    startRotX: baseRotation.x,
+    startRotY: baseRotation.y,
+    lastMoveTime: 0,
+    lastMoveX: 0,
+    lastMoveY: 0,
+    lastFrame: performance.now(),
+    inView: true,
+    running: false,
+    frame: 0,
+    autoSpin: 0,
+    profile: getMotionProfile(),
+  };
+
+  const clamp = (value, min, max) => Math.min(max, Math.max(min, value));
+
+  const applyProfile = () => {
+    state.profile = getMotionProfile();
+    state.autoSpin = reduceMotionQuery.matches ? 0 : state.profile.autoSpin;
+  };
+
+  applyProfile();
+
+  const shouldRun = () => !document.hidden && state.inView;
+
+  const startLoop = () => {
+    if (state.running) {
+      return;
+    }
+    state.running = true;
+    state.lastFrame = performance.now();
+    state.frame = window.requestAnimationFrame(drawMesh);
+    neoFigureAnimationHandle = state.frame;
+  };
+
+  const stopLoop = () => {
+    if (!state.running) {
+      return;
+    }
+    window.cancelAnimationFrame(state.frame);
+    state.running = false;
+    state.frame = 0;
+    neoFigureAnimationHandle = 0;
+  };
+
+  const syncAnimationState = () => {
+    if (shouldRun()) {
+      startLoop();
+    } else {
+      stopLoop();
+    }
+  };
+
+  if (!canvas.hasAttribute("tabindex")) {
+    canvas.setAttribute("tabindex", "0");
+  }
+  canvas.setAttribute(
+    "aria-label",
+    "Interactive 3D receipt mesh. Drag to rotate. Use arrow keys to adjust and Home to reset."
+  );
+
   const resizeCanvas = () => {
     const rect = canvas.getBoundingClientRect();
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
@@ -3292,7 +3424,173 @@ function startNeoFigureAnimation() {
     canvas.style.setProperty("--canvas-height", `${Math.round(rect.height)}px`);
   };
 
+  const resetRotation = () => {
+    state.rotX = baseRotation.x;
+    state.rotY = baseRotation.y;
+    state.velocityX = 0;
+    state.velocityY = 0;
+  };
+
+  const endDrag = (event) => {
+    if (!state.dragging || event.pointerId !== state.pointerId) {
+      return;
+    }
+
+    state.dragging = false;
+    state.pointerId = null;
+    canvas.classList.remove("is-dragging");
+    stage?.classList.remove("is-dragging");
+
+    if (typeof canvas.releasePointerCapture === "function") {
+      try {
+        canvas.releasePointerCapture(event.pointerId);
+      } catch (error) {
+        // Ignore pointer capture release failures.
+      }
+    }
+  };
+
+  canvas.addEventListener("pointerdown", (event) => {
+    if (event.button !== 0) {
+      return;
+    }
+
+    state.dragging = true;
+    state.pointerId = event.pointerId;
+    state.startX = event.clientX;
+    state.startY = event.clientY;
+    state.startRotX = state.rotX;
+    state.startRotY = state.rotY;
+    state.velocityX = 0;
+    state.velocityY = 0;
+    state.lastMoveTime = performance.now();
+    state.lastMoveX = event.clientX;
+    state.lastMoveY = event.clientY;
+    canvas.classList.add("is-dragging");
+    stage?.classList.add("is-dragging");
+    startLoop();
+
+    if (typeof canvas.setPointerCapture === "function") {
+      try {
+        canvas.setPointerCapture(event.pointerId);
+      } catch (error) {
+        // Ignore pointer capture failures.
+      }
+    }
+  });
+
+  canvas.addEventListener("pointermove", (event) => {
+    if (!state.dragging || event.pointerId !== state.pointerId) {
+      return;
+    }
+
+    const dx = event.clientX - state.startX;
+    const dy = event.clientY - state.startY;
+    state.rotY = state.startRotY + dx * state.profile.dragYaw;
+    state.rotX = clamp(state.startRotX - dy * state.profile.dragPitch, -1.08, 1.08);
+
+    const now = performance.now();
+    const dtMs = Math.max(12, now - state.lastMoveTime);
+    const moveX = event.clientX - state.lastMoveX;
+    const moveY = event.clientY - state.lastMoveY;
+    const velocityScale = 1000 / dtMs;
+    state.velocityY = moveX * state.profile.inertiaYaw * velocityScale;
+    state.velocityX = -moveY * state.profile.inertiaPitch * velocityScale;
+    state.lastMoveTime = now;
+    state.lastMoveX = event.clientX;
+    state.lastMoveY = event.clientY;
+  });
+
+  canvas.addEventListener("pointerup", endDrag);
+  canvas.addEventListener("pointercancel", endDrag);
+  canvas.addEventListener("dblclick", resetRotation);
+
+  canvas.addEventListener("keydown", (event) => {
+    if (!["ArrowUp", "ArrowDown", "ArrowLeft", "ArrowRight", "Home"].includes(event.key)) {
+      return;
+    }
+
+    event.preventDefault();
+    const step = event.shiftKey ? state.profile.keyStepFast : state.profile.keyStep;
+
+    if (event.key === "ArrowUp") {
+      state.rotX = clamp(state.rotX - step, -1.08, 1.08);
+    } else if (event.key === "ArrowDown") {
+      state.rotX = clamp(state.rotX + step, -1.08, 1.08);
+    } else if (event.key === "ArrowLeft") {
+      state.rotY -= step;
+    } else if (event.key === "ArrowRight") {
+      state.rotY += step;
+    } else if (event.key === "Home") {
+      resetRotation();
+    }
+
+    state.velocityX = 0;
+    state.velocityY = 0;
+  });
+
+  const syncMotionPreference = () => {
+    applyProfile();
+  };
+
+  if (typeof reduceMotionQuery.addEventListener === "function") {
+    reduceMotionQuery.addEventListener("change", syncMotionPreference);
+  } else if (typeof reduceMotionQuery.addListener === "function") {
+    reduceMotionQuery.addListener(syncMotionPreference);
+  }
+
+  if (typeof viewportQuery.addEventListener === "function") {
+    viewportQuery.addEventListener("change", syncMotionPreference);
+  } else if (typeof viewportQuery.addListener === "function") {
+    viewportQuery.addListener(syncMotionPreference);
+  }
+
+  if (typeof coarsePointerQuery.addEventListener === "function") {
+    coarsePointerQuery.addEventListener("change", syncMotionPreference);
+  } else if (typeof coarsePointerQuery.addListener === "function") {
+    coarsePointerQuery.addListener(syncMotionPreference);
+  }
+
+  const intersectionObserver =
+    typeof IntersectionObserver === "function" && stage
+      ? new IntersectionObserver(
+          (entries) => {
+            const entry = entries[0];
+            state.inView = Boolean(entry?.isIntersecting);
+            syncAnimationState();
+          },
+          { threshold: 0.08 }
+        )
+      : null;
+
+  intersectionObserver?.observe(stage || canvas);
+  document.addEventListener("visibilitychange", syncAnimationState);
+
   const drawMesh = (time) => {
+    const dt = Math.min(34, Math.max(12, time - state.lastFrame));
+    const dtSeconds = dt / 1000;
+    state.lastFrame = time;
+
+    if (!state.dragging) {
+      state.rotY += state.autoSpin * dtSeconds;
+      state.rotX = clamp(
+        state.rotX + state.velocityX * dtSeconds + Math.sin(time * 0.00056) * state.profile.driftAmp,
+        -1.08,
+        1.08
+      );
+      state.rotY += state.velocityY * dtSeconds;
+
+      const drag = Math.exp(-state.profile.damping * dtSeconds);
+      state.velocityX *= drag;
+      state.velocityY *= drag;
+      if (Math.abs(state.velocityX) < state.profile.velocityFloor) {
+        state.velocityX = 0;
+      }
+      if (Math.abs(state.velocityY) < state.profile.velocityFloor) {
+        state.velocityY = 0;
+      }
+    }
+
     const dpr = Math.min(window.devicePixelRatio || 1, 2);
     const width = canvas.width / dpr;
     const height = canvas.height / dpr;
@@ -3303,8 +3601,8 @@ function startNeoFigureAnimation() {
     const centerX = width / 2;
     const centerY = height / 2 - 6;
     const radius = Math.min(width, height) * 0.24;
-    const rotationY = time * 0.00055;
-    const rotationX = Math.sin(time * 0.00033) * 0.42;
+    const rotationY = state.rotY;
+    const rotationX = state.rotX;
     const latitudeCount = 18;
     const longitudeCount = 22;
     const mesh = [];
@@ -3389,12 +3687,15 @@ function startNeoFigureAnimation() {
       }
     }
 
-    neoFigureAnimationHandle = window.requestAnimationFrame(drawMesh);
+    if (state.running) {
+      state.frame = window.requestAnimationFrame(drawMesh);
+      neoFigureAnimationHandle = state.frame;
+    }
   };
 
   resizeCanvas();
   window.addEventListener("resize", resizeCanvas);
-  neoFigureAnimationHandle = window.requestAnimationFrame(drawMesh);
+  syncAnimationState();
 }
 
 function renderTrend() {
@@ -5183,12 +5484,15 @@ function focusWithoutScroll(element) {
 
 function lockDuplicateDecisionViewport() {
   document.documentElement.classList.add("duplicate-decision-open-root");
-  document.body.classList.add("duplicate-decision-open", "duplicate-decision-dim");
 }
 
 function unlockDuplicateDecisionViewport() {
   document.documentElement.classList.remove("duplicate-decision-open-root");
-  document.body.classList.remove("duplicate-decision-open", "duplicate-decision-dim");
+  document.body.classList.remove(
+    "duplicate-decision-open",
+    "duplicate-decision-dim",
+    "duplicate-decision-modal-active"
+  );
 }
 
 function openHistoryDrawer() {

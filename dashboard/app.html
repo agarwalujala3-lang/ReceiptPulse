@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (() => {
+        document.documentElement.dataset.uiTheme = "light";
+        document.documentElement.style.colorScheme = "light";
         try {
-          document.documentElement.dataset.uiTheme =
-            window.localStorage.getItem("receiptpulse-ui-theme") === "light" ? "light" : "dark";
-        } catch (error) {
-          document.documentElement.dataset.uiTheme = "dark";
-        }
+          window.localStorage.setItem("receiptpulse-ui-theme", "light");
+        } catch (error) {}
       })();
     </script>
     <title>ReceiptPulse | Live Dashboard</title>
@@ -48,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260422b" />
+    <link rel="stylesheet" href="./styles.css?v=20260519b" />
   </head>
   <body class="cinema-ui dribbble-dashboard neuro-skin" data-brand-launch="off">
     <div class="cinema-stage" aria-hidden="true">
@@ -144,7 +143,7 @@
             <div class="topbar-actions dashboard-command-actions">
               <button class="ghost-link ghost-button" id="manageWidgetsButton" type="button">Manage Widgets</button>
               <button class="primary-button topbar-primary-button" id="addWidgetButton" type="button">+ Add Widget</button>
-              <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button">Light Mode</button>
+            <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button" hidden>Light Mode</button>
               <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>Create Account</button>
               <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
               <button class="ghost-link ghost-button" id="switchAccountButton" type="button" hidden>Switch Account</button>
@@ -175,10 +174,11 @@
             </div>
             <button class="ghost-link ghost-button neo-card-action" id="neoFigureAction" type="button">Try Now</button>
           </div>
-          <div class="neo-figure-stage" aria-hidden="true">
+          <div class="neo-figure-stage" data-neo-figure-stage role="region" aria-label="Interactive 3D mesh preview. Drag to rotate.">
             <span class="neo-figure-halo neo-figure-halo--one"></span>
             <span class="neo-figure-halo neo-figure-halo--two"></span>
             <canvas class="neo-figure-canvas" id="neoFigureCanvas" width="420" height="320"></canvas>
+            <p class="neo-figure-hint">Drag to rotate - Double-click to reset</p>
           </div>
           <p class="neo-card-copy" id="neoAssistantCopy">
             Analyze workspace receipt flow, extraction quality, and store activity from one animated control board.
@@ -671,9 +671,9 @@
     </section>
 
     <script src="./config.js?v=20260408a"></script>
-    <script src="./theme.js?v=20260417b" defer></script>
+    <script src="./theme.js?v=20260427b" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth.js?v=20260413a" defer></script>
-    <script src="./app.js?v=20260422b" defer></script>
+    <script src="./app.js?v=20260519b" defer></script>
   </body>
 </html>

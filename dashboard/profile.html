@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (() => {
+        document.documentElement.dataset.uiTheme = "light";
+        document.documentElement.style.colorScheme = "light";
+        try {
+          window.localStorage.setItem("receiptpulse-ui-theme", "light");
+        } catch (error) {}
+      })();
+    </script>
+    <title>ReceiptPulse | Profile</title>
+    <link rel="icon" type="image/svg+xml" href="./receiptpulse-mark.svg?v=20260402c" />
+    <link rel="icon" type="image/png" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260519b" />
+  </head>
+  <body class="cinema-ui dribbble-dashboard neuro-skin neuro-page" data-page="profile">
+    <div class="cinema-stage" aria-hidden="true">
+      <span class="cinema-glow cinema-glow-ember"></span>
+      <span class="cinema-glow cinema-glow-ice"></span>
+      <span class="cinema-grid"></span>
+      <span class="cinema-beam"></span>
+    </div>
+    <div class="dashboard-shell">
+      <header class="topbar dashboard-sidebar">
+        <div class="brand-lockup brand-lockup-sidebar">
+          <a class="brand-mark brand-mark-link" href="./app.html" aria-label="ReceiptPulse home">
+            <img
+              class="brand-logo"
+              src="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+              alt="ReceiptPulse"
+            />
+          </a>
+        </div>
+        <section class="dashboard-profile-card" aria-label="Workspace profile">
+          <div class="dashboard-profile-head">
+            <img class="dashboard-profile-avatar" src="./profile-avatar.svg?v=20260414a" alt="Workspace profile avatar" />
+            <div class="dashboard-profile-copy">
+              <p class="dashboard-profile-date">Workspace User</p>
+              <h3>Welcome back, <span data-auth-name>Operator</span>!</h3>
+            </div>
+          </div>
+        </section>
+        <nav class="dashboard-nav" aria-label="Dashboard sections">
+          <a class="dashboard-nav-link" href="./app.html"><span class="dashboard-nav-icon">◉</span>Dashboard</a>
+          <a class="dashboard-nav-link is-active" href="./profile.html"><span class="dashboard-nav-icon">◍</span>Profile</a>
+          <a class="dashboard-nav-link" href="./reports.html"><span class="dashboard-nav-icon">◎</span>Reports</a>
+          <a class="dashboard-nav-link" href="./app.html#uploadLab"><span class="dashboard-nav-icon">◌</span>Intake</a>
+          <a class="dashboard-nav-link" href="./app.html#receiptsTable"><span class="dashboard-nav-icon">◈</span>Archive</a>
+        </nav>
+        <section class="dashboard-sidebar-card">
+          <p class="eyebrow">Account Scope</p>
+          <h3>Private profile workspace</h3>
+          <p>Your account details and activity summary for this signed-in workspace.</p>
+        </section>
+      </header>
+
+      <main class="dashboard-main neuro-main">
+        <section class="panel dashboard-command-bar">
+          <div class="dashboard-command-copy">
+            <div class="dashboard-command-brand">
+              <img
+                class="dashboard-command-logo"
+                src="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+                alt="ReceiptPulse"
+              />
+            </div>
+            <p class="eyebrow">Account Profile</p>
+            <h1>Manage your workspace identity</h1>
+            <p class="topbar-text">Same banking-style UI, now as a dedicated profile page in your multipage app flow.</p>
+          </div>
+          <div class="topbar-actions dashboard-command-actions">
+            <button class="ghost-link ghost-button" id="manageWidgetsButton" type="button">Manage Widgets</button>
+            <button class="primary-button topbar-primary-button" id="addWidgetButton" type="button">+ Add Widget</button>
+            <button class="ghost-link ghost-button" data-theme-toggle type="button" hidden>Light Mode</button>
+            <button class="ghost-link ghost-button" id="profileSignInButton" type="button">Sign In</button>
+            <button class="ghost-link ghost-button" id="profileSwitchButton" type="button" hidden>Switch Account</button>
+            <button class="ghost-link ghost-button" id="profileSignOutButton" type="button" hidden>Sign Out</button>
+            <a class="ghost-link" href="./app.html">Open App</a>
+          </div>
+        </section>
+
+        <section class="neo-dashboard-board neo-page-board">
+          <article class="panel neo-card neo-card--assistant">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Workspace Profile</p>
+                <h3>Identity and session board</h3>
+              </div>
+              <button class="ghost-link ghost-button neo-card-action" id="profileHeroAction" type="button">Open App</button>
+            </div>
+            <div class="neo-figure-stage" data-neo-figure-stage role="region" aria-label="Interactive 3D mesh preview. Drag to rotate.">
+              <span class="neo-figure-halo neo-figure-halo--one"></span>
+              <span class="neo-figure-halo neo-figure-halo--two"></span>
+              <canvas class="neo-figure-canvas" data-mesh-figure width="420" height="320"></canvas>
+              <p class="neo-figure-hint">Drag to rotate - Double-click to reset</p>
+            </div>
+            <p class="neo-card-copy">The signed-in workspace identity, session strength, and private routing all live inside the same control shell.</p>
+          </article>
+
+          <article class="panel neo-card neo-card--total">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Workspace owner</p>
+                <h3><span data-auth-name>Operator</span></h3>
+              </div>
+              <span class="neo-card-meta" id="profileSessionState">Signed out</span>
+            </div>
+            <div class="neo-profile-summary">
+              <strong id="profileEmail">No account session active.</strong>
+              <span>Private receipt scope stays tied to the active account.</span>
+            </div>
+          </article>
+
+          <div class="neo-side-stack">
+            <article class="panel neo-card neo-card--share">
+              <div class="neo-card-head">
+                <div>
+                  <p class="eyebrow">Security</p>
+                  <h3>92%</h3>
+                </div>
+              </div>
+              <div class="neo-share-ring" style="background:conic-gradient(#6f73ff 0deg 332deg, rgba(80, 92, 140, 0.22) 332deg 360deg);">
+                <span>Session health</span>
+              </div>
+            </article>
+
+            <article class="panel neo-card neo-card--gauge">
+              <div class="neo-card-head">
+                <div>
+                  <p class="eyebrow">Access rate</p>
+                  <h3>100%</h3>
+                </div>
+              </div>
+              <div class="neo-gauge-track">
+                <span class="neo-gauge-arc" style="background:conic-gradient(from 180deg, #8b5cf6 0deg, #5d6fff 128deg, #6fe5ff 180deg, rgba(68, 77, 114, 0.2) 180deg 360deg);"></span>
+              </div>
+              <p class="neo-card-copy">Every page in this shell follows the same account state.</p>
+            </article>
+          </div>
+
+          <article class="panel neo-card neo-card--trend">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Session timeline</p>
+                <h3>Workspace continuity</h3>
+              </div>
+            </div>
+            <div class="neo-trend-board">
+              <div class="line-chart-shell">
+                <div class="line-chart-summary">
+                  <div class="line-chart-copy">
+                    <span class="line-chart-kicker">Profile state</span>
+                    <strong>Persistent access</strong>
+                    <span class="muted">Profile, reports, and dashboard stay in the same signed scope.</span>
+                  </div>
+                </div>
+                <svg class="line-chart-svg" viewBox="0 0 720 292" role="img" aria-label="Session stability chart">
+                  <defs>
+                    <linearGradient id="profileTrendArea" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#6fe5ff" stop-opacity="0.32"></stop>
+                      <stop offset="100%" stop-color="#6fe5ff" stop-opacity="0.03"></stop>
+                    </linearGradient>
+                  </defs>
+                  <line class="line-chart-grid-line" x1="24" y1="22" x2="696" y2="22"></line>
+                  <line class="line-chart-grid-line" x1="24" y1="92" x2="696" y2="92"></line>
+                  <line class="line-chart-grid-line" x1="24" y1="162" x2="696" y2="162"></line>
+                  <line class="line-chart-grid-line" x1="24" y1="232" x2="696" y2="232"></line>
+                  <path class="line-chart-area" d="M 24 202 C 96 198, 132 186, 204 172 C 276 156, 324 144, 396 136 C 468 128, 528 118, 600 102 C 648 90, 672 82, 696 74 L 696 232 L 24 232 Z" fill="url(#profileTrendArea)"></path>
+                  <path class="line-chart-path-glow" d="M 24 202 C 96 198, 132 186, 204 172 C 276 156, 324 144, 396 136 C 468 128, 528 118, 600 102 C 648 90, 672 82, 696 74"></path>
+                  <path class="line-chart-path" d="M 24 202 C 96 198, 132 186, 204 172 C 276 156, 324 144, 396 136 C 468 128, 528 118, 600 102 C 648 90, 672 82, 696 74"></path>
+                </svg>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel neo-card neo-card--transactions">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Access events</p>
+                <h3>Page routing</h3>
+              </div>
+            </div>
+            <div class="neo-transaction-list">
+              <article class="neo-transaction-row">
+                <div class="neo-transaction-copy">
+                  <strong><span class="receipt-icon-badge">◉</span>Dashboard</strong>
+                  <span>Upload intake and receipt archive</span>
+                </div>
+                <div class="neo-transaction-meta">
+                  <span>Live page</span>
+                  <strong>Enabled</strong>
+                </div>
+              </article>
+              <article class="neo-transaction-row">
+                <div class="neo-transaction-copy">
+                  <strong><span class="receipt-icon-badge">◍</span>Profile</strong>
+                  <span>Identity and account state</span>
+                </div>
+                <div class="neo-transaction-meta">
+                  <span>Current</span>
+                  <strong>Open</strong>
+                </div>
+              </article>
+              <article class="neo-transaction-row">
+                <div class="neo-transaction-copy">
+                  <strong><span class="receipt-icon-badge">◎</span>Reports</strong>
+                  <span>Insight-heavy visual mode</span>
+                </div>
+                <div class="neo-transaction-meta">
+                  <span>Charts</span>
+                  <strong>Ready</strong>
+                </div>
+              </article>
+            </div>
+          </article>
+
+          <article class="panel neo-card neo-card--spending">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Workspace checks</p>
+                <h3>Core signals</h3>
+              </div>
+            </div>
+            <div class="neo-spend-list">
+              <article class="neo-spend-row">
+                <div class="neo-spend-copy">
+                  <strong><span class="receipt-icon-badge">◈</span>Session</strong>
+                  <span>Token-backed access state</span>
+                </div>
+                <div class="neo-spend-track"><span class="neo-spend-fill" style="width:100%; background:#6a62ff"></span></div>
+              </article>
+              <article class="neo-spend-row">
+                <div class="neo-spend-copy">
+                  <strong><span class="receipt-icon-badge">◌</span>Scope</strong>
+                  <span>Private receipt ownership</span>
+                </div>
+                <div class="neo-spend-track"><span class="neo-spend-fill" style="width:92%; background:#4f8fff"></span></div>
+              </article>
+              <article class="neo-spend-row">
+                <div class="neo-spend-copy">
+                  <strong><span class="receipt-icon-badge">◉</span>Theme</strong>
+                  <span>Shared dark and light shells</span>
+                </div>
+                <div class="neo-spend-track"><span class="neo-spend-fill" style="width:88%; background:#79e8ff"></span></div>
+              </article>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="./config.js?v=20260408a"></script>
+    <script src="./theme.js?v=20260427b" defer></script>
+    <script src="./auth.js?v=20260413a" defer></script>
+    <script src="./multipage.js?v=20260519b" defer></script>
+  </body>
+</html>

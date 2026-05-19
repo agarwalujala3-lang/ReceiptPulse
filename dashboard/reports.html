@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <script>
+      (() => {
+        document.documentElement.dataset.uiTheme = "light";
+        document.documentElement.style.colorScheme = "light";
+        try {
+          window.localStorage.setItem("receiptpulse-ui-theme", "light");
+        } catch (error) {}
+      })();
+    </script>
+    <title>ReceiptPulse | Reports</title>
+    <link rel="icon" type="image/svg+xml" href="./receiptpulse-mark.svg?v=20260402c" />
+    <link rel="icon" type="image/png" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260519b" />
+  </head>
+  <body class="cinema-ui dribbble-dashboard neuro-skin neuro-page" data-page="reports">
+    <div class="cinema-stage" aria-hidden="true">
+      <span class="cinema-glow cinema-glow-ember"></span>
+      <span class="cinema-glow cinema-glow-ice"></span>
+      <span class="cinema-grid"></span>
+      <span class="cinema-beam"></span>
+    </div>
+    <div class="dashboard-shell">
+      <header class="topbar dashboard-sidebar">
+        <div class="brand-lockup brand-lockup-sidebar">
+          <a class="brand-mark brand-mark-link" href="./app.html" aria-label="ReceiptPulse home">
+            <img
+              class="brand-logo"
+              src="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+              alt="ReceiptPulse"
+            />
+          </a>
+        </div>
+        <section class="dashboard-profile-card" aria-label="Workspace profile">
+          <div class="dashboard-profile-head">
+            <img class="dashboard-profile-avatar" src="./profile-avatar.svg?v=20260414a" alt="Workspace profile avatar" />
+            <div class="dashboard-profile-copy">
+              <p class="dashboard-profile-date">Reports Mode</p>
+              <h3>Hi, <span data-auth-name>Operator</span></h3>
+            </div>
+          </div>
+        </section>
+        <nav class="dashboard-nav" aria-label="Dashboard sections">
+          <a class="dashboard-nav-link" href="./app.html"><span class="dashboard-nav-icon">◉</span>Dashboard</a>
+          <a class="dashboard-nav-link" href="./profile.html"><span class="dashboard-nav-icon">◍</span>Profile</a>
+          <a class="dashboard-nav-link is-active" href="./reports.html"><span class="dashboard-nav-icon">◎</span>Reports</a>
+          <a class="dashboard-nav-link" href="./app.html#uploadLab"><span class="dashboard-nav-icon">◌</span>Intake</a>
+          <a class="dashboard-nav-link" href="./app.html#receiptsTable"><span class="dashboard-nav-icon">◈</span>Archive</a>
+        </nav>
+        <section class="dashboard-sidebar-card">
+          <p class="eyebrow">Report Hub</p>
+          <h3>Charts and trend widgets</h3>
+          <p>This page keeps the same visual tone while focusing on chart-heavy layouts.</p>
+        </section>
+      </header>
+
+      <main class="dashboard-main neuro-main">
+        <section class="panel dashboard-command-bar">
+          <div class="dashboard-command-copy">
+            <div class="dashboard-command-brand">
+              <img
+                class="dashboard-command-logo"
+                src="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+                alt="ReceiptPulse"
+              />
+            </div>
+            <p class="eyebrow">Report Center</p>
+            <h1>Advanced receipt insights</h1>
+            <p class="topbar-text">Neobank-inspired cards, line trends, and spending gauge visuals in a dedicated page.</p>
+          </div>
+          <div class="topbar-actions dashboard-command-actions">
+            <button class="ghost-link ghost-button" id="manageWidgetsButton" type="button">Manage Widgets</button>
+            <button class="primary-button topbar-primary-button" id="addWidgetButton" type="button">+ Add Widget</button>
+            <button class="ghost-link ghost-button" data-theme-toggle type="button" hidden>Light Mode</button>
+            <button class="ghost-link ghost-button" id="profileSignInButton" type="button">Sign In</button>
+            <button class="ghost-link ghost-button" id="profileSwitchButton" type="button" hidden>Switch Account</button>
+            <button class="ghost-link ghost-button" id="profileSignOutButton" type="button" hidden>Sign Out</button>
+            <a class="ghost-link" href="./app.html">Open Dashboard</a>
+          </div>
+        </section>
+
+        <section class="neo-dashboard-board neo-page-board">
+          <article class="panel neo-card neo-card--assistant">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">AI Insight</p>
+                <h3>Animated report intelligence</h3>
+              </div>
+              <button class="ghost-link ghost-button neo-card-action" id="reportsHeroAction" type="button">Open Dashboard</button>
+            </div>
+            <div class="neo-figure-stage" data-neo-figure-stage role="region" aria-label="Interactive 3D mesh preview. Drag to rotate.">
+              <span class="neo-figure-halo neo-figure-halo--one"></span>
+              <span class="neo-figure-halo neo-figure-halo--two"></span>
+              <canvas class="neo-figure-canvas" data-mesh-figure width="420" height="320"></canvas>
+              <p class="neo-figure-hint">Drag to rotate - Double-click to reset</p>
+            </div>
+            <p class="neo-card-copy">Compare upload momentum, revenue shape, and category distribution inside the same neon report board.</p>
+          </article>
+
+          <article class="panel neo-card neo-card--total">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Total sale</p>
+                <h3>$90,744</h3>
+              </div>
+              <span class="neo-card-meta">+12%</span>
+            </div>
+            <div class="neo-mini-bars">
+              <article class="neo-mini-bar"><span class="neo-mini-bar-fill" style="--bar-height:38%"></span><small>Feb</small></article>
+              <article class="neo-mini-bar"><span class="neo-mini-bar-fill" style="--bar-height:44%"></span><small>Mar</small></article>
+              <article class="neo-mini-bar"><span class="neo-mini-bar-fill" style="--bar-height:52%"></span><small>Apr</small></article>
+              <article class="neo-mini-bar"><span class="neo-mini-bar-fill" style="--bar-height:40%"></span><small>May</small></article>
+              <article class="neo-mini-bar"><span class="neo-mini-bar-fill" style="--bar-height:82%"></span><small>Jun</small></article>
+              <article class="neo-mini-bar is-active"><span class="neo-mini-bar-fill" style="--bar-height:58%"></span><small>Jul</small></article>
+            </div>
+          </article>
+
+          <div class="neo-side-stack">
+            <article class="panel neo-card neo-card--share">
+              <div class="neo-card-head">
+                <div>
+                  <p class="eyebrow">Earnings</p>
+                  <h3>58%</h3>
+                </div>
+              </div>
+              <div class="neo-share-ring" style="background:conic-gradient(#8f62ff 0deg 209deg, #7edcff 209deg 302deg, rgba(80, 92, 140, 0.2) 302deg 360deg);">
+                <span>Month goal</span>
+              </div>
+            </article>
+
+            <article class="panel neo-card neo-card--gauge">
+              <div class="neo-card-head">
+                <div>
+                  <p class="eyebrow">Credit rate</p>
+                  <h3>803</h3>
+                </div>
+              </div>
+              <div class="neo-gauge-track">
+                <span class="neo-gauge-arc" style="background:conic-gradient(from 180deg, #8b5cf6 0deg, #5d6fff 122deg, #6fe5ff 170deg, rgba(68, 77, 114, 0.2) 170deg 360deg);"></span>
+              </div>
+              <p class="neo-card-copy">Current report health based on clean uploads and spend spread.</p>
+            </article>
+          </div>
+
+          <article class="panel neo-card neo-card--trend">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Revenue trend</p>
+                <h3>Summary statistics</h3>
+              </div>
+            </div>
+            <div class="neo-trend-board">
+              <div class="line-chart-shell">
+                <div class="line-chart-summary">
+                  <div class="line-chart-copy">
+                    <span class="line-chart-kicker">Spend performance</span>
+                    <strong>$90,744</strong>
+                    <span class="muted">12 categories · 44 transactions</span>
+                  </div>
+                  <div class="line-chart-focus">
+                    <span class="line-chart-kicker">Focus week</span>
+                    <strong>Week 3</strong>
+                    <span class="muted">+5.3%</span>
+                  </div>
+                </div>
+                <svg class="line-chart-svg" viewBox="0 0 720 292" role="img" aria-label="Revenue trend line chart">
+                  <defs>
+                    <linearGradient id="reportsTrendArea" x1="0%" y1="0%" x2="0%" y2="100%">
+                      <stop offset="0%" stop-color="#6fe5ff" stop-opacity="0.32"></stop>
+                      <stop offset="100%" stop-color="#6fe5ff" stop-opacity="0.03"></stop>
+                    </linearGradient>
+                  </defs>
+                  <line class="line-chart-grid-line" x1="24" y1="22" x2="696" y2="22"></line>
+                  <line class="line-chart-grid-line" x1="24" y1="92" x2="696" y2="92"></line>
+                  <line class="line-chart-grid-line" x1="24" y1="162" x2="696" y2="162"></line>
+                  <line class="line-chart-grid-line" x1="24" y1="232" x2="696" y2="232"></line>
+                  <path class="line-chart-area" d="M 24 188 C 78 176, 118 164, 174 152 C 224 140, 274 128, 332 118 C 388 108, 432 132, 486 120 C 548 106, 608 84, 696 72 L 696 232 L 24 232 Z" fill="url(#reportsTrendArea)"></path>
+                  <path class="line-chart-path-glow" d="M 24 188 C 78 176, 118 164, 174 152 C 224 140, 274 128, 332 118 C 388 108, 432 132, 486 120 C 548 106, 608 84, 696 72"></path>
+                  <path class="line-chart-path" d="M 24 188 C 78 176, 118 164, 174 152 C 224 140, 274 128, 332 118 C 388 108, 432 132, 486 120 C 548 106, 608 84, 696 72"></path>
+                </svg>
+              </div>
+            </div>
+          </article>
+
+          <article class="panel neo-card neo-card--transactions">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Transactions</p>
+                <h3>Recent activity</h3>
+              </div>
+            </div>
+            <div class="neo-transaction-list">
+              <article class="neo-transaction-row">
+                <div class="neo-transaction-copy">
+                  <strong><span class="receipt-icon-badge">◉</span>PlayStation</strong>
+                  <span>Console subscription</span>
+                </div>
+                <div class="neo-transaction-meta">
+                  <span>31 Mar</span>
+                  <strong>$19.99</strong>
+                </div>
+              </article>
+              <article class="neo-transaction-row">
+                <div class="neo-transaction-copy">
+                  <strong><span class="receipt-icon-badge">◍</span>Netflix</strong>
+                  <span>Streaming renewal</span>
+                </div>
+                <div class="neo-transaction-meta">
+                  <span>29 Mar</span>
+                  <strong>$30.00</strong>
+                </div>
+              </article>
+              <article class="neo-transaction-row">
+                <div class="neo-transaction-copy">
+                  <strong><span class="receipt-icon-badge">◎</span>Airbnb</strong>
+                  <span>Travel lodging</span>
+                </div>
+                <div class="neo-transaction-meta">
+                  <span>29 Mar</span>
+                  <strong>$300.00</strong>
+                </div>
+              </article>
+            </div>
+          </article>
+
+          <article class="panel neo-card neo-card--spending">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Spending</p>
+                <h3>Category bars</h3>
+              </div>
+            </div>
+            <div class="neo-spend-list">
+              <article class="neo-spend-row">
+                <div class="neo-spend-copy">
+                  <strong><span class="receipt-icon-badge">◈</span>Clothing</strong>
+                  <span>Largest spend lane</span>
+                </div>
+                <div class="neo-spend-track"><span class="neo-spend-fill" style="width:88%; background:#6a62ff"></span></div>
+              </article>
+              <article class="neo-spend-row">
+                <div class="neo-spend-copy">
+                  <strong><span class="receipt-icon-badge">◌</span>Groceries</strong>
+                  <span>Second lane</span>
+                </div>
+                <div class="neo-spend-track"><span class="neo-spend-fill" style="width:64%; background:#4f8fff"></span></div>
+              </article>
+              <article class="neo-spend-row">
+                <div class="neo-spend-copy">
+                  <strong><span class="receipt-icon-badge">◉</span>Bills</strong>
+                  <span>Stable recurring spend</span>
+                </div>
+                <div class="neo-spend-track"><span class="neo-spend-fill" style="width:52%; background:#79e8ff"></span></div>
+              </article>
+            </div>
+          </article>
+        </section>
+      </main>
+    </div>
+
+    <script src="./config.js?v=20260408a"></script>
+    <script src="./theme.js?v=20260427b" defer></script>
+    <script src="./auth.js?v=20260413a" defer></script>
+    <script src="./multipage.js?v=20260519b" defer></script>
+  </body>
+</html>

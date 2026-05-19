@@ -5,12 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <script>
       (() => {
+        document.documentElement.dataset.uiTheme = "light";
+        document.documentElement.style.colorScheme = "light";
         try {
-          document.documentElement.dataset.uiTheme =
-            window.localStorage.getItem("receiptpulse-ui-theme") === "light" ? "light" : "dark";
-        } catch (error) {
-          document.documentElement.dataset.uiTheme = "dark";
-        }
+          window.localStorage.setItem("receiptpulse-ui-theme", "light");
+        } catch (error) {}
       })();
     </script>
     <title>ReceiptPulse | Private Receipt Workspace on AWS</title>
@@ -48,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260413b" />
+    <link rel="stylesheet" href="./styles.css?v=20260519b" />
   </head>
   <body class="auth-page auth-page-signin cinema-ui" data-auth-page="signin">
     <div class="cinema-stage" aria-hidden="true">
@@ -61,12 +60,18 @@
       <div class="topbar-row topbar-row-main">
         <div class="brand-lockup">
           <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
-            <img class="brand-logo" src="./receiptpulse-logo.svg?v=20260402c" alt="ReceiptPulse" />
+            <img
+              class="brand-logo"
+              src="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+              alt="ReceiptPulse"
+            />
           </a>
         </div>
         <div class="topbar-actions auth-topbar-actions">
           <span class="status-pill">Portfolio Project</span>
-          <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button">Light Mode</button>
+          <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button" hidden>Light Mode</button>
           <a class="ghost-link" href="./signup.html">Create Account</a>
           <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noreferrer">Source Code</a>
         </div>
@@ -82,6 +87,54 @@
             Each account gets a separate workspace. After sign in, the uploader, archive, and
             charts only load the receipts tied to that signed-in user.
           </p>
+        </div>
+
+        <div class="auth-3d-showcase">
+          <div class="auth-3d-head">
+            <span class="mini-label">Interactive 3D</span>
+            <p class="auth-3d-copy">Drag to rotate the figures and preview the upload to OCR to archive flow.</p>
+          </div>
+          <div
+            class="auth-3d-scene"
+            data-auth-3d-scene
+            tabindex="0"
+            role="region"
+            aria-label="Interactive 3D receipt workflow. Drag to rotate."
+          >
+            <span class="auth-3d-aura auth-3d-aura--one" aria-hidden="true"></span>
+            <span class="auth-3d-aura auth-3d-aura--two" aria-hidden="true"></span>
+            <div class="auth-3d-world" data-auth-3d-world aria-hidden="true">
+              <article class="auth-3d-figure auth-3d-figure--upload">
+                <div class="auth-3d-cube">
+                  <span class="auth-3d-cube-face face-front"></span>
+                  <span class="auth-3d-cube-face face-back"></span>
+                  <span class="auth-3d-cube-face face-right"></span>
+                  <span class="auth-3d-cube-face face-left"></span>
+                  <span class="auth-3d-cube-face face-top"></span>
+                  <span class="auth-3d-cube-face face-bottom"></span>
+                </div>
+                <p>Upload Node</p>
+              </article>
+
+              <article class="auth-3d-figure auth-3d-figure--extract">
+                <div class="auth-3d-ring">
+                  <span class="auth-3d-ring-orbit"></span>
+                </div>
+                <p>OCR Orbit</p>
+              </article>
+
+              <article class="auth-3d-figure auth-3d-figure--archive">
+                <div class="auth-3d-crystal">
+                  <span class="auth-3d-crystal-face face-a"></span>
+                  <span class="auth-3d-crystal-face face-b"></span>
+                  <span class="auth-3d-crystal-face face-c"></span>
+                  <span class="auth-3d-crystal-face face-d"></span>
+                </div>
+                <p>Archive Prism</p>
+              </article>
+            </div>
+            <p class="auth-3d-hint">Drag to rotate. Double-click to reset.</p>
+          </div>
         </div>
 
         <div class="auth-highlight-grid">
@@ -173,8 +226,9 @@
     </main>
 
     <script src="./config.js?v=20260408a"></script>
-    <script src="./theme.js?v=20260402a" defer></script>
+    <script src="./theme.js?v=20260427b" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
+    <script src="./auth-3d.js?v=20260519b" defer></script>
     <script src="./auth.js?v=20260413a" defer></script>
   </body>
 </html>

@@ -27,6 +27,11 @@ Parameters:
   FrontendLogoutUrl:
     Type: String
     Description: Exact dashboard URL that Cognito should redirect back to after sign-out.
+  OpenAIApiKey:
+    Type: String
+    NoEcho: true
+    Default: ""
+    Description: Optional OpenAI API key consumed by backend logic (kept server-side only).
 
 Globals:
   Function:
@@ -40,6 +45,7 @@ Globals:
         SNAPSHOT_CACHE_TTL_SECONDS: !Ref SnapshotCacheTtlSeconds
         READ_OBJECT_METADATA: !Ref ReadObjectMetadata
         RECEIPT_BUCKET: !Ref ReceiptBucket
+        OPENAI_API_KEY: !Ref OpenAIApiKey
 
 Resources:
   ReceiptBucket:

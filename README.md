@@ -183,7 +183,7 @@ By default it loads demo data. In live mode it reads the backend API from:
 
 - provisions the backend with SAM
 - creates the bucket, DynamoDB table, Cognito user pool, DLQ, API, and Lambdas
-- accepts deploy-time parameters for confidence threshold, object metadata reads, and Cognito callback URLs
+- accepts deploy-time parameters for confidence threshold, object metadata reads, Cognito callback URLs, and optional server-side API secrets
 
 ### [amplify.yml](./amplify.yml)
 
@@ -223,6 +223,12 @@ Update the auth placeholders in [samconfig.toml](./samconfig.toml), then run:
 ```bash
 sam build
 sam deploy
+```
+
+If you need to pass an API secret to Lambda at deploy time, set it as a SAM parameter so it stays server-side:
+
+```bash
+sam deploy --parameter-overrides OpenAIApiKey=your-secret-key
 ```
 
 If this is your first deploy and you want guided prompts:

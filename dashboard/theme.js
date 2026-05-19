@@ -2,57 +2,45 @@
   const THEME_STORAGE_KEY = "receiptpulse-ui-theme";
   const root = document.documentElement;
 
-  function readStoredTheme() {
+  function persistLightTheme() {
     try {
-      const raw = window.localStorage.getItem(THEME_STORAGE_KEY);
-      return raw === "light" ? "light" : "dark";
+      window.localStorage.setItem(THEME_STORAGE_KEY, "light");
     } catch (error) {
-      console.warn("Unable to read stored theme.", error);
-      return "dark";
+      console.warn("Unable to persist stable light theme.", error);
     }
   }
 
-  function writeStoredTheme(theme) {
-    try {
-      window.localStorage.setItem(THEME_STORAGE_KEY, theme);
-    } catch (error) {
-      console.warn("Unable to persist selected theme.", error);
-    }
-  }
-
-  function updateButtons(theme) {
-    document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
-      const nextTheme = theme === "dark" ? "light" : "dark";
-      button.textContent = nextTheme === "light" ? "Light Mode" : "Dark Mode";
-      button.setAttribute("aria-label", `Switch to ${nextTheme} mode`);
-      button.dataset.nextTheme = nextTheme;
+  function updateLogos() {
+    document.querySelectorAll("img[data-logo-light]").forEach((img) => {
+      const lightSrc = img.getAttribute("data-logo-light") || img.getAttribute("src") || "";
+      if (lightSrc && img.getAttribute("src") !== lightSrc) {
+        img.setAttribute("src", lightSrc);
+      }
     });
   }
 
-  function applyTheme(theme, persist = true) {
-    const normalized = theme === "light" ? "light" : "dark";
-    root.dataset.uiTheme = normalized;
-    if (persist) {
-      writeStoredTheme(normalized);
-    }
-    updateButtons(normalized);
-  }
+  function applyLightTheme() {
+    root.dataset.uiTheme = "light";
+    root.style.colorScheme = "light";
+    persistLightTheme();
+    updateLogos();
 
-  function toggleTheme() {
-    applyTheme(root.dataset.uiTheme === "light" ? "dark" : "light");
-  }
-
-  document.addEventListener("DOMContentLoaded", () => {
-    applyTheme(root.dataset.uiTheme || readStoredTheme(), false);
     document.querySelectorAll("[data-theme-toggle]").forEach((button) => {
-      button.addEventListener("click", toggleTheme);
+      button.hidden = true;
+      button.setAttribute("aria-hidden", "true");
+      button.setAttribute("tabindex", "-1");
     });
-  });
+  }
+
+  applyLightTheme();
+
+  document.addEventListener("DOMContentLoaded", applyLightTheme);
+  window.addEventListener("pageshow", applyLightTheme);
 
   window.ReceiptPulseTheme = {
-    applyTheme,
+    applyTheme: applyLightTheme,
     getTheme() {
-      return root.dataset.uiTheme || readStoredTheme();
+      return "light";
     },
   };
 })();

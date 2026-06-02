@@ -25,8 +25,22 @@
     "The dashboard code is versioned with the repo so the product flow remains inspectable."
   ],
   "tradeoff": "I optimized for a believable product-style AWS build with strong user flow first; deeper reporting and a portable redeploy path are the next layer.",
-  "tags": ["aws", "backend", "full-stack", "repo"],
-  "stack": ["AWS Lambda", "S3", "DynamoDB", "API Gateway", "Cognito", "Textract", "CloudFront", "JavaScript"],
+  "tags": [
+    "aws",
+    "backend",
+    "full-stack",
+    "repo"
+  ],
+  "stack": [
+    "AWS Lambda",
+    "S3",
+    "DynamoDB",
+    "API Gateway",
+    "Cognito",
+    "Textract",
+    "CloudFront",
+    "JavaScript"
+  ],
   "links": {
     "live": "",
     "repo": "https://github.com/agarwalujala3-lang/ReceiptPulse"

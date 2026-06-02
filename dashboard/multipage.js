@@ -414,9 +414,18 @@
         mesh.push(row);
       }
 
-      const glow = context.createRadialGradient(centerX, centerY, radius * 0.18, centerX, centerY, radius * 1.32);
-      glow.addColorStop(0, "rgba(119, 222, 255, 0.22)");
-      glow.addColorStop(0.45, "rgba(111, 105, 255, 0.16)");
+      const backplate = context.createRadialGradient(centerX, centerY, radius * 0.18, centerX, centerY, radius * 1.28);
+      backplate.addColorStop(0, "rgba(11, 27, 48, 0.16)");
+      backplate.addColorStop(0.58, "rgba(11, 27, 48, 0.09)");
+      backplate.addColorStop(1, "rgba(17, 31, 54, 0)");
+      context.fillStyle = backplate;
+      context.beginPath();
+      context.arc(centerX, centerY, radius * 1.3, 0, Math.PI * 2);
+      context.fill();
+
+      const glow = context.createRadialGradient(centerX, centerY, radius * 0.2, centerX, centerY, radius * 1.28);
+      glow.addColorStop(0, "rgba(20, 126, 154, 0.13)");
+      glow.addColorStop(0.48, "rgba(72, 58, 160, 0.095)");
       glow.addColorStop(1, "rgba(9, 12, 28, 0)");
       context.fillStyle = glow;
       context.beginPath();
@@ -430,12 +439,14 @@
             const point = row[lon];
             const next = row[lon + 1];
             const depth = (point.z + next.z + 2) / 4;
-            const alpha = pass === 0 ? 0.08 + depth * 0.16 : 0.18 + depth * 0.28;
+            const alpha = pass === 0 ? 0.16 + depth * 0.14 : 0.4 + depth * 0.38;
             context.strokeStyle =
-              lon % 2 === 0
-                ? `rgba(118, 222, 255, ${alpha.toFixed(3)})`
-                : `rgba(176, 122, 255, ${(alpha * 0.92).toFixed(3)})`;
-            context.lineWidth = pass === 0 ? 3.4 : 1.25;
+              pass === 0
+                ? `rgba(16, 30, 54, ${alpha.toFixed(3)})`
+                : lon % 2 === 0
+                  ? `rgba(7, 106, 134, ${alpha.toFixed(3)})`
+                  : `rgba(72, 52, 162, ${(alpha * 0.96).toFixed(3)})`;
+            context.lineWidth = pass === 0 ? 3.35 : 1.28;
             context.beginPath();
             context.moveTo(point.x, point.y);
             context.lineTo(next.x, next.y);
@@ -448,12 +459,14 @@
             const point = mesh[lat][lon];
             const next = mesh[lat + 1][lon];
             const depth = (point.z + next.z + 2) / 4;
-            const alpha = pass === 0 ? 0.06 + depth * 0.14 : 0.14 + depth * 0.24;
+            const alpha = pass === 0 ? 0.14 + depth * 0.13 : 0.34 + depth * 0.34;
             context.strokeStyle =
-              lat % 2 === 0
-                ? `rgba(112, 192, 255, ${alpha.toFixed(3)})`
-                : `rgba(195, 118, 255, ${(alpha * 0.9).toFixed(3)})`;
-            context.lineWidth = pass === 0 ? 3 : 1;
+              pass === 0
+                ? `rgba(16, 30, 54, ${alpha.toFixed(3)})`
+                : lat % 2 === 0
+                  ? `rgba(8, 89, 142, ${alpha.toFixed(3)})`
+                  : `rgba(100, 46, 148, ${(alpha * 0.94).toFixed(3)})`;
+            context.lineWidth = pass === 0 ? 3 : 1.08;
             context.beginPath();
             context.moveTo(point.x, point.y);
             context.lineTo(next.x, next.y);

@@ -1,0 +1,5 @@
+2026/04/27-12:40:54.034 3660 Creating DB C:\Users\AKSHYA\OneDrive\Desktop\UJALA\ReceiptPulse\.verification\edge-profile-light-check\Default\EdgeCoupons/coupons_data.db since it was missing.
+2026/04/27-12:40:54.054 3660 Reusing MANIFEST C:\Users\AKSHYA\OneDrive\Desktop\UJALA\ReceiptPulse\.verification\edge-profile-light-check\Default\EdgeCoupons/coupons_data.db/MANIFEST-000001
+2026/04/27-12:40:54.332 194c Level-0 table #5: started
+2026/04/27-12:40:54.338 194c Level-0 table #5: 682121 bytes OK
+2026/04/27-12:40:54.340 194c Delete type=0 #3

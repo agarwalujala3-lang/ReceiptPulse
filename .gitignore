@@ -13,3 +13,10 @@ Thumbs.db
 build.toml
 .env
 .env.*
+.verification/
+__pycache__/
+*.db
+*.db-journal
+*.log
+*.ldb
+.DS_Store

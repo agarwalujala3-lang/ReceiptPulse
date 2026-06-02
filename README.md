@@ -1,20 +1,22 @@
-<p align="center">
-  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="400" />
-</p>
+<div align="center">
+  <p align="center">
+     <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="400" />
+  </p>
 
-<h1 align="center">ReceiptPulse</h1>
-<p align="center">
-  <strong>The Enterprise-Grade Serverless Receipt Intelligence Platform.</strong>
-</p>
+  <h1 align="center">ReceiptPulse</h1>
+  <p align="center">
+     <strong>The Enterprise-Grade Serverless Receipt Intelligence Platform.</strong>
+  </p>
 
-<p align="center">
-  <a href="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml">
-    <img src="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg" alt="Build Status">
-  </a>
-  <img src="https://img.shields.io/badge/Architecture-Serverless-blue" alt="Architecture">
-  <img src="https://img.shields.io/badge/Stack-AWS+JS-ff69b4" alt="Stack">
-  <img src="https://img.shields.io/badge/License-MIT-success" alt="License">
-</p>
+  <p align="center">
+     <a href="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml">
+       <img src="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg" alt="Build Status">
+     </a>
+     <img src="https://img.shields.io/badge/Architecture-Serverless-blue" alt="Architecture">
+     <img src="https://img.shields.io/badge/Stack-AWS+JS-ff69b4" alt="Stack">
+     <img src="https://img.shields.io/badge/License-MIT-success" alt="License">
+   </p>
+</div>
 
 ---
 

@@ -1,112 +1,63 @@
 <div align="center">
-
-  <!-- Using the mark (icon) instead of the full logo for a cleaner vertical stack -->
-  <img src="dashboard/receiptpulse-mark.svg" alt="ReceiptPulse" width="100" />
-
-  <h1>ReceiptPulse</h1>
+  <img src="dashboard/receiptpulse-mark.svg" alt="ReceiptPulse" width="150" />
   
-  <p><strong>The Enterprise-Grade Serverless Receipt Intelligence Platform.</strong></p>
-
-  <p>
-    <a href="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml">
-      <img src="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg" alt="Build Status">
-    </a>
-    <img src="https://img.shields.io/badge/Architecture-Serverless-blue" alt="Architecture">
-    <img src="https://img.shields.io/badge/Stack-AWS+JS-ff69b4" alt="Stack">
-    <img src="https://img.shields.io/badge/License-MIT-success" alt="License">
+  <h1 style="color: #63d0ff;">ReceiptPulse</h1>
+  <p style="font-size: 1.2rem; color: #8899aa;">
+    <i>The Enterprise-Grade Serverless Receipt Intelligence Platform</i>
   </p>
 
+  <p>
+    <img src="https://img.shields.io/badge/Status-Cloud%20Optimized-green?style=flat-square" alt="Status">
+    <img src="https://img.shields.io/badge/Architecture-EventDriven-blue?style=flat-square" alt="Architecture">
+    <img src="https://img.shields.io/badge/License-MIT-success?style=flat-square" alt="License">
+  </p>
 </div>
 
-<br />
 <br />
 
 ---
 
-<br />
-
-## 🚀 The Product Experience
-ReceiptPulse isn't just an OCR script—it's a **secure, multi-tenant workspace**. Each user gets a private environment to digitize financial records.
-
-<br />
+<h2 style="color: #ff8a5b;">🚀 The Product Experience</h2>
+ReceiptPulse is a <strong>secure, multi-tenant workspace</strong> for digitizing and analyzing financial records.
 
 | Feature | Production Implementation |
 | :--- | :--- |
-| **Intelligent OCR** | Amazon Textract `AnalyzeExpense` (Vendor, Line-items, Data) |
-| **Identity** | Cognito-backed User Pools with direct sign-in flow |
-| **Logic** | Event-driven Lambda pipeline with Auto-labels & Deduplication |
-| **UI/UX** | Glassmorphism-inspired dashboard with interactive data trends |
-
-<br />
-<br />
+| <span style="color: #63d0ff;">●</span> <strong>Intelligent OCR</strong> | Amazon Textract AnalyzeExpense |
+| <span style="color: #63d0ff;">●</span> <strong>Identity</strong> | Cognito-backed User Pools |
+| <span style="color: #63d0ff;">●</span> <strong>Logic</strong> | Event-driven Lambda & Auto-labels |
+| <span style="color: #63d0ff;">●</span> <strong>UI/UX</strong> | Glassmorphism Dashboard |
 
 ---
 
-<br />
-
-## 📐 Architectural Design
+<h2 style="color: #63d0ff;">📐 Architectural Design</h2>
 <p align="center">
-  <img src="dashboard/receiptpulse-github-preview.svg?v=20260408a" alt="Architecture Diagram" width="800" />
+  <img src="dashboard/receiptpulse-github-preview.svg?v=20260408a" alt="Architecture Diagram" width="700" />
 </p>
 
-<br />
-
-### The Processing Flow
-1. **Ingestion:** Signed-in users get a secure S3 upload session.
-2. **AI Processing:** Asynchronous Lambda triggers initiate OCR extraction.
-3. **Integrity Layer:** Hashed signature validation intercepts duplicate submissions.
-4. **Sync:** DynamoDB serves structured records to the front-end via HTTP API.
-
-<br />
-<br />
+<h3 style="color: #ff8a5b;">The Processing Flow</h3>
+<ol>
+  <li><strong>Ingestion:</strong> Secure S3 upload session via API Gateway.</li>
+  <li><strong>AI Processing:</strong> Asynchronous Lambda triggers initiate OCR extraction.</li>
+  <li><strong>Integrity Layer:</strong> SHA-256 hashed signature validation prevents duplicates.</li>
+  <li><strong>Sync:</strong> Real-time HTTP API updates to the frontend.</li>
+</ol>
 
 ---
 
-<br />
-
-## 🛠️ Technical Specifications
-
-<div align="center">
-
-| Category | Technology |
-| :--- | :--- |
-| **Backend** | Python 3.12 (AWS Lambda) |
-| **IaC** | AWS SAM (Serverless Application Model) |
-| **AI/ML** | Amazon Textract |
-| **Frontend** | Vanilla JavaScript & CSS |
-| **Hosting** | AWS Amplify (Static Web Hosting) |
-
-</div>
-
-<br />
-<br />
-
----
-
-<br />
-
-## 📊 Analytics & Insights
-ReceiptPulse provides a real-time financial control board:
+<h2 style="color: #63d0ff;">📊 Analytics & Insights</h2>
+<p>ReceiptPulse provides a real-time financial control board for operational teams.</p>
 
 <details>
-  <summary><b>Click to expand: Key Performance Metrics</b></summary>
-  <br />
-  
-  * **Spend Breakdown:** Auto-categorized expenses based on merchant-item patterns.
-  * **Processing Throughput:** Live monitoring of ingestion and extraction cycles.
-  * **Operational Quality:** Confidence-scoring metrics for every single document processed.
+  <summary style="cursor: pointer; color: #ff8a5b;"><b>Click to view Core Metrics</b></summary>
+  <ul>
+    <li><b>Spend Breakdown:</b> Auto-categorized patterns.</li>
+    <li><b>Throughput:</b> Live monitoring of extraction cycles.</li>
+    <li><b>Quality Control:</b> AI confidence-scoring for every record.</li>
+  </ul>
 </details>
-
-<br />
-<br />
 
 ---
 
-<br />
-
-## ⚙️ Deployment
-
-### Infrastructure
-```bash
-sam build
-sam deploy --guided
+<div align="center">
+  <p><i>Built by <a href="https://github.com/agarwalujala3-lang">Ujala Agarwal</a> • MIT Licensed</i></p>
+</div>

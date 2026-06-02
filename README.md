@@ -1,7 +1,7 @@
 <div align="center">
-  <p align="center">
-     <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="400" />
-  </p>
+  
+  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="400" />
+  
 
   <h1 align="center">ReceiptPulse</h1>
   <p align="center">

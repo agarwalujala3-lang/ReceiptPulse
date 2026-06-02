@@ -1,67 +1,81 @@
-<div align="center">
-  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="280" />
-  <h1>ReceiptPulse: Enterprise-Grade Receipt Intelligence</h1>
-  
-  <p><i>A scalable, event-driven serverless pipeline for automated financial data extraction and reconciliation.</i></p>
+<p align="center">
+  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="300" />
+</p>
 
-  <p>
-    <a href="#architectural-design">Architecture</a> •
-    <a href="#core-capabilities">Capabilities</a> •
-    <a href="#technical-specifications">Tech Stack</a> •
-    <a href="#deployment">Deployment</a>
-  </p>
-  
-  <br />
+<h1 align="center">ReceiptPulse</h1>
+<p align="center">
+  <strong>The Enterprise-Grade Serverless Receipt Intelligence Platform.</strong>
+</p>
 
-   [![Production Grade CI](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml)
-  <img src="https://img.shields.io/badge/Status-Cloud%20Optimized-green" alt="Status">
-  <img src="https://img.shields.io/badge/Architecture-Event--Driven-blue" alt="Architecture">
+<p align="center">
+  <a href="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml">
+    <img src="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg" alt="Build Status">
+  </a>
+  <img src="https://img.shields.io/badge/Architecture-Serverless-blue" alt="Architecture">
+  <img src="https://img.shields.io/badge/Stack-AWS+JS-ff69b4" alt="Stack">
   <img src="https://img.shields.io/badge/License-MIT-success" alt="License">
+</p>
+
+---
+
+## 🚀 The Product Experience
+ReceiptPulse isn't just an OCR script—it's a **secure, multi-tenant workspace**. Each user gets a private environment to digitize financial records. 
+
+| Feature | Production Implementation |
+| :--- | :--- |
+| **Intelligent OCR** | Amazon Textract `AnalyzeExpense` (Vendor, Line-items, Date). |
+| **Identity** | Cognito-backed User Pools with direct sign-in flow. |
+| **Logic** | Event-driven Lambda pipeline with Auto-labels & Deduplication. |
+| **UI/UX** | Glassmorphism-inspired dashboard with interactive data trends. |
+
+---
+
+## 📐 High-Level Architecture
+<p align="center">
+  <img src="dashboard/receiptpulse-github-preview.svg?v=20260408a" alt="Architecture Diagram" width="800" />
+</p>
+
+### The Processing Flow
+1.  **Ingestion:** Signed-in users get a secure S3 upload session.
+2.  **AI Processing:** Asynchronous Lambda triggers initiate OCR extraction.
+3.  **Integrity Layer:** Hashed signature validation intercepts duplicate submissions.
+4.  **Sync:** DynamoDB serves structured records to the front-end via HTTP API.
+
+---
+
+## 🛠️ Tech Stack & Tooling
+
+<div align="center">
+  
+| Category | Technology |
+| :--- | :--- |
+| **Backend** | Python 3.12 (AWS Lambda) |
+| **IaC** | AWS SAM (Serverless Application Model) |
+| **AI/ML** | Amazon Textract |
+| **Frontend** | Vanilla JavaScript & CSS (Glassmorphism UI) |
+| **Hosting** | AWS Amplify (Static Web Hosting) |
+| **Security** | Bandit (Security Linting) & Flake8 (Standards) |
+
 </div>
 
 ---
 
-## 🚀 Overview
-**ReceiptPulse** is a robust, serverless solution engineered to solve the friction of unstructured financial document management. By integrating AI-driven OCR with a secure, multi-tenant cloud architecture, the platform automatically transforms physical receipts into high-fidelity financial insights while ensuring strict data privacy.
+## 📊 Analytics & Insights
+ReceiptPulse provides a real-time financial control board:
 
-## 🏗️ Architectural Design
-Built on a fully decoupled, serverless paradigm to maximize scalability while maintaining a near-zero idle cost profile.
-
-* **Event-Driven Workflow:** Asynchronous processing orchestrated by Amazon S3 event notifications, ensuring high throughput for bulk document uploads.
-* **Intelligent Data Pipeline:** Multi-stage transformation logic (Validation → AI Extraction → Deduplication → Analytics Integration).
-* **Security & Isolation:** Multi-tenant architecture enforced through Cognito-scoped IAM roles, ensuring strict data silos between user identities.
-* **Fault Tolerance:** Robust integration of Dead Letter Queues (DLQ) to manage document processing failures gracefully.
-
-## 🛠️ Core Capabilities
-* **AI-Powered OCR:** Deep integration with Amazon Textract to normalize vendor, date, and line-item data across diverse document formats.
-* **Integrity Management:** Real-time duplicate interception using SHA-256 fingerprinting to prevent database bloat and reconciliation errors.
-* **Dynamic Categorization:** Intelligent label inference engine that auto-categorizes expenses based on vendor metadata and purchase history.
-* **Analytics Engine:** Real-time dashboards visualizing expenditure trends, monthly burn rates, and vendor spend distribution.
-* **Operational Queue:** Dedicated review interface for low-confidence AI matches and duplicate conflicts.
-
-## 📋 Technical Specifications
-* **Infrastructure:** AWS Serverless Application Model (SAM) | Infrastructure as Code (IaC)
-* **Compute:** AWS Lambda (Python 3.12)
-* **Intelligence:** Amazon Textract (AnalyzeExpense)
-* **Persistence:** Amazon DynamoDB (Single-table design with Global Secondary Indexes)
-* **Auth:** Amazon Cognito (User Pools + Hosted UI)
-* **Frontend:** Modular Vanilla JavaScript | Glassmorphism-based UI/UX
-
-## 📈 Dashboard Interface
-The platform features a production-ready dashboard designed for data density and clarity:
-* **Interactive Visualization:** Real-time monitoring of processing pipelines.
-* **Unified Workspace:** Seamless management of receipt history, rename actions, and manual review queues.
-* **Modern Aesthetic:** A refined UI utilizing backdrop-blur and semi-transparent layers for professional visual clarity.
+<details>
+  <summary><b>Click to expand: Key Performance Metrics</b></summary>
+  
+  * **Spend Breakdown:** Auto-categorized expenses based on merchant-item patterns.
+  * **Processing Throughput:** Live monitoring of ingestion and extraction cycles.
+  * **Operational Quality:** Confidence-scoring metrics for every single document processed.
+</details>
 
 ---
 
-## ⚙️ Deployment
-ReceiptPulse follows a CI/CD-first deployment pattern suitable for production environments.
+## 📦 Deployment Roadmap
 
-### Backend Provisioning
+1. **Infrastructure:**
+   
 ```bash
-# Build the application
-sam build
-
-# Deploy infrastructure
-sam deploy --guided
+   sam build && sam deploy --guided

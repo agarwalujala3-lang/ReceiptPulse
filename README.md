@@ -1,9 +1,5 @@
 <div align="center">
-  
   <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="280" />
-  
-  [![Production Grade CI](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml)
-  
   <h1>ReceiptPulse: Enterprise-Grade Receipt Intelligence</h1>
   
   <p><i>A scalable, event-driven serverless pipeline for automated financial data extraction and reconciliation.</i></p>
@@ -16,7 +12,8 @@
   </p>
   
   <br />
-  
+
+   [![Production Grade CI](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml)
   <img src="https://img.shields.io/badge/Status-Cloud%20Optimized-green" alt="Status">
   <img src="https://img.shields.io/badge/Architecture-Event--Driven-blue" alt="Architecture">
   <img src="https://img.shields.io/badge/License-MIT-success" alt="License">

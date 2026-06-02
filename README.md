@@ -1,6 +1,6 @@
 <div align="center">
 
-  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="300" />
+  <img src="dashboard/receiptpulse-logo-light.svg" alt="ReceiptPulse" width="300" />
 
   <h1>ReceiptPulse</h1>
   

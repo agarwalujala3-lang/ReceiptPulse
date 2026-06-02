@@ -1,7 +1,7 @@
 <div align="center">
 
   <!-- Using the mark (icon) instead of the full logo for a cleaner vertical stack -->
-  <img src="dashboard/receiptpulse-mark.svg" alt="ReceiptPulse" width="150" />
+  <img src="dashboard/receiptpulse-mark.svg" alt="ReceiptPulse" width="100" />
 
   <h1>ReceiptPulse</h1>
   

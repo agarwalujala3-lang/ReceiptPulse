@@ -1,5 +1,5 @@
 <div align="center">
-  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="280" />
+  <img src="dashboard/receiptpulse-logo-light.svg" alt="ReceiptPulse" width="280" />
   <h1>ReceiptPulse: Enterprise-Grade Receipt Intelligence</h1>
   
   <p><i>A scalable, event-driven serverless pipeline for automated financial data extraction and reconciliation.</i></p>

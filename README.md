@@ -13,7 +13,7 @@
   
   <br />
 
-  [![Production Grade CI](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml)
+   [![Production Grade CI](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml)
   <img src="https://img.shields.io/badge/Status-Cloud%20Optimized-green" alt="Status">
   <img src="https://img.shields.io/badge/Architecture-Event--Driven-blue" alt="Architecture">
   <img src="https://img.shields.io/badge/License-MIT-success" alt="License">
@@ -49,24 +49,18 @@ Built on a fully decoupled, serverless paradigm to maximize scalability while ma
 
 ## 📈 Dashboard Interface
 The platform features a production-ready dashboard designed for data density and clarity:
-
-<p align="center">
-  <img src="screenshots/dashboard-preview.png" alt="ReceiptPulse Dashboard Preview" width="800" />
-</p>
-
 * **Interactive Visualization:** Real-time monitoring of processing pipelines.
 * **Unified Workspace:** Seamless management of receipt history, rename actions, and manual review queues.
 * **Modern Aesthetic:** A refined UI utilizing backdrop-blur and semi-transparent layers for professional visual clarity.
 
 ---
 
-## ⚙️ Deployment
-ReceiptPulse follows a CI/CD-first deployment pattern suitable for production environments.
+## 📦 Deployment Overview
+This project adheres to **Infrastructure-as-Code (IaC)** standards via AWS SAM.
 
-### Backend Provisioning
 ```bash
-# Build the application
+# Initialize build
 sam build
 
-# Deploy infrastructure
+# Deploy to production environment
 sam deploy --guided

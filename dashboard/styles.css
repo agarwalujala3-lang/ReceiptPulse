@@ -13999,3 +13999,40 @@ html[data-ui-theme="light"] body.cinema-ui .auth-submit {
     inset 0 1px 0 rgba(255, 255, 255, 0.64),
     0 14px 24px rgba(48, 87, 112, 0.14) !important;
 }
+/* --- Advanced UI Effects --- */
+
+/* Glassmorphism Panel */
+.panel {
+  background: rgba(255, 255, 255, 0.03) !important;
+  backdrop-filter: blur(15px) !important;
+  border: 1px solid rgba(255, 255, 255, 0.1) !important;
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37) !important;
+}
+
+/* Neon Glow Effect */
+.neo-card {
+  position: relative;
+  border: 1px solid rgba(110, 231, 247, 0.2);
+}
+
+.neo-card:hover {
+  box-shadow: 0 0 20px rgba(110, 231, 247, 0.2);
+}
+
+/* Gradient Text for Titles */
+.dashboard-command-copy h1 {
+  background: linear-gradient(90deg, #fff, #6ee7f7);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Pulse Animation for Status Badges */
+.status-tag {
+  animation: pulse-glow 2s infinite;
+}
+
+@keyframes pulse-glow {
+  0% { box-shadow: 0 0 0 0 rgba(110, 231, 247, 0.4); }
+  70% { box-shadow: 0 0 0 6px rgba(110, 231, 247, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(110, 231, 247, 0); }
+}

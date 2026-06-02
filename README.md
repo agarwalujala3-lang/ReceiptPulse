@@ -24,6 +24,13 @@
 ## 🚀 Overview
 **ReceiptPulse** is a robust, serverless solution engineered to solve the friction of unstructured financial document management. By integrating AI-driven OCR with a secure, multi-tenant cloud architecture, the platform automatically transforms physical receipts into high-fidelity financial insights while ensuring strict data privacy.
 
+## 📸 Visual Showcase
+*A glimpse of the ReceiptPulse dashboard interface.*
+
+<p align="center">
+  <img src="screenshots/ig_00cb7f44ade894190169f021a87d1081919743edf028fab616.png" alt="ReceiptPulse Dashboard Preview" width="800" />
+</p>
+
 ## 🏗️ Architectural Design
 Built on a fully decoupled, serverless paradigm to maximize scalability while maintaining a near-zero idle cost profile.
 

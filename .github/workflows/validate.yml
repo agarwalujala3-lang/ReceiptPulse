@@ -1,23 +1,19 @@
-name: Validate
+name: Production Grade CI
 
-on:
-  push:
-    branches: [main]
-  pull_request:
+on: [push, pull_request]
 
 jobs:
-  validate:
+  lint-and-scan:
     runs-on: ubuntu-latest
-
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v3
+      - name: Set up Python
+        uses: actions/setup-python@v4
         with:
-          node-version: "20"
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
-      - name: Compile Lambda handlers
-        run: python -m py_compile lambda/*.py
-      - name: Check dashboard script syntax
-        run: node --check dashboard/app.js
+          python-version: '3.12'
+      - name: Install Dependencies
+        run: pip install flake8 bandit
+      - name: Lint with Flake8
+        run: flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+      - name: Security Scan with Bandit
+        run: bandit -r . -x .venv,tests

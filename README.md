@@ -1,55 +1,69 @@
 <div align="center">
-  <img src="dashboard/receiptpulse-mark.svg" alt="ReceiptPulse" width="120" />
-  <h1>ReceiptPulse</h1>
-  <p><i>Automated Financial Intelligence for Modern Teams</i></p>
+
+<img src="dashboard/receiptpulse-mark.svg" alt="ReceiptPulse" width="120" />
+
+# ReceiptPulse
+### Enterprise-Grade Serverless Receipt Intelligence
+
+<p>
+  <a href="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml">
+    <img src="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg" alt="Build Status">
+  </a>
+  <img src="https://img.shields.io/badge/Architecture-Serverless-blue?style=flat-square" alt="Architecture">
+  <img src="https://img.shields.io/badge/Cloud-AWS-orange?style=flat-square" alt="Cloud Provider">
+  <img src="https://img.shields.io/badge/Language-Python_3.12-blue?style=flat-square" alt="Language">
+  <img src="https://img.shields.io/badge/Security-Bandit_Scan-green?style=flat-square" alt="Security Scan">
+</p>
+
 </div>
 
 ---
 
 ## 💡 The Problem
-In modern financial teams, receipt management is a manual, error-prone bottleneck. 
-* **Data Silos:** Expenses are trapped in physical paper or scattered emails.
-* **Human Error:** Manual entry leads to inconsistent accounting and duplicate claims.
-* **Compliance Risk:** Lack of auditable, structured data makes financial reporting a nightmare.
+In modern financial teams, manual receipt processing is a significant cost center and an operational bottleneck:
+* **Data Fragmentation:** Financial data remains trapped in physical paper or scattered digital image files.
+* **Operational Inefficiency:** Manual transcription is slow, error-prone, and leads to inconsistent accounting records.
+* **Compliance Risks:** Lack of structured, auditable metadata makes financial reporting and tax reconciliation a manual nightmare.
 
-## 🚀 The Solution: ReceiptPulse
-ReceiptPulse automates the entire ingestion lifecycle. By leveraging **Amazon Textract**, we transform unstructured document images into clean, machine-readable JSON, ensuring 99.9% data integrity while eliminating manual data entry.
+## 🚀 The ReceiptPulse Solution
+ReceiptPulse provides an **automated, event-driven pipeline** that digitizes and normalizes financial documents into structured, actionable JSON data. We prioritize data integrity, system scalability, and operational security.
 
-| Feature | Impact |
+| Feature | Production Impact |
 | :--- | :--- |
-| **AI-Extraction** | Reduces processing time by 85%. |
-| **Deduplication** | Unique Hash-Signatures eliminate redundant entries. |
-| **Glassmorphism UI** | High-fidelity dashboard for clear financial insights. |
+| **Intelligent OCR** | Amazon Textract `AnalyzeExpense` extracts high-fidelity metadata. |
+| **Integrity Layer** | SHA-256 deduplication prevents redundant processing. |
+| **DevOps Ready** | Automated CI/CD pipelines with integrated security linting. |
+| **Glassmorphism UI** | High-fidelity dashboard for real-time spend visualization. |
 
 ---
 
-## 🛠️ Deep Dive: The Engineering Logic
-*We don't just process images; we validate them.*
+## 🛠️ Engineering Deep Dive
+The architecture is designed for **High Throughput and Low Maintenance**.
 
-<div style="background: #1a1a1a; padding: 20px; border-radius: 10px; border-left: 5px solid #63d0ff;">
-  <h4 style="color: #63d0ff;">1. Validation & Security</h4>
-  <p>Before any OCR happens, files are validated against MIME types and file size constraints to prevent malicious injection.</p>
-  
-  <h4 style="color: #ff8a5b;">2. Distributed Processing</h4>
-  <p>Using AWS Lambda's event-driven architecture, we trigger extraction asynchronously, ensuring the UI remains responsive even during high-load periods.</p>
+<div style="background-color: #0d1117; padding: 20px; border-radius: 8px; border: 1px solid #30363d;">
+
+- **Asynchronous Ingestion:** Files are securely uploaded to S3, triggering an automated Lambda event-bus.
+- **AI-Driven Normalization:** Textract processes images concurrently, converting unstructured pixels into vendor/line-item schemas.
+- **Observability:** Custom structured logging ensures every request is traceable through Amazon CloudWatch.
+- **Budget Governance:** CloudWatch Billing Guardrails ensure 24/7 cost protection.
+
 </div>
 
 ---
 
-## 📈 Future Scope
-As an enterprise-ready MVP, our roadmap includes:
-- [ ] **Multi-Currency Support:** Intelligent conversion for global travel expenses.
-- [ ] **Bank Integration:** Automatic synchronization with corporate cards for instant reconciliation.
-- [ ] **Advanced Analytics:** Predictive modeling for monthly spending patterns.
+## 📈 Roadmap & Future Scope
+- [ ] **Multi-Currency Engine:** Intelligent exchange rate reconciliation for international travel.
+- [ ] **Bank Sync API:** Direct reconciliation with corporate financial accounts.
+- [ ] **Predictive Analytics:** ML-based forecasting for departmental monthly spend patterns.
 
 ---
 
 ## 📦 Deployment Overview
-This project is built for **Automated DevOps**. 
+This project adheres to **Infrastructure-as-Code (IaC)** standards via AWS SAM.
 
 ```bash
-# Build the serverless stack
+# Initialize build
 sam build
 
-# Deploy to AWS environment
+# Deploy to production environment
 sam deploy --guided

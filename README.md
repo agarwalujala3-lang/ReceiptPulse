@@ -1,4 +1,5 @@
 <div align="center">
+  
   <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="280" />
   
   [![Production Grade CI](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg?branch=main)](https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml)

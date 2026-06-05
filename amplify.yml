@@ -5,7 +5,7 @@ frontend:
       commands:
         - mkdir -p dist
         - |
-          printf 'window.RECEIPTPULSE_CONFIG = {\n  apiBaseUrl: "%s",\n  auth: {\n    hostedUiDomain: "%s",\n    clientId: "%s",\n    redirectSignIn: "%s",\n    redirectSignOut: "%s",\n    scopes: ["openid", "email", "profile"],\n  },\n};\n' \
+          printf 'window.RECEIPTPULSE_CONFIG = {\n  apiBaseUrl: "%s",\n  demo: {\n    enabled: true,\n    autoFallback: true,\n    sampleDataPath: "./data/demo-dashboard.json",\n    user: {\n      id: "demo-cloud-operator",\n      name: "Cloud Demo Operator",\n      email: "demo@receiptpulse.dev",\n    },\n  },\n  auth: {\n    hostedUiDomain: "%s",\n    clientId: "%s",\n    region: "ap-south-1",\n    appPath: "./app.html",\n    redirectSignIn: "%s",\n    redirectSignOut: "%s",\n    scopes: ["openid", "email", "profile"],\n  },\n};\n' \
             "${API_BASE_URL:-}" \
             "${COGNITO_HOSTED_UI_DOMAIN:-}" \
             "${COGNITO_CLIENT_ID:-}" \

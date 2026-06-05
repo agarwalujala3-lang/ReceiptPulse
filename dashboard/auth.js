@@ -2,6 +2,7 @@
   const AUTH_STORAGE_KEY = "receiptpulse-auth-session";
   const DEFAULT_APP_PATH = "./app.html";
   const SIGNED_OUT_FLAG = "signed_out";
+  const DEMO_TOKEN_PREFIX = "demo-receiptpulse";
 
   function getSessionStore() {
     return window.sessionStorage;
@@ -71,6 +72,40 @@
     clearLegacyPersistentTokens();
   }
 
+  function getDemoConfig() {
+    const demo = window.RECEIPTPULSE_CONFIG?.demo || {};
+    const user = demo.user || {};
+    return {
+      enabled: demo.enabled !== false,
+      appPath: String(window.RECEIPTPULSE_CONFIG?.auth?.appPath || DEFAULT_APP_PATH).trim() || DEFAULT_APP_PATH,
+      user: {
+        id: String(user.id || "demo-cloud-operator"),
+        name: String(user.name || "Cloud Demo Operator"),
+        email: String(user.email || "demo@receiptpulse.dev"),
+      },
+    };
+  }
+
+  function isDemoEnabled() {
+    return getDemoConfig().enabled;
+  }
+
+  function createDemoTokens() {
+    const demo = getDemoConfig();
+    return {
+      demo: true,
+      accessToken: `${DEMO_TOKEN_PREFIX}-access-${Date.now()}`,
+      idToken: `${DEMO_TOKEN_PREFIX}-id-${Date.now()}`,
+      refreshToken: "",
+      expiresAt: Date.now() + 8 * 60 * 60 * 1000,
+      user: demo.user,
+    };
+  }
+
+  function isDemoSession(tokens) {
+    return Boolean(tokens?.demo && String(tokens?.accessToken || "").startsWith(DEMO_TOKEN_PREFIX));
+  }
+
   function waitFor(ms) {
     return new Promise((resolve) => window.setTimeout(resolve, ms));
   }
@@ -105,6 +140,15 @@
   }
 
   function buildUserFromTokens(tokens) {
+    if (isDemoSession(tokens)) {
+      return {
+        id: tokens.user?.id || "demo-cloud-operator",
+        email: tokens.user?.email || "demo@receiptpulse.dev",
+        name: tokens.user?.name || "Cloud Demo Operator",
+        demo: true,
+      };
+    }
+
     const claims = decodeJwtPayload(tokens?.idToken || tokens?.accessToken || "");
     return {
       id: claims.sub || claims["cognito:username"] || claims.username || "",
@@ -229,6 +273,9 @@
     if (!accessToken) {
       return;
     }
+    if (String(accessToken).startsWith(DEMO_TOKEN_PREFIX)) {
+      return;
+    }
 
     try {
       await cognitoRequest(config, "GlobalSignOut", {
@@ -245,6 +292,12 @@
   function redirectToApp(config) {
     const target = new URL(config?.appPath || DEFAULT_APP_PATH, window.location.href);
     window.location.replace(target.toString());
+  }
+
+  function startDemoSession() {
+    const tokens = createDemoTokens();
+    persistTokens(tokens);
+    redirectToApp(getDemoConfig());
   }
 
   function clearAuthFields(fields) {
@@ -494,8 +547,24 @@
       return;
     }
 
-    if (!isConfigured(config)) {
+    const demoEnabled = isDemoEnabled();
+    if (!isConfigured(config) && !demoEnabled) {
       setPageStatus("Cognito configuration is missing in dashboard/config.js.", "error");
+      setFormBusy(true);
+      return;
+    }
+
+    const demoButton = document.querySelector("#demoAccessButton");
+    if (demoButton) {
+      demoButton.hidden = !demoEnabled;
+      demoButton.addEventListener("click", () => {
+        setPageStatus("Opening browser-only cloud demo workspace...", "working");
+        startDemoSession();
+      });
+    }
+
+    if (!isConfigured(config) && demoEnabled) {
+      setPageStatus("Live Cognito is not configured. Use Cloud Demo Access to view the AWS showcase.", "idle");
       setFormBusy(true);
       return;
     }
@@ -579,6 +648,9 @@
     refreshSession,
     globalSignOut,
     redirectToApp,
+    isDemoEnabled,
+    isDemoSession,
+    startDemoSession,
     toFriendlyErrorMessage,
   };
 

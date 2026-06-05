@@ -1,4 +1,4 @@
-<div align="center">
+﻿<div align="center">
   <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="300" />
   <h1>ReceiptPulse</h1>
   <p><strong>AWS serverless receipt intelligence platform with a recruiter-ready interactive dashboard.</strong></p>
@@ -30,6 +30,12 @@
 ## 30-Second Pitch
 
 ReceiptPulse is a production-style AWS cloud project that turns receipt uploads into structured financial intelligence. The backend is built with AWS SAM, Lambda, S3, DynamoDB, API Gateway, Cognito, and Textract. The frontend is a premium static dashboard with a dynamic 3D entry sequence, interactive receipt pipeline visuals, local upload preview, charts, duplicate-review flows, and an explicit Cloud Demo mode for safe portfolio viewing when AWS is unavailable.
+
+## Visual Showcase
+
+<p align="center">
+  <img src="screenshots/ig_00cb7f44ade894190169f021a87d1081919743edf028fab616.png" alt="ReceiptPulse dashboard preview" width="850" />
+</p>
 
 ## Demo And Live Modes
 

@@ -3,6 +3,7 @@ const POLL_INTERVAL_MS = 2500;
 const MAX_POLL_ATTEMPTS = 30;
 const HISTORY_STORAGE_KEY_PREFIX = "receiptpulse-upload-history";
 const AUTH_STORAGE_KEY = "receiptpulse-auth-session";
+const DEMO_DASHBOARD_STORAGE_KEY_PREFIX = "receiptpulse-demo-dashboard";
 const AUTH_SIGNIN_PATH = "./index.html";
 const AUTH_SIGNUP_PATH = "./signup.html";
 const MAX_HISTORY_ITEMS = 8;
@@ -185,7 +186,7 @@ const VISUAL_PRESETS = [
   },
   {
     key: "electricity",
-    icon: "⚡",
+    icon: "EL",
     color: "#ffd166",
     soft: "rgba(255, 209, 102, 0.18)",
     ring: "rgba(255, 209, 102, 0.4)",
@@ -633,9 +634,11 @@ const elements = {
   addWidgetButton: document.querySelector("#addWidgetButton"),
   authCta: document.querySelector("#authCta"),
   authSecondaryCta: document.querySelector("#authSecondaryCta"),
+  demoAccessCta: document.querySelector("#demoAccessCta"),
   workspaceGuard: document.querySelector("#workspaceGuard"),
   guardSignIn: document.querySelector("#guardSignIn"),
   guardSignUp: document.querySelector("#guardSignUp"),
+  guardDemoAccess: document.querySelector("#guardDemoAccess"),
   switchAccountButton: document.querySelector("#switchAccountButton"),
   signOutButton: document.querySelector("#signOutButton"),
   profileName: document.querySelector("#profileName"),
@@ -663,8 +666,10 @@ const elements = {
   uploadAccount: document.querySelector("#uploadAccount"),
   uploadHelper: document.querySelector("#uploadHelper"),
   uploadSubmit: document.querySelector("#uploadSubmit"),
+  sampleDemoUpload: document.querySelector("#sampleDemoUpload"),
   uploadStatusCard: document.querySelector(".upload-status-card"),
   uploadTimeline: document.querySelector("#uploadTimeline"),
+  uploadReadyPill: document.querySelector(".upload-ready-pill"),
   uploadMessage: document.querySelector("#uploadMessage"),
   uploadMotionScene: document.querySelector("#uploadMotionScene"),
   uploadMotionReceipt: document.querySelector("#uploadMotionReceipt"),
@@ -713,10 +718,13 @@ const elements = {
 };
 
 const authConfig = normalizeAuthConfig(window.RECEIPTPULSE_CONFIG?.auth || {});
+const demoConfig = normalizeDemoConfig(window.RECEIPTPULSE_CONFIG?.demo || {});
 let dashboardData = null;
 let activeDashboardView = null;
 let activeFilter = "ALL";
 let apiBase = "";
+let runtimeMode = "preview";
+let demoAutoSampleStarted = false;
 let uploadHistory = [];
 let previewObjectUrl = "";
 let latestPreview = null;
@@ -911,6 +919,20 @@ function normalizeAuthConfig(raw) {
   };
 }
 
+function normalizeDemoConfig(raw) {
+  const user = raw?.user || {};
+  return {
+    enabled: raw?.enabled !== false,
+    autoFallback: raw?.autoFallback !== false,
+    sampleDataPath: String(raw?.sampleDataPath || "./data/demo-dashboard.json").trim() || "./data/demo-dashboard.json",
+    user: {
+      id: String(user.id || "demo-cloud-operator"),
+      name: String(user.name || "Cloud Demo Operator"),
+      email: String(user.email || "demo@receiptpulse.dev"),
+    },
+  };
+}
+
 function isAuthConfigured() {
   if (authClient?.isConfigured) {
     return authClient.isConfigured(authConfig);
@@ -919,8 +941,54 @@ function isAuthConfigured() {
   return Boolean(authConfig.clientId && authConfig.region);
 }
 
+function isDemoEnabled() {
+  return Boolean(demoConfig.enabled);
+}
+
+function isDemoSession() {
+  if (authClient?.isDemoSession) {
+    return authClient.isDemoSession(authState.tokens);
+  }
+
+  return Boolean(authState.tokens?.demo);
+}
+
+function isDemoRuntime() {
+  return runtimeMode === "demo";
+}
+
+function getWorkspaceModeLabel() {
+  if (isDemoRuntime()) {
+    return "Cloud Demo";
+  }
+  if (runtimeMode === "live") {
+    return "AWS Live";
+  }
+  if (runtimeMode === "syncing") {
+    return "AWS Syncing";
+  }
+  if (runtimeMode === "locked") {
+    return "Sign In Required";
+  }
+  return "Project Preview";
+}
+
 function isSignedIn() {
   return authState.status === "signed_in" && Boolean(authState.tokens?.accessToken);
+}
+
+function consumeDemoLaunchParam() {
+  const url = new URL(window.location.href);
+  const shouldLaunch = url.searchParams.get("demo") === "1" && isDemoEnabled();
+  if (shouldLaunch) {
+    url.searchParams.delete("demo");
+    window.history.replaceState({}, document.title, url.toString());
+  }
+  return shouldLaunch;
+}
+
+function shouldAutoRunSampleDemo() {
+  return new URLSearchParams(window.location.search).get("sample") === "1";
 }
 
 function loadStoredTokens() {
@@ -957,6 +1025,17 @@ function persistAuthTokens(tokens) {
   } catch (error) {
     console.warn("Unable to persist auth session.", error);
   }
+}
+
+function createDemoTokenSet() {
+  return {
+    demo: true,
+    accessToken: `demo-receiptpulse-access-${Date.now()}`,
+    idToken: `demo-receiptpulse-id-${Date.now()}`,
+    refreshToken: "",
+    expiresAt: Date.now() + 8 * 60 * 60 * 1000,
+    user: demoConfig.user,
+  };
 }
 
 function clearStoredTokens() {
@@ -1000,6 +1079,13 @@ function decodeJwtPayload(token) {
 function buildUserFromTokens(tokens) {
   if (authClient?.buildUserFromTokens) {
     return authClient.buildUserFromTokens(tokens);
+  }
+
+  if (tokens?.demo) {
+    return {
+      ...demoConfig.user,
+      demo: true,
+    };
   }
 
   const claims = decodeJwtPayload(tokens?.idToken || tokens?.accessToken || "");
@@ -1078,6 +1164,12 @@ async function refreshAuthSession() {
 }
 
 async function initializeAuth() {
+  if (consumeDemoLaunchParam()) {
+    updateAuthFromTokens(createDemoTokenSet());
+    reloadUploadHistory();
+    return;
+  }
+
   if (!isAuthConfigured()) {
     authState = {
       ...authState,
@@ -1197,7 +1289,9 @@ function reloadUploadHistory() {
 
 function updateAuthUI() {
   const configured = isAuthConfigured();
+  const demoEnabled = isDemoEnabled();
   const signedIn = isSignedIn();
+  const demoSession = signedIn && isDemoSession();
   const authBusy = ["refreshing", "restoring"].includes(authState.status);
   const authRestoring = authState.status === "restoring";
   const hideAuthEntry = signedIn || !configured || authRestoring;
@@ -1205,10 +1299,14 @@ function updateAuthUI() {
 
   document.body.classList.toggle("workspace-signed-in", signedIn);
   document.body.classList.toggle("workspace-locked", workspaceLocked);
+  document.body.classList.toggle("workspace-demo-mode", isDemoRuntime() || demoSession);
+  document.body.classList.toggle("workspace-live-mode", runtimeMode === "live");
 
   if (elements.authSummary) {
     elements.authSummary.textContent = signedIn
-      ? authState.user.name || "Signed In"
+      ? demoSession || isDemoRuntime()
+        ? "Cloud Demo Active"
+        : authState.user.name || "Signed In"
       : authRestoring
         ? "Opening Workspace"
         : configured
@@ -1238,11 +1336,18 @@ function updateAuthUI() {
     elements.authSecondaryCta.textContent = "Create Account";
   }
 
+  if (elements.demoAccessCta) {
+    const showDemo = demoEnabled && !signedIn && !authRestoring;
+    elements.demoAccessCta.hidden = !showDemo;
+    elements.demoAccessCta.style.display = showDemo ? "" : "none";
+    elements.demoAccessCta.disabled = authBusy;
+  }
+
   if (elements.signOutButton) {
     elements.signOutButton.hidden = !signedIn;
     elements.signOutButton.style.display = signedIn ? "" : "none";
     elements.signOutButton.disabled = authBusy;
-    elements.signOutButton.textContent = "Sign Out";
+    elements.signOutButton.textContent = demoSession ? "Exit Demo" : "Sign Out";
   }
 
   if (elements.switchAccountButton) {
@@ -1272,12 +1377,18 @@ function updateAuthUI() {
     elements.guardSignUp.disabled = authBusy;
     elements.guardSignUp.hidden = !workspaceLocked;
   }
+  if (elements.guardDemoAccess) {
+    elements.guardDemoAccess.disabled = authBusy;
+    elements.guardDemoAccess.hidden = !workspaceLocked || !demoEnabled;
+  }
 
   reconcileTransientOverlayState();
 
   if (elements.uploadAccount) {
     elements.uploadAccount.value = signedIn
-      ? authState.user.name || "Workspace user"
+      ? demoSession || isDemoRuntime()
+        ? `${authState.user.name || demoConfig.user.name} - browser demo`
+        : authState.user.name || "Workspace user"
       : configured
         ? "Sign in to upload into your own workspace."
         : "Add Cognito config to enable signed-in uploads.";
@@ -1285,10 +1396,27 @@ function updateAuthUI() {
 
   if (elements.uploadHelper) {
     elements.uploadHelper.textContent = signedIn
-      ? "Files uploaded from this browser stay inside your signed-in workspace. The app rejects personal photos or unrelated documents after receipt inspection."
+      ? isDemoRuntime()
+        ? "Demo uploads run locally in this browser while preserving the S3 to Lambda to Textract workflow story. No AWS charges are created."
+        : "Files uploaded from this browser stay inside your signed-in workspace. The app rejects personal photos or unrelated documents after receipt inspection."
       : configured
-        ? "Sign in or create an account first. Uploads, history, analytics, and delete actions stay tied to that user."
-        : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";
+        ? demoEnabled
+          ? "Sign in for AWS Live, or use Cloud Demo Access to test the portfolio flow without AWS charges."
+          : "Sign in or create an account first. Uploads, history, analytics, and delete actions stay tied to that user."
+        : demoEnabled
+          ? "Use Cloud Demo Access to view the AWS showcase while Cognito/API access is unavailable."
+          : "Live uploads need both an API URL and Cognito settings in dashboard/config.js.";
+  }
+
+  if (elements.uploadReadyPill) {
+    elements.uploadReadyPill.textContent = getWorkspaceModeLabel();
+  }
+
+  if (elements.sampleDemoUpload) {
+    const showSampleDemo = signedIn && isDemoRuntime();
+    elements.sampleDemoUpload.hidden = !showSampleDemo;
+    elements.sampleDemoUpload.style.display = showSampleDemo ? "" : "none";
+    elements.sampleDemoUpload.disabled = !showSampleDemo || ["preparing", "uploading", "processing"].includes(uploadState.phase);
   }
 }
 
@@ -1302,6 +1430,18 @@ function goToSignedOutPage() {
 
 function goToSignUpPage() {
   window.location.assign(AUTH_SIGNUP_PATH);
+}
+
+function startDemoWorkspace() {
+  if (authClient?.startDemoSession) {
+    authClient.startDemoSession();
+    return;
+  }
+
+  const tokens = createDemoTokenSet();
+  persistAuthTokens(tokens);
+  updateAuthFromTokens(tokens);
+  void loadDashboard();
 }
 
 function bindAuthControls() {
@@ -1319,6 +1459,13 @@ function bindAuthControls() {
     });
   }
 
+  if (elements.demoAccessCta && elements.demoAccessCta.dataset.bound !== "true") {
+    elements.demoAccessCta.dataset.bound = "true";
+    elements.demoAccessCta.addEventListener("click", () => {
+      startDemoWorkspace();
+    });
+  }
+
   if (elements.guardSignIn && elements.guardSignIn.dataset.bound !== "true") {
     elements.guardSignIn.dataset.bound = "true";
     elements.guardSignIn.addEventListener("click", () => {
@@ -1330,6 +1477,13 @@ function bindAuthControls() {
     elements.guardSignUp.dataset.bound = "true";
     elements.guardSignUp.addEventListener("click", () => {
       goToSignUpPage();
+    });
+  }
+
+  if (elements.guardDemoAccess && elements.guardDemoAccess.dataset.bound !== "true") {
+    elements.guardDemoAccess.dataset.bound = "true";
+    elements.guardDemoAccess.addEventListener("click", () => {
+      startDemoWorkspace();
     });
   }
 
@@ -1373,6 +1527,82 @@ function cloneDashboardState(source) {
   return JSON.parse(JSON.stringify(source));
 }
 
+function getDemoDashboardStorageKey() {
+  return `${DEMO_DASHBOARD_STORAGE_KEY_PREFIX}:${authState.user?.id || demoConfig.user.id}`;
+}
+
+function readStoredDemoDashboard() {
+  try {
+    const raw = window.localStorage.getItem(getDemoDashboardStorageKey());
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw);
+    return parsed && typeof parsed === "object" && Array.isArray(parsed.receipts)
+      ? parsed
+      : null;
+  } catch (error) {
+    console.warn("Unable to read stored demo dashboard.", error);
+    return null;
+  }
+}
+
+function persistDemoDashboardState() {
+  if (!isDemoRuntime() || !dashboardData) {
+    return;
+  }
+
+  try {
+    window.localStorage.setItem(getDemoDashboardStorageKey(), JSON.stringify(dashboardData));
+  } catch (error) {
+    console.warn("Unable to persist demo dashboard state.", error);
+  }
+}
+
+async function loadDemoDashboardState() {
+  const stored = readStoredDemoDashboard();
+  if (stored) {
+    return cloneDashboardState(stored);
+  }
+
+  try {
+    const response = await fetch(demoConfig.sampleDataPath, { cache: "no-store" });
+    if (!response.ok) {
+      throw new Error(`Demo data request failed (${response.status}).`);
+    }
+    const payload = await response.json();
+    return cloneDashboardState(payload);
+  } catch (error) {
+    console.warn("External demo data unavailable, using built-in fallback.", error);
+    return cloneDashboardState(FALLBACK_DASHBOARD);
+  }
+}
+
+async function activateDemoDashboard(message = "") {
+  runtimeMode = "demo";
+  dashboardData = await loadDemoDashboardState();
+  dashboardData.generatedAt = dashboardData.generatedAt || new Date().toISOString();
+  dashboardData.heroHeadline =
+    dashboardData.heroHeadline ||
+    "Demo mode keeps the AWS architecture visible while the restricted account is unavailable.";
+  renderDashboard();
+  updateAuthUI();
+  if (elements.modeBadge) {
+    elements.modeBadge.textContent = "Cloud Demo";
+  }
+  if (elements.statusNote) {
+    elements.statusNote.textContent =
+      message ||
+      "Browser-local demo is active. AWS architecture, code, and redeploy path remain preserved.";
+  }
+  if (!demoAutoSampleStarted && shouldAutoRunSampleDemo()) {
+    demoAutoSampleStarted = true;
+    window.setTimeout(() => {
+      void handleSampleDemoUpload();
+    }, 650);
+  }
+}
+
 async function loadDashboard() {
   apiBase =
     new URLSearchParams(window.location.search).get("api") ||
@@ -1380,19 +1610,35 @@ async function loadDashboard() {
     "";
   const configured = isAuthConfigured();
   const signedIn = isSignedIn();
+  const demoSession = signedIn && isDemoSession();
+
+  if (demoSession) {
+    await activateDemoDashboard("Cloud demo is active. Uploads and edits update local browser data without AWS charges.");
+    return;
+  }
+
   dashboardData = configured && !signedIn
     ? buildSignedOutDashboardState()
     : cloneDashboardState(FALLBACK_DASHBOARD);
+  runtimeMode = configured && !signedIn ? "locked" : "preview";
   renderDashboard();
+  updateAuthUI();
 
   if (!apiBase) {
-    elements.modeBadge.textContent = "Project Demo";
-    elements.statusNote.textContent =
-      "The live API is not configured yet, so the page is showing built-in sample data.";
+    if (demoConfig.autoFallback) {
+      await activateDemoDashboard("Live API is not configured. Showing the recruiter-safe cloud demo instead.");
+      return;
+    }
+    elements.modeBadge.textContent = "Project Preview";
+    elements.statusNote.textContent = "The live API is not configured yet, so the page is showing built-in sample data.";
     return;
   }
 
   if (!isAuthConfigured()) {
+    if (demoConfig.autoFallback) {
+      await activateDemoDashboard("Cognito settings are unavailable. Showing the AWS cloud demo instead.");
+      return;
+    }
     elements.modeBadge.textContent = "Preview Mode";
     elements.statusNote.textContent =
       "The API is configured, but Cognito settings are missing, so the page stays in preview mode.";
@@ -1406,21 +1652,29 @@ async function loadDashboard() {
     return;
   }
 
-  elements.modeBadge.textContent = "Syncing";
+  runtimeMode = "syncing";
+  updateAuthUI();
+  elements.modeBadge.textContent = "AWS Syncing";
   elements.statusNote.textContent = "Opening workspace. Syncing latest receipts in background.";
-  elements.modeBadge.textContent = "Workspace";
 
   // Keep the page interactive immediately after sign-in and sync live data asynchronously.
   void refreshLiveSnapshot()
     .then(() => {
-      elements.modeBadge.textContent = "Workspace";
-      elements.statusNote.textContent = "Private upload space.";
+      runtimeMode = "live";
+      updateAuthUI();
+      elements.modeBadge.textContent = "AWS Live";
+      elements.statusNote.textContent = "Private AWS upload space is connected.";
     })
     .catch((error) => {
       console.error("Live API mode failed, falling back to demo data.", error);
+      if (demoConfig.autoFallback) {
+        void activateDemoDashboard("AWS API is unreachable. Cloud Demo mode is keeping the showcase usable.");
+        return;
+      }
+      runtimeMode = "preview";
+      updateAuthUI();
       elements.modeBadge.textContent = "Preview Mode";
-      elements.statusNote.textContent =
-        error.message || "Live sync failed, so the page is staying on its built-in sample state.";
+      elements.statusNote.textContent = error.message || "Live sync failed, so the page is staying on its built-in sample state.";
     });
 }
 
@@ -2339,13 +2593,21 @@ function renderUploadTimeline() {
     return;
   }
 
-  const steps = [
-    ["slot", "Create Upload Slot", "Prepare a signed upload session for your receipt."],
-    ["transfer", "Store In S3", "Move the selected file into the intake bucket."],
-    ["textract", "Extract Fields", "Read merchant, total, date, and line items."],
-    ["quality", "Run Review Rules", "Check confidence and screen for duplicates."],
-    ["stored", "Update Dashboard", "Show the processed receipt in the dashboard view."],
-  ];
+  const steps = isDemoRuntime()
+    ? [
+        ["slot", "Model Upload Slot", "Mirror the presigned S3 handoff without contacting AWS."],
+        ["transfer", "Simulate S3 Intake", "Move the selected file through a browser-only intake stage."],
+        ["textract", "Model OCR Fields", "Generate merchant, total, date, and confidence signals."],
+        ["quality", "Run Review Rules", "Check duplicate risk and review-state behavior."],
+        ["stored", "Update Demo Console", "Refresh charts, archive rows, and history locally."],
+      ]
+    : [
+        ["slot", "Create Upload Slot", "Prepare a signed upload session for your receipt."],
+        ["transfer", "Store In S3", "Move the selected file into the intake bucket."],
+        ["textract", "Extract Fields", "Read merchant, total, date, and line items."],
+        ["quality", "Run Review Rules", "Check confidence and screen for duplicates."],
+        ["stored", "Update Dashboard", "Show the processed receipt in the dashboard view."],
+      ];
   const order = steps.map((step) => step[0]);
   const activeIndex =
     uploadState.phase === "idle"
@@ -2387,10 +2649,19 @@ function renderUploadTimeline() {
         : busy
           ? "Processing Receipt..."
           : canUpload
-            ? "Upload And Process"
+            ? isDemoRuntime()
+              ? "Run Demo Process"
+              : "Upload And Process"
             : isAuthConfigured()
               ? "Sign In To Upload"
               : "Config Needed";
+  }
+  if (elements.sampleDemoUpload) {
+    const busy = ["preparing", "uploading", "processing"].includes(uploadState.phase);
+    const showSampleDemo = isSignedIn() && isDemoRuntime();
+    elements.sampleDemoUpload.hidden = !showSampleDemo;
+    elements.sampleDemoUpload.style.display = showSampleDemo ? "" : "none";
+    elements.sampleDemoUpload.disabled = busy || !showSampleDemo;
   }
 }
 
@@ -2413,8 +2684,10 @@ function getUploadMotionCopy() {
 
   if (uploadState.phase === "success") {
     return {
-      title: "Dashboard refreshed",
-      detail: "Your new receipt has landed in the archive, totals, review queue, and charts.",
+      title: isDemoRuntime() ? "Demo dashboard refreshed" : "Dashboard refreshed",
+      detail: isDemoRuntime()
+        ? "The browser-local receipt is now reflected in the archive, totals, review queue, and charts."
+        : "Your new receipt has landed in the archive, totals, review queue, and charts.",
       scene: uploadState.message,
     };
   }
@@ -2422,11 +2695,19 @@ function getUploadMotionCopy() {
   switch (uploadState.stage) {
     case "slot":
       return {
-        title: uploadState.phase === "idle" ? "Waiting for upload" : "Securing upload slot",
+        title: uploadState.phase === "idle"
+          ? "Waiting for upload"
+          : isDemoRuntime()
+            ? "Modeling upload slot"
+            : "Securing upload slot",
         detail:
           uploadState.phase === "idle"
-            ? "AI extraction begins after the cloud upload completes."
-            : "The app is opening a signed cloud path for your file.",
+            ? isDemoRuntime()
+              ? "Demo extraction begins after the browser-local intake stage."
+              : "AI extraction begins after the cloud upload completes."
+            : isDemoRuntime()
+              ? "The app is modeling the signed AWS upload path locally."
+              : "The app is opening a signed cloud path for your file.",
         scene:
           uploadState.phase === "idle"
             ? "Pick a file to preview its upload path."
@@ -2434,8 +2715,10 @@ function getUploadMotionCopy() {
       };
     case "transfer":
       return {
-        title: "Moving into cloud intake",
-        detail: "The file card is traveling upward into S3 before extraction starts.",
+        title: isDemoRuntime() ? "Simulating cloud intake" : "Moving into cloud intake",
+        detail: isDemoRuntime()
+          ? "The file card is moving through a browser-only S3 intake model."
+          : "The file card is traveling upward into S3 before extraction starts.",
         scene: uploadState.message,
       };
     case "textract":
@@ -2545,7 +2828,7 @@ function renderSpotlight() {
   elements.spotlightKicker.textContent = "Latest processed receipt";
   elements.spotlightTitle.innerHTML = `<span class="receipt-icon-badge">${theme.icon}</span>${escapeHtml(
     displayLabel
-  )} · ${escapeHtml(formatLabel(receipt.reviewStatus))}`;
+  )} / ${escapeHtml(formatLabel(receipt.reviewStatus))}`;
   elements.spotlightNarrative.textContent = buildSpotlightNarrative(receipt);
   elements.spotlightActions.innerHTML = `
     <button
@@ -3134,7 +3417,7 @@ function buildTrendBarListMarkup(monthlyTrend) {
         <article class="trend-bar ${isActive ? "trend-bar-active" : ""}">
           <div class="trend-meta">
             <strong>${formatMonthLabel(item.month)}</strong>
-            <span>$${amount.toFixed(2)} · ${count} ${countLabel}</span>
+            <span>$${amount.toFixed(2)} / ${count} ${countLabel}</span>
           </div>
           <div class="trend-track">
             <span class="trend-fill" style="width:${width}%;"></span>
@@ -3204,7 +3487,7 @@ function renderNeoBoard() {
 
   if (elements.neoTotalMeta) {
     elements.neoTotalMeta.textContent = summary.receiptCount
-      ? `${summary.receiptCount} receipts · ${changePercent >= 0 ? "+" : ""}${changePercent}%`
+      ? `${summary.receiptCount} receipts / ${changePercent >= 0 ? "+" : ""}${changePercent}%`
       : "No receipt volume yet";
   }
 
@@ -4139,6 +4422,159 @@ function sleep(ms) {
   return new Promise((resolve) => window.setTimeout(resolve, ms));
 }
 
+function resolveDemoCategory(seed) {
+  const normalized = normalizeVisualText(seed);
+  const categoryMap = [
+    ["Food & Dining", ["food", "dining", "cafe", "coffee", "restaurant", "zomato", "swiggy"]],
+    ["Travel", ["travel", "cab", "flight", "hotel", "taxi", "uber", "train"]],
+    ["Utilities", ["electric", "electricity", "power", "water", "gas", "cloud", "telecom"]],
+    ["Medical", ["medical", "pharma", "health", "clinic", "hospital"]],
+    ["Office Supplies", ["office", "paper", "printer", "supplies", "work"]],
+    ["Retail", ["amazon", "store", "mart", "shopping", "invoice", "receipt"]],
+  ];
+  const matched = categoryMap.find(([, keywords]) => keywords.some((keyword) => normalized.includes(keyword)));
+  return matched?.[0] || "General Expense";
+}
+
+function resolveDemoVendor(label, fileName) {
+  const source = String(label || fileName || "Demo Receipt").replace(/\.[^.]+$/, "").trim();
+  const cleaned = source
+    .replace(/[_-]+/g, " ")
+    .replace(/\b(receipt|invoice|bill|pdf|jpg|jpeg|png)\b/gi, " ")
+    .replace(/\s+/g, " ")
+    .trim();
+  if (!cleaned) {
+    return "ReceiptPulse Demo Store";
+  }
+  return cleaned
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 3)
+    .map((word) => `${word.charAt(0).toUpperCase()}${word.slice(1).toLowerCase()}`)
+    .join(" ");
+}
+
+function buildDemoReceipt(file, receiptLabel = "") {
+  const now = new Date();
+  const fileName = file?.name || "demo-receipt.pdf";
+  const vendor = resolveDemoVendor(receiptLabel, fileName);
+  const category = resolveDemoCategory(`${receiptLabel} ${fileName} ${vendor}`);
+  const seed = hashString(`${fileName}:${receiptLabel}:${now.toISOString()}`);
+  const amount = (18 + (seed % 460) + ((seed % 97) / 100)).toFixed(2);
+  const confidence = (86 + (seed % 120) / 10).toFixed(1);
+  const normalizedIdentity = normalizeVisualText(receiptLabel || vendor || fileName);
+  const duplicateOf = (dashboardData?.receipts || []).find((receipt) => {
+    const existingIdentity = normalizeVisualText(receipt.receiptLabel || receipt.vendor || receipt.fileName);
+    return existingIdentity && normalizedIdentity && existingIdentity === normalizedIdentity;
+  });
+
+  return mapReceipt({
+    receiptId: `demo-${now.getTime()}`,
+    vendor,
+    category,
+    receiptLabel,
+    reviewStatus: duplicateOf ? "DUPLICATE" : "AUTO_APPROVED",
+    totalAmount: amount,
+    confidenceScore: confidence,
+    expenseMonth: `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`,
+    uploadedBy: authState.user?.email || demoConfig.user.email,
+    fileName,
+    objectKey: `demo/intake/${now.getTime()}-${fileName.replace(/[^a-z0-9.]+/gi, "-")}`,
+    currencySymbol: "$",
+    isDuplicate: Boolean(duplicateOf),
+    duplicateOf: duplicateOf?.receiptId || "",
+    itemCount: 3 + (seed % 6),
+    reviewReasons: duplicateOf
+      ? [`Potential duplicate of ${getReceiptDisplayLabel(duplicateOf)}.`]
+      : [],
+    processedAt: now.toISOString(),
+    date: now.toISOString().slice(0, 10),
+  });
+}
+
+function upsertDashboardReceipt(receipt) {
+  if (!dashboardData) {
+    dashboardData = cloneDashboardState(FALLBACK_DASHBOARD);
+  }
+  const mappedReceipt = mapReceipt(receipt);
+  const receipts = Array.isArray(dashboardData.receipts) ? dashboardData.receipts : [];
+  dashboardData.receipts = [
+    mappedReceipt,
+    ...receipts.filter((entry) => mapReceipt(entry).receiptId !== mappedReceipt.receiptId),
+  ];
+  dashboardData.generatedAt = new Date().toISOString();
+  persistDemoDashboardState();
+}
+
+function removeDashboardReceipts(predicate) {
+  if (!dashboardData?.receipts?.length) {
+    return 0;
+  }
+  const before = dashboardData.receipts.length;
+  dashboardData.receipts = dashboardData.receipts.filter((receipt) => !predicate(mapReceipt(receipt)));
+  const removed = before - dashboardData.receipts.length;
+  if (removed) {
+    dashboardData.generatedAt = new Date().toISOString();
+    persistDemoDashboardState();
+  }
+  return removed;
+}
+
+async function simulateDemoUpload(file, receiptLabel) {
+  setUploadState("preparing", "slot", "Creating a browser-only demo slot that mirrors the AWS presigned upload step.");
+  await sleep(420);
+  setUploadState("uploading", "transfer", "Simulating the S3 intake transfer. No file leaves this browser.");
+  await sleep(620);
+  setUploadState("processing", "textract", "Running the demo Textract extraction model and quality gates.");
+  await sleep(760);
+  const receipt = buildDemoReceipt(file, receiptLabel);
+  setUploadState("processing", "quality", "Scoring confidence, duplicate risk, and dashboard impact.");
+  await sleep(460);
+  return receipt;
+}
+
+async function processDemoUpload(file, receiptLabel) {
+  const processedReceipt = await simulateDemoUpload(file, receiptLabel);
+  processedReceipt.receiptLabel = receiptLabel || processedReceipt.receiptLabel;
+  uploadState.receipt = processedReceipt;
+  uploadState.durationMs = Math.max(0, Date.now() - uploadState.startedAt);
+
+  if (processedReceipt.reviewStatus === "DUPLICATE") {
+    const duplicateOutcome = await handleDuplicateReceiptDecision(processedReceipt);
+    if (duplicateOutcome.action === "reject") {
+      uploadState.receipt = null;
+      pendingVisualRefresh = null;
+      clearUploadDraft({ clearInputLabel: true });
+      clearSelectedReceiptFile();
+      setUploadState(
+        "discarded",
+        "quality",
+        "Demo duplicate discarded. The local dashboard was not changed."
+      );
+      return;
+    }
+    uploadState.receipt = duplicateOutcome.receipt;
+  }
+
+  pendingVisualRefresh = {
+    label: getReceiptDisplayLabel(uploadState.receipt),
+    theme: getReceiptTheme(uploadState.receipt),
+  };
+  setUploadState("processing", "stored", "Updating browser-local charts, archive records, and history.");
+  upsertDashboardReceipt(uploadState.receipt);
+  renderDashboard();
+  playDashboardArrivalEffects(uploadState.receipt, pendingVisualRefresh);
+  pendingVisualRefresh = null;
+  clearUploadDraft({ clearInputLabel: true });
+  setUploadState("success", "stored", "Demo receipt processed. The AWS showcase stayed online without calling AWS.");
+  addUploadHistoryEntry(file, uploadState.receipt, receiptLabel);
+  clearSelectedReceiptFile();
+  triggerSuccessBurst(elements.uploadSubmit || elements.sampleDemoUpload);
+  if (!shouldAutoRunSampleDemo()) {
+    scrollToProcessedResult();
+  }
+}
+
 function bindInteractiveFX() {
   bindGlowTargets();
   observeRevealTargets();
@@ -4241,6 +4677,7 @@ function bindUploadControls() {
   });
 
   elements.uploadForm.addEventListener("submit", handleUpload);
+  elements.sampleDemoUpload?.addEventListener("click", handleSampleDemoUpload);
 
   ["dragenter", "dragover"].forEach((eventName) => {
     elements.dropzone.addEventListener(eventName, (event) => {
@@ -4272,16 +4709,62 @@ function bindUploadControls() {
   });
 }
 
-async function handleUpload(event) {
-  event.preventDefault();
-
-  if (!apiBase) {
-    setUploadState("error", "slot", "Live API is not configured, so uploads cannot run here.");
+async function handleSampleDemoUpload() {
+  if (!isDemoRuntime() || !isSignedIn()) {
+    setUploadState("error", "slot", "Open Cloud Demo mode before running the sample receipt.");
     return;
   }
 
+  const receiptLabel = elements.uploadName?.value.trim() || `Recruiter Demo ${Date.now().toString().slice(-5)}`;
+  const fileName = `${receiptLabel.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "recruiter-demo"}-receipt.pdf`;
+  const sampleFile =
+    typeof File !== "undefined"
+      ? new File(["ReceiptPulse demo receipt"], fileName, { type: "application/pdf" })
+      : {
+          name: fileName,
+          type: "application/pdf",
+          size: 28,
+        };
+
+  latestPreview = {
+    type: "pdf",
+    objectUrl: "",
+    previewDataUrl: "",
+  };
+  uploadState = {
+    ...uploadState,
+    objectKey: "",
+    receipt: null,
+    customLabel: receiptLabel,
+    fileName,
+    startedAt: Date.now(),
+    durationMs: null,
+  };
+
+  try {
+    await processDemoUpload(sampleFile, receiptLabel);
+  } catch (error) {
+    console.error("Sample demo upload failed.", error);
+    setUploadState(
+      "error",
+      error?.stage || uploadState.stage || "quality",
+      error.message || "Sample demo upload failed."
+    );
+  }
+}
+
+async function handleUpload(event) {
+  event.preventDefault();
+
   if (!isSignedIn()) {
-    setUploadState("error", "slot", "Sign in to upload receipts for your account.");
+    setUploadState("error", "slot", isDemoEnabled()
+      ? "Sign in for AWS Live or use Cloud Demo Access to try the workflow without AWS."
+      : "Sign in to upload receipts for your account.");
+    return;
+  }
+
+  if (!apiBase && !isDemoRuntime()) {
+    setUploadState("error", "slot", "Live API is not configured, so uploads cannot run here.");
     return;
   }
 
@@ -4313,6 +4796,11 @@ async function handleUpload(event) {
       durationMs: null,
     };
     setUploadState("preparing", "slot", "Requesting a secure upload slot for your account.");
+
+    if (isDemoRuntime()) {
+      await processDemoUpload(file, receiptLabel);
+      return;
+    }
 
     const session = await requestUploadSession(file, receiptLabel);
     uploadState.objectKey = session.objectKey;
@@ -4404,6 +4892,52 @@ async function handleDuplicateReceiptDecision(receipt) {
     "Potential duplicate found. Use the decision panel to keep it separately or discard it."
   );
   const decision = await openDuplicateDecisionDialog(receipt);
+
+  if (isDemoRuntime()) {
+    if (!decision || decision.action === "reject") {
+      await showDuplicateDecisionOutcome({
+        tone: "reject",
+        eyebrow: "Demo Upload Discarded",
+        title: "Duplicate receipt was discarded.",
+        body: "This browser-only duplicate was removed before it changed the demo dashboard.",
+        note: "Returning you to the upload module now.",
+        noteTone: "error",
+        icon: "X",
+      });
+      if (!elements.duplicateDecisionModal?.hidden) {
+        closeDuplicateDecisionDialog();
+      }
+      return {
+        action: "reject",
+        message: "Demo duplicate upload rejected.",
+      };
+    }
+
+    const keptReceipt = mapReceipt({
+      ...receipt,
+      receiptLabel: decision.receiptLabel || suggestSeparateReceiptLabel(receipt),
+      reviewStatus: "AUTO_APPROVED",
+      isDuplicate: false,
+      duplicateOf: "",
+      reviewReasons: [],
+    });
+    await showDuplicateDecisionOutcome({
+      tone: "keep",
+      eyebrow: "Demo Receipt Saved",
+      title: "Duplicate kept as its own receipt.",
+      body: `This repeat receipt was saved locally as "${getReceiptDisplayLabel(keptReceipt)}".`,
+      note: "Updating the browser-local dashboard now.",
+      noteTone: "ready",
+      icon: "+",
+    });
+    if (!elements.duplicateDecisionModal?.hidden) {
+      closeDuplicateDecisionDialog();
+    }
+    return {
+      action: "keep",
+      receipt: keptReceipt,
+    };
+  }
 
   if (!decision || decision.action === "reject") {
     duplicateDecisionState.pendingAction = "reject";
@@ -4594,6 +5128,16 @@ async function pollUntilProcessed(objectKey, firstDelay) {
 }
 
 async function refreshLiveSnapshot() {
+  if (isDemoRuntime()) {
+    persistDemoDashboardState();
+    renderDashboard();
+    if (pendingVisualRefresh && uploadState.receipt) {
+      playDashboardArrivalEffects(uploadState.receipt, pendingVisualRefresh);
+      pendingVisualRefresh = null;
+    }
+    return;
+  }
+
   const snapshotResponse = await apiFetch("/snapshot", {
     cache: "no-store",
   });
@@ -4917,11 +5461,14 @@ async function updatePreviewFromFile(file) {
   if (latestPreview.type === "image" && latestPreview.objectUrl) {
     elements.previewFrame.innerHTML = `<img class="preview-image" src="${latestPreview.objectUrl}" alt="${file.name} preview" />`;
   } else {
+    const pipelinePreviewCopy = isDemoRuntime()
+      ? "This document will run through the browser-local cloud demo path while preserving the S3, Lambda, Textract, and DynamoDB workflow story."
+      : "This receipt will upload directly to S3, then Textract will read it and send the structured result back into the console.";
     elements.previewFrame.innerHTML = `
       <div class="preview-pdf-card">
         <span class="mini-label">Document preview</span>
         <strong>${file.name}</strong>
-        <p>This receipt will upload directly to S3, then Textract will read it and send the structured result back into the console.</p>
+        <p>${pipelinePreviewCopy}</p>
       </div>
     `;
   }
@@ -4929,7 +5476,7 @@ async function updatePreviewFromFile(file) {
   elements.previewMeta.innerHTML = `
     <article class="preview-stat">
       <span>Status</span>
-      <strong>Ready to upload</strong>
+      <strong>${isDemoRuntime() ? "Ready for demo run" : "Ready to upload"}</strong>
     </article>
     <article class="preview-stat">
       <span>Theme</span>
@@ -4937,7 +5484,7 @@ async function updatePreviewFromFile(file) {
     </article>
     <article class="preview-stat">
       <span>Size</span>
-      <strong>${formatFileSize(file.size)} · ${latestPreview.type === "image" ? "Image" : "PDF"}</strong>
+      <strong>${formatFileSize(file.size)} / ${latestPreview.type === "image" ? "Image" : "PDF"}</strong>
     </article>
   `;
   syncUploadMotion();
@@ -5724,8 +6271,9 @@ async function clearUploadHistory() {
 
   const shouldClear = await openConfirmDialog({
     title: "Clear local upload history?",
-    message:
-      "This only removes browser-side preview history from this device. Stored receipts in AWS stay unchanged.",
+    message: isDemoRuntime()
+      ? "This only removes browser-side preview history. Demo dashboard records stay until you delete stored demo receipts."
+      : "This only removes browser-side preview history from this device. Stored receipts in AWS stay unchanged.",
     confirmLabel: "Clear local history",
   });
   if (!shouldClear) {
@@ -5738,7 +6286,7 @@ async function clearUploadHistory() {
 }
 
 async function clearStoredReceiptData() {
-  if (!apiBase || !isSignedIn()) {
+  if ((!apiBase && !isDemoRuntime()) || !isSignedIn()) {
     return;
   }
 
@@ -5763,6 +6311,21 @@ async function clearStoredReceiptData() {
 
   try {
     toggleStoredDeleteBusy(true);
+    if (isDemoRuntime()) {
+      const removed = removeDashboardReceipts((receipt) => matchesDateRange(receipt.processedAt, fromDate, toDate));
+      pruneLocalHistoryByRange(fromDate, toDate);
+      if (uploadState.receipt && matchesDateRange(uploadState.receipt.processedAt, fromDate, toDate)) {
+        uploadState.receipt = null;
+        uploadState.durationMs = null;
+        setUploadState("idle", "slot", "Demo receipts were cleared for the selected period.");
+      }
+      renderDashboard();
+      renderUploadHistory();
+      elements.statusNote.textContent = `${removed} demo receipt${removed === 1 ? "" : "s"} removed from browser-local data.`;
+      closeHistoryDrawer();
+      return;
+    }
+
     const response = await apiFetch("/receipts/clear", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -5793,7 +6356,7 @@ async function clearStoredReceiptData() {
 }
 
 async function deleteStoredReceipt(receiptId) {
-  if (!apiBase || !isSignedIn() || !receiptId) {
+  if ((!apiBase && !isDemoRuntime()) || !isSignedIn() || !receiptId) {
     return;
   }
 
@@ -5812,6 +6375,20 @@ async function deleteStoredReceipt(receiptId) {
   }
 
   try {
+    if (isDemoRuntime()) {
+      removeDashboardReceipts((receipt) => receipt.receiptId === receiptId);
+      pruneLocalHistoryByReceiptId(receiptId);
+      if (uploadState.receipt?.receiptId === receiptId) {
+        uploadState.receipt = null;
+        uploadState.durationMs = null;
+        setUploadState("idle", "slot", "The selected demo receipt was removed locally.");
+      }
+      renderDashboard();
+      renderUploadHistory();
+      elements.statusNote.textContent = "Demo receipt removed from browser-local data.";
+      return;
+    }
+
     const response = await apiFetch(`/receipts/${encodeURIComponent(receiptId)}`, {
       method: "DELETE",
     });
@@ -5849,7 +6426,7 @@ async function deleteStoredReceipt(receiptId) {
 }
 
 async function renameStoredReceipt(receiptId) {
-  if (!apiBase || !isSignedIn() || !receiptId) {
+  if ((!apiBase && !isDemoRuntime()) || !isSignedIn() || !receiptId) {
     return;
   }
 
@@ -5869,6 +6446,27 @@ async function renameStoredReceipt(receiptId) {
 
   try {
     setRenameBusy(true);
+    if (isDemoRuntime()) {
+      const trimmedLabel = String(nextLabel || "").trim();
+      const renamedReceipt = mapReceipt({
+        ...receipt,
+        receiptLabel: trimmedLabel,
+      });
+      dashboardData.receipts = (dashboardData.receipts || []).map((entry) =>
+        mapReceipt(entry).receiptId === receiptId ? renamedReceipt : entry
+      );
+      if (uploadState.receipt?.receiptId === receiptId) {
+        uploadState.receipt = renamedReceipt;
+      }
+      syncUploadHistoryReceipt(renamedReceipt);
+      persistDemoDashboardState();
+      renderDashboard();
+      renderUploadHistory();
+      closeRenameDialog(trimmedLabel);
+      elements.statusNote.textContent = "Demo receipt label updated locally.";
+      return;
+    }
+
     const response = await apiFetch(`/receipts/${encodeURIComponent(receiptId)}/review`, {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },

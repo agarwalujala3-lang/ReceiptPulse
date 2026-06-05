@@ -47,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260527a" />
+    <link rel="stylesheet" href="./styles.css?v=20260604a" />
   </head>
   <body class="cinema-ui dribbble-dashboard neuro-skin" data-brand-launch="off">
     <div class="cinema-stage" aria-hidden="true">
@@ -79,11 +79,11 @@
           </div>
         </section>
         <nav class="dashboard-nav" aria-label="Dashboard sections">
-          <a class="dashboard-nav-link is-active" href="./app.html"><span class="dashboard-nav-icon">◉</span>Dashboard</a>
-          <a class="dashboard-nav-link" href="./profile.html"><span class="dashboard-nav-icon">◍</span>Profile</a>
-          <a class="dashboard-nav-link" href="./reports.html"><span class="dashboard-nav-icon">◎</span>Reports</a>
-          <a class="dashboard-nav-link" href="./app.html#uploadLab"><span class="dashboard-nav-icon">◌</span>Intake</a>
-          <a class="dashboard-nav-link" href="./app.html#receiptsTable"><span class="dashboard-nav-icon">◈</span>Archive</a>
+          <a class="dashboard-nav-link is-active" href="./app.html"><span class="dashboard-nav-icon">D</span>Dashboard</a>
+          <a class="dashboard-nav-link" href="./profile.html"><span class="dashboard-nav-icon">P</span>Profile</a>
+          <a class="dashboard-nav-link" href="./reports.html"><span class="dashboard-nav-icon">R</span>Reports</a>
+          <a class="dashboard-nav-link" href="./app.html#uploadLab"><span class="dashboard-nav-icon">I</span>Intake</a>
+          <a class="dashboard-nav-link" href="./app.html#receiptsTable"><span class="dashboard-nav-icon">A</span>Archive</a>
         </nav>
         <section class="dashboard-sidebar-card">
           <p class="eyebrow">Workspace</p>
@@ -143,7 +143,8 @@
             <div class="topbar-actions dashboard-command-actions">
               <button class="ghost-link ghost-button" id="manageWidgetsButton" type="button">Manage Widgets</button>
               <button class="primary-button topbar-primary-button" id="addWidgetButton" type="button">+ Add Widget</button>
-            <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button" hidden>Light Mode</button>
+              <button class="secondary-button demo-access-inline" id="demoAccessCta" type="button" hidden>Cloud Demo</button>
+              <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button" hidden>Light Mode</button>
               <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>Create Account</button>
               <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
               <button class="ghost-link ghost-button" id="switchAccountButton" type="button" hidden>Switch Account</button>
@@ -160,6 +161,7 @@
           <p>Your data stays isolated per account. Sign in to continue, or switch to another account.</p>
           <div class="workspace-guard-actions">
             <button class="primary-button" id="guardSignIn" type="button">Sign In</button>
+            <button class="secondary-button" id="guardDemoAccess" type="button">View Cloud Demo</button>
             <button class="ghost-link ghost-button" id="guardSignUp" type="button">Create Account</button>
           </div>
         </section>
@@ -267,6 +269,7 @@
               <span>OCR Extraction</span>
               <span>User Accounts</span>
               <span>Summary Charts</span>
+              <span>AWS Redeploy Ready</span>
             </div>
             <div class="hero-actions">
               <button class="primary-button" id="heroUploadTrigger" type="button">Open Uploader</button>
@@ -297,7 +300,30 @@
               <span class="mini-label">Scoped Access</span>
               <p>Authentication keeps uploaded receipts, delete actions, and dashboard analytics scoped to the signed-in account.</p>
             </article>
+            <article class="glass-card recruiter-proof-card">
+              <span class="mini-label">Recruiter Proof</span>
+              <strong>Cloud-ready, demo-safe, and explainable.</strong>
+              <p>Demo mode proves the product flow without AWS charges; production mode reconnects through config when the new AWS account is ready.</p>
+            </article>
           </div>
+        </section>
+
+        <section class="cloud-proof-strip panel" aria-label="ReceiptPulse cloud proof summary">
+          <article class="proof-node proof-node-live">
+            <span class="mini-label">AWS Live Path</span>
+            <strong>S3 -> Lambda -> Textract -> DynamoDB</strong>
+            <p>The production flow remains real infrastructure code, not a decorative portfolio mock.</p>
+          </article>
+          <article class="proof-node proof-node-demo">
+            <span class="mini-label">Safe Showcase</span>
+            <strong>Cloud Demo runs without AWS spend</strong>
+            <p>Recruiters can test upload, archive, rename, delete, charts, and pipeline motion locally.</p>
+          </article>
+          <article class="proof-node proof-node-redeploy">
+            <span class="mini-label">Redeploy Ready</span>
+            <strong>New account setup is documented</strong>
+            <p>Cost guardrails, config outputs, and smoke checks are written before any new cloud launch.</p>
+          </article>
         </section>
 
         <aside class="panel upload-lab" id="uploadLab">
@@ -355,6 +381,9 @@
             <div class="upload-actions-row">
               <button class="primary-button upload-submit" id="uploadSubmit" type="submit">
                 Upload And Process
+              </button>
+              <button class="secondary-button sample-demo-upload" id="sampleDemoUpload" type="button" hidden>
+                Run Sample Demo
               </button>
               <span class="upload-helper" id="uploadHelper">Add a label if you want. The app checks the uploaded file after OCR and rejects personal photos or unrelated documents.</span>
             </div>
@@ -557,7 +586,7 @@
         </div>
       </div>
       <p class="history-copy">
-        This drawer keeps a local record of uploads from this browser and lets you clear local or stored data during testing.
+        This drawer keeps a local record of uploads from this browser. In AWS Live mode, stored delete actions call the API; in Cloud Demo mode, they only change browser-local demo data.
       </p>
       <div class="history-range-shell">
         <label class="field history-field">
@@ -570,7 +599,7 @@
         </label>
       </div>
       <p class="history-note">
-        Delete stored receipts by date range to remove them from the archive, review queue, totals, and charts.
+        Delete stored receipts by date range to remove them from the archive, review queue, totals, and charts for the active workspace mode.
       </p>
       <div class="history-toolbar">
         <button class="primary-button history-delete-button" id="historyDeleteAction" type="button">
@@ -670,10 +699,10 @@
       </div>
     </section>
 
-    <script src="./config.js?v=20260408a"></script>
+    <script src="./config.js?v=20260604a"></script>
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
-    <script src="./auth.js?v=20260413a" defer></script>
-    <script src="./app.js?v=20260527a" defer></script>
+    <script src="./auth.js?v=20260604a" defer></script>
+    <script src="./app.js?v=20260604a" defer></script>
   </body>
 </html>

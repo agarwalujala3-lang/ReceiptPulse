@@ -47,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260527a" />
+    <link rel="stylesheet" href="./styles.css?v=20260604a" />
   </head>
   <body class="auth-page auth-page-signin cinema-ui" data-auth-page="signin" data-entry-launch="root">
     <div class="cinema-stage" aria-hidden="true">
@@ -214,6 +214,19 @@
           <button class="primary-button auth-submit" id="authSubmit" type="submit">Sign In</button>
         </form>
 
+        <div class="demo-access-card">
+          <div>
+            <span class="mini-label">AWS showcase fallback</span>
+            <strong>View Cloud Demo without touching AWS billing.</strong>
+            <p>
+              Opens a browser-local workspace that keeps the S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito architecture visible while the original AWS account is restricted.
+            </p>
+          </div>
+          <button class="secondary-button demo-access-button" id="demoAccessButton" type="button">
+            View Cloud Demo
+          </button>
+        </div>
+
         <p class="auth-status" id="authStatus" data-state="idle">
           Sign in to reach the app page and upload receipts under your own account.
         </p>
@@ -225,10 +238,10 @@
       </section>
     </main>
 
-    <script src="./config.js?v=20260408a"></script>
+    <script src="./config.js?v=20260604a"></script>
     <script src="./theme.js?v=20260427b" defer></script>
-    <script src="./entry-3d.js?v=20260527a" defer></script>
-    <script src="./auth-3d.js?v=20260527a" defer></script>
-    <script src="./auth.js?v=20260413a" defer></script>
+    <script src="./entry-3d.js?v=20260604a" defer></script>
+    <script src="./auth-3d.js?v=20260604a" defer></script>
+    <script src="./auth.js?v=20260604a" defer></script>
   </body>
 </html>

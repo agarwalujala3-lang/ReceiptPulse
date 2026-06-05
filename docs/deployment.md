@@ -5,6 +5,8 @@ This project is designed to go live in two parts:
 1. **AWS SAM** for the serverless backend
 2. **AWS Amplify Hosting** for the dashboard
 
+For portfolio viewing while the original AWS account is restricted, publish the dashboard through GitHub Pages first. That path runs Cloud Demo mode and does not call AWS.
+
 ## Prerequisites
 
 - AWS account
@@ -63,6 +65,26 @@ You will use them in the dashboard deployment.
 
 ## Part 2: Deploy the Dashboard
 
+### Option 0: GitHub Pages Cloud Demo
+
+The repo includes [.github/workflows/deploy-dashboard-pages.yml](../.github/workflows/deploy-dashboard-pages.yml).
+
+On push to `main`, push to the current Codex branch, or manual workflow dispatch, it:
+
+1. Copies `dashboard/` into a static artifact.
+2. Rewrites the deployed `config.js` with `apiBaseUrl` and Cognito values empty.
+3. Keeps `demo.enabled` and `demo.autoFallback` set to `true`.
+4. Publishes to GitHub Pages.
+
+Expected safe public links:
+
+```text
+https://agarwalujala3-lang.github.io/ReceiptPulse/
+https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
+```
+
+Use this path until a healthy AWS account is ready. It creates no AWS charges and still presents the AWS architecture, UI, and redeploy story.
+
 ### Option A: AWS Amplify Hosting
 
 This repo already includes [amplify.yml](../amplify.yml).
@@ -105,6 +127,20 @@ window.RECEIPTPULSE_CONFIG = {
 ```
 
 Then upload the `dashboard/` files to your static host.
+
+## Cloud Demo Fallback
+
+`dashboard/config.js` can keep demo mode enabled even when AWS Live is connected:
+
+```js
+demo: {
+  enabled: true,
+  autoFallback: true,
+  sampleDataPath: "./data/demo-dashboard.json",
+}
+```
+
+When Cognito or the API is unavailable, the dashboard can still open a browser-local Cloud Demo workspace. This keeps the portfolio showcase usable without calling AWS or creating new AWS charges. AWS Live mode resumes when `apiBaseUrl` and Cognito settings point to a healthy deployed stack.
 
 ## Quick Smoke Checks
 

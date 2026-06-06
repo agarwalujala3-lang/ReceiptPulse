@@ -321,28 +321,27 @@
     });
   }
 
-  function scheduleFieldReset(fields) {
-    clearAuthFields(fields);
-    window.requestAnimationFrame(() => clearAuthFields(fields));
-    window.setTimeout(() => clearAuthFields(fields), 0);
-    window.setTimeout(() => clearAuthFields(fields), 180);
-    window.setTimeout(() => clearAuthFields(fields), 700);
-    window.setTimeout(() => clearAuthFields(fields), 1400);
+  function scheduleFieldReset(fields, shouldSkip = () => false) {
+    const clearIfSafe = () => {
+      if (!shouldSkip()) {
+        clearAuthFields(fields);
+      }
+    };
+
+    clearIfSafe();
+    window.requestAnimationFrame(clearIfSafe);
+    window.setTimeout(clearIfSafe, 0);
+    window.setTimeout(clearIfSafe, 180);
+    window.setTimeout(clearIfSafe, 700);
+    window.setTimeout(clearIfSafe, 1400);
   }
 
   function guardSignupFields(fields) {
     [fields.name, fields.username, fields.password, fields.confirmPassword]
       .filter(Boolean)
       .forEach((field) => {
-        field.setAttribute("readonly", "readonly");
-
-        const unlock = () => {
-          field.removeAttribute("readonly");
-        };
-
-        field.addEventListener("focus", unlock, { once: true });
-        field.addEventListener("pointerdown", unlock, { once: true });
-        field.addEventListener("keydown", unlock, { once: true });
+        field.removeAttribute("readonly");
+        field.dataset.authInputReady = "true";
       });
   }
 
@@ -354,15 +353,8 @@
     targets
       .filter(Boolean)
       .forEach((field) => {
-        field.setAttribute("readonly", "readonly");
-
-        const unlock = () => {
-          field.removeAttribute("readonly");
-        };
-
-        field.addEventListener("focus", unlock, { once: true });
-        field.addEventListener("pointerdown", unlock, { once: true });
-        field.addEventListener("keydown", unlock, { once: true });
+        field.removeAttribute("readonly");
+        field.dataset.authInputReady = "true";
       });
   }
 
@@ -395,6 +387,8 @@
         clearIfIdle();
       }
     });
+
+    return () => manualEntryStarted;
   }
 
   function consumeSignedOutFlag() {
@@ -570,7 +564,7 @@
     }
 
     randomizeFieldNames(fields, pageType || "auth");
-    installAutofillScrubber(form, fields);
+    const hasManualEntryStarted = installAutofillScrubber(form, fields);
 
     const cameFromSignOut = consumeSignedOutFlag();
 
@@ -588,15 +582,15 @@
 
     if (pageType === "signup") {
       guardAuthFields(fields, true);
-      scheduleFieldReset(fields);
+      scheduleFieldReset(fields, hasManualEntryStarted);
       window.addEventListener("pageshow", () => {
-        scheduleFieldReset(fields);
+        scheduleFieldReset(fields, hasManualEntryStarted);
       });
     } else {
       guardAuthFields(fields, false);
-      scheduleFieldReset(fields);
+      scheduleFieldReset(fields, hasManualEntryStarted);
       window.addEventListener("pageshow", () => {
-        scheduleFieldReset(fields);
+        scheduleFieldReset(fields, hasManualEntryStarted);
       });
       if (cameFromSignOut) {
         setPageStatus("Signed out. Sign in with this account or another one.", "idle");

@@ -90,15 +90,24 @@
     return getDemoConfig().enabled;
   }
 
-  function createDemoTokens() {
+  function createDemoTokens(userOverride = {}) {
     const demo = getDemoConfig();
+    const username = String(userOverride.username || "").trim();
+    const name = String(userOverride.name || username || demo.user.name).trim();
+    const email = username.includes("@") ? username : demo.user.email;
+
     return {
       demo: true,
       accessToken: `${DEMO_TOKEN_PREFIX}-access-${Date.now()}`,
       idToken: `${DEMO_TOKEN_PREFIX}-id-${Date.now()}`,
       refreshToken: "",
       expiresAt: Date.now() + 8 * 60 * 60 * 1000,
-      user: demo.user,
+      user: {
+        ...demo.user,
+        id: username || demo.user.id,
+        name,
+        email,
+      },
     };
   }
 
@@ -294,8 +303,8 @@
     window.location.replace(target.toString());
   }
 
-  function startDemoSession() {
-    const tokens = createDemoTokens();
+  function startDemoSession(userOverride = {}) {
+    const tokens = createDemoTokens(userOverride);
     persistTokens(tokens);
     redirectToApp(getDemoConfig());
   }
@@ -542,7 +551,10 @@
     }
 
     const demoEnabled = isDemoEnabled();
-    if (!isConfigured(config) && !demoEnabled) {
+    const cognitoConfigured = isConfigured(config);
+    const useLocalDemoAuth = !cognitoConfigured && demoEnabled;
+
+    if (!cognitoConfigured && !demoEnabled) {
       setPageStatus("Cognito configuration is missing in dashboard/config.js.", "error");
       setFormBusy(true);
       return;
@@ -557,10 +569,8 @@
       });
     }
 
-    if (!isConfigured(config) && demoEnabled) {
-      setPageStatus("Live Cognito is not configured. Use Cloud Demo Access to view the AWS showcase.", "idle");
-      setFormBusy(true);
-      return;
+    if (useLocalDemoAuth) {
+      setPageStatus("AWS sign-in is offline here. Type any username and password to open the browser-local Cloud Demo.", "idle");
     }
 
     randomizeFieldNames(fields, pageType || "auth");
@@ -572,7 +582,7 @@
       const existingSession = await restoreExistingSession(config);
       if (existingSession && buildUserFromTokens(existingSession).id) {
         setPageStatus("Existing session found. Opening the app page...", "success");
-        redirectToApp(config);
+        redirectToApp(useLocalDemoAuth ? getDemoConfig() : config);
         return;
       }
     } catch (error) {
@@ -603,6 +613,12 @@
 
       try {
         const credentials = validateAuthForm(pageType, fields);
+
+        if (useLocalDemoAuth) {
+          setPageStatus("Opening your browser-local Cloud Demo workspace...", "working");
+          startDemoSession(credentials);
+          return;
+        }
 
         if (pageType === "signup") {
           setPageStatus("Creating your account...", "working");

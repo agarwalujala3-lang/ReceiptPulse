@@ -54,6 +54,7 @@ The demo mode does not remove the AWS project meaning. It keeps the cloud archit
 - **AI extraction workflow:** Textract `AnalyzeExpense` normalizes vendor, date, total, confidence, category, and line-item style data.
 - **Quality gates:** duplicate detection, missing-field review, confidence thresholds, and user decisions before records affect analytics.
 - **Premium dashboard UI:** 3D brand entry animation, rotatable receipt figures, high-contrast professional theme, animated pipeline timeline, and polished recruiter-facing copy.
+- **Secure account UX:** browser/password-manager friendly sign-in fields plus Cognito email-based password recovery for AWS Live deployments.
 - **Demo-safe resilience:** the app remains interactive without AWS access by using local browser state and sample data.
 - **AI/recruiter readable docs:** architecture, mode behavior, deployment, cost controls, and repo map are documented clearly.
 
@@ -125,6 +126,8 @@ https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
 ```
 
 The Pages publisher copies `dashboard/` to the `gh-pages` branch and writes a deployment-only `config.js` with `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled. That means the public link stays interactive without touching the restricted AWS account.
+
+The public Cloud Demo does not store real account passwords. Browser-saved passwords are handled by the user's password manager. Password recovery is available when the dashboard is connected to an AWS Live Cognito user pool with verified email recovery enabled.
 
 ## Run Locally
 

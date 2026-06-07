@@ -47,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260604a" />
+    <link rel="stylesheet" href="./styles.css?v=20260607b" />
   </head>
   <body class="auth-page auth-page-signin cinema-ui" data-auth-page="signin" data-entry-launch="root">
     <div class="cinema-stage" aria-hidden="true">
@@ -173,20 +173,15 @@
           <p>Use the username and password you created for this project.</p>
         </div>
 
-        <form class="auth-form" id="authForm" novalidate autocomplete="off">
-          <div class="auth-decoy-group" aria-hidden="true">
-            <input class="auth-decoy" type="text" name="signin-decoy-user" autocomplete="username" tabindex="-1" />
-            <input class="auth-decoy" type="password" name="signin-decoy-pass" autocomplete="current-password" tabindex="-1" />
-          </div>
-
+        <form class="auth-form" id="authForm" novalidate autocomplete="on">
           <label class="field">
             <span>Username</span>
             <input
               class="text-input"
               id="authUsername"
-              name="signinUsername"
+              name="username"
               type="text"
-              autocomplete="off"
+              autocomplete="username"
               autocapitalize="off"
               spellcheck="false"
               maxlength="64"
@@ -200,9 +195,9 @@
             <input
               class="text-input"
               id="authPassword"
-              name="signinPassword"
+              name="password"
               type="password"
-              autocomplete="off"
+              autocomplete="current-password"
               minlength="8"
               placeholder="Enter your password"
               required
@@ -211,6 +206,91 @@
 
           <button class="primary-button auth-submit" id="authSubmit" type="submit">Sign In</button>
         </form>
+
+        <button class="auth-link-button" id="forgotPasswordToggle" type="button">
+          Forgot password?
+        </button>
+
+        <section class="auth-recovery-card" id="passwordRecoveryPanel" hidden>
+          <div class="auth-recovery-head">
+            <span class="mini-label">Secure recovery</span>
+            <strong>Reset with Cognito email verification</strong>
+            <p>Enter your username. If AWS Live auth is configured, Cognito sends a reset code to the verified recovery email on that account.</p>
+          </div>
+
+          <form class="auth-recovery-form" id="passwordRecoveryForm" novalidate autocomplete="on">
+            <label class="field">
+              <span>Username</span>
+              <input
+                class="text-input"
+                id="recoveryUsername"
+                name="username"
+                type="text"
+                autocomplete="username"
+                autocapitalize="off"
+                spellcheck="false"
+                maxlength="64"
+                placeholder="your-username"
+                required
+              />
+            </label>
+
+            <div class="auth-recovery-confirm" id="passwordRecoveryConfirm" hidden>
+              <label class="field">
+                <span>Reset code</span>
+                <input
+                  class="text-input"
+                  id="recoveryCode"
+                  name="one-time-code"
+                  type="text"
+                  autocomplete="one-time-code"
+                  inputmode="numeric"
+                  maxlength="12"
+                  placeholder="Code from email"
+                />
+              </label>
+
+              <label class="field">
+                <span>New password</span>
+                <input
+                  class="text-input"
+                  id="recoveryPassword"
+                  name="new-password"
+                  type="password"
+                  autocomplete="new-password"
+                  minlength="8"
+                  placeholder="New password"
+                />
+              </label>
+
+              <label class="field">
+                <span>Confirm new password</span>
+                <input
+                  class="text-input"
+                  id="recoveryConfirmPassword"
+                  name="confirm-new-password"
+                  type="password"
+                  autocomplete="new-password"
+                  minlength="8"
+                  placeholder="Re-enter new password"
+                />
+              </label>
+            </div>
+
+            <div class="auth-recovery-actions">
+              <button class="primary-button auth-submit" id="passwordRecoverySubmit" type="submit">
+                Send Reset Code
+              </button>
+              <button class="secondary-button" id="passwordRecoveryCancel" type="button">
+                Cancel
+              </button>
+            </div>
+          </form>
+
+          <p class="auth-status auth-recovery-status" id="passwordRecoveryStatus" data-state="idle">
+            Password recovery uses Cognito and never reveals your existing password.
+          </p>
+        </section>
 
         <div class="demo-access-card">
           <div>
@@ -240,6 +320,6 @@
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./entry-3d.js?v=20260604a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
-    <script src="./auth.js?v=20260607a" defer></script>
+    <script src="./auth.js?v=20260607c" defer></script>
   </body>
 </html>

@@ -47,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260604a" />
+    <link rel="stylesheet" href="./styles.css?v=20260607b" />
   </head>
   <body class="auth-page auth-page-signup cinema-ui" data-auth-page="signup">
     <div class="cinema-stage" aria-hidden="true">
@@ -84,8 +84,8 @@
           <p class="eyebrow">Create Account</p>
           <h1>Make a username once, then use that workspace for your own receipt uploads.</h1>
           <p class="auth-lead">
-            This project no longer depends on email during authentication. We create a username-based
-            account and keep each signed-in user's uploaded files separate.
+            Create a username-based workspace with a recovery email so Cognito can reset your
+            password securely if you forget it.
           </p>
         </div>
 
@@ -170,23 +170,18 @@
         <div class="auth-panel-head">
           <p class="eyebrow">Sign Up</p>
           <h2>Create your account</h2>
-          <p>Pick a username and password. Display name is optional.</p>
+          <p>Pick a username, recovery email, and password. Display name is optional.</p>
         </div>
 
-        <form class="auth-form" id="authForm" novalidate autocomplete="off">
-          <div class="auth-decoy-group" aria-hidden="true">
-            <input class="auth-decoy" type="text" name="signup-decoy-user" autocomplete="username" tabindex="-1" />
-            <input class="auth-decoy" type="password" name="signup-decoy-pass" autocomplete="new-password" tabindex="-1" />
-          </div>
-
+        <form class="auth-form" id="authForm" novalidate autocomplete="on">
           <label class="field">
             <span>Display name</span>
             <input
               class="text-input"
               id="authName"
-              name="signupDisplayName"
+              name="name"
               type="text"
-              autocomplete="off"
+              autocomplete="name"
               maxlength="64"
               placeholder="Optional name for the dashboard"
             />
@@ -197,9 +192,9 @@
             <input
               class="text-input"
               id="authUsername"
-              name="signupUsername"
+              name="username"
               type="text"
-              autocomplete="off"
+              autocomplete="username"
               autocapitalize="off"
               spellcheck="false"
               maxlength="64"
@@ -209,11 +204,27 @@
           </label>
 
           <label class="field">
+            <span>Recovery email</span>
+            <input
+              class="text-input"
+              id="authEmail"
+              name="email"
+              type="email"
+              autocomplete="email"
+              autocapitalize="off"
+              spellcheck="false"
+              maxlength="120"
+              placeholder="you@example.com"
+              required
+            />
+          </label>
+
+          <label class="field">
             <span>Password</span>
             <input
               class="text-input"
               id="authPassword"
-              name="signupPassword"
+              name="new-password"
               type="password"
               autocomplete="new-password"
               minlength="8"
@@ -227,7 +238,7 @@
             <input
               class="text-input"
               id="authConfirmPassword"
-              name="signupConfirmPassword"
+              name="confirm-new-password"
               type="password"
               autocomplete="new-password"
               minlength="8"
@@ -240,7 +251,7 @@
         </form>
 
         <p class="auth-status" id="authStatus" data-state="idle">
-          Create an account, then we will take you straight to the main app page.
+          Create an account with a recovery email, then we will take you straight to the main app page.
         </p>
 
         <div class="auth-switch">
@@ -254,6 +265,6 @@
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
-    <script src="./auth.js?v=20260607a" defer></script>
+    <script src="./auth.js?v=20260607c" defer></script>
   </body>
 </html>

@@ -3,6 +3,7 @@
   const DEFAULT_APP_PATH = "./app.html";
   const SIGNED_OUT_FLAG = "signed_out";
   const DEMO_TOKEN_PREFIX = "demo-receiptpulse";
+  const EMAIL_PATTERN = /^[^@\s]+@[^@\s]+\.[^@\s]+$/;
 
   function getSessionStore() {
     return window.sessionStorage;
@@ -90,11 +91,16 @@
     return getDemoConfig().enabled;
   }
 
+  function normalizeEmail(value) {
+    const email = String(value || "").trim().toLowerCase();
+    return EMAIL_PATTERN.test(email) ? email : "";
+  }
+
   function createDemoTokens(userOverride = {}) {
     const demo = getDemoConfig();
     const username = String(userOverride.username || "").trim();
     const name = String(userOverride.name || username || demo.user.name).trim();
-    const email = username.includes("@") ? username : demo.user.email;
+    const email = normalizeEmail(userOverride.email) || (username.includes("@") ? username : demo.user.email);
 
     return {
       demo: true,
@@ -248,18 +254,43 @@
   }
 
   async function signUp(config, payload) {
+    const userAttributes = [];
+
+    if (payload.email) {
+      userAttributes.push({
+        Name: "email",
+        Value: payload.email,
+      });
+    }
+
+    if (payload.name) {
+      userAttributes.push({
+        Name: "name",
+        Value: payload.name,
+      });
+    }
+
     return cognitoRequest(config, "SignUp", {
       ClientId: config.clientId,
       Username: payload.username,
       Password: payload.password,
-      UserAttributes: payload.name
-        ? [
-            {
-              Name: "name",
-              Value: payload.name,
-            },
-          ]
-        : [],
+      UserAttributes: userAttributes,
+    });
+  }
+
+  async function requestPasswordReset(config, username) {
+    return cognitoRequest(config, "ForgotPassword", {
+      ClientId: config.clientId,
+      Username: username,
+    });
+  }
+
+  async function confirmPasswordReset(config, payload) {
+    return cognitoRequest(config, "ConfirmForgotPassword", {
+      ClientId: config.clientId,
+      Username: payload.username,
+      ConfirmationCode: payload.code,
+      Password: payload.password,
     });
   }
 
@@ -309,54 +340,9 @@
     redirectToApp(getDemoConfig());
   }
 
-  function clearAuthFields(fields) {
-    Object.values(fields).forEach((field) => {
-      if (field) {
-        field.value = "";
-      }
-    });
-  }
-
-  function randomizeFieldNames(fields, pageType) {
-    Object.entries(fields).forEach(([key, field]) => {
-      if (!field) {
-        return;
-      }
-
-      field.setAttribute("name", `${pageType}-${key}-${Math.random().toString(36).slice(2, 10)}`);
-      field.setAttribute("data-form-type", "other");
-      field.setAttribute("data-lpignore", "true");
-      field.setAttribute("data-1p-ignore", "true");
-    });
-  }
-
-  function scheduleFieldReset(fields, shouldSkip = () => false) {
-    const clearIfSafe = () => {
-      if (!shouldSkip()) {
-        clearAuthFields(fields);
-      }
-    };
-
-    clearIfSafe();
-    window.requestAnimationFrame(clearIfSafe);
-    window.setTimeout(clearIfSafe, 0);
-    window.setTimeout(clearIfSafe, 180);
-    window.setTimeout(clearIfSafe, 700);
-    window.setTimeout(clearIfSafe, 1400);
-  }
-
-  function guardSignupFields(fields) {
-    [fields.name, fields.username, fields.password, fields.confirmPassword]
-      .filter(Boolean)
-      .forEach((field) => {
-        field.removeAttribute("readonly");
-        field.dataset.authInputReady = "true";
-      });
-  }
-
   function guardAuthFields(fields, includeName = false) {
     const targets = includeName
-      ? [fields.name, fields.username, fields.password, fields.confirmPassword]
+      ? [fields.name, fields.email, fields.username, fields.password, fields.confirmPassword]
       : [fields.username, fields.password, fields.confirmPassword];
 
     targets
@@ -365,39 +351,6 @@
         field.removeAttribute("readonly");
         field.dataset.authInputReady = "true";
       });
-  }
-
-  function installAutofillScrubber(form, fields) {
-    if (!form) {
-      return;
-    }
-
-    let manualEntryStarted = false;
-    const clearIfIdle = () => {
-      if (!manualEntryStarted) {
-        clearAuthFields(fields);
-      }
-    };
-
-    const activateManualEntry = () => {
-      manualEntryStarted = true;
-    };
-
-    ["pointerdown", "focusin", "keydown", "input"].forEach((eventName) => {
-      form.addEventListener(eventName, activateManualEntry, { once: true, capture: true });
-    });
-
-    [120, 320, 650, 1100, 1800].forEach((delay) => {
-      window.setTimeout(clearIfIdle, delay);
-    });
-
-    document.addEventListener("visibilitychange", () => {
-      if (document.visibilityState === "visible") {
-        clearIfIdle();
-      }
-    });
-
-    return () => manualEntryStarted;
   }
 
   function consumeSignedOutFlag() {
@@ -425,6 +378,18 @@
     if (code === "InvalidPasswordException") {
       return message || "Password does not match the project password rules.";
     }
+    if (code === "CodeMismatchException") {
+      return "The reset code is not correct. Check the email code and try again.";
+    }
+    if (code === "ExpiredCodeException") {
+      return "The reset code has expired. Request a new password reset code.";
+    }
+    if (code === "LimitExceededException") {
+      return "Too many password attempts. Wait a few minutes and try again.";
+    }
+    if (code === "UserNotFoundException") {
+      return "If that account exists, Cognito will send a reset code to its recovery email.";
+    }
     if (code === "InvalidParameterException") {
       return message || "Please check the values you entered and try again.";
     }
@@ -442,7 +407,10 @@
   }
 
   function setPageStatus(message, state = "idle") {
-    const status = document.querySelector("#authStatus");
+    setStatus(document.querySelector("#authStatus"), message, state);
+  }
+
+  function setStatus(status, message, state = "idle") {
     if (!status) {
       return;
     }
@@ -466,6 +434,7 @@
     const username = String(fields.username?.value || "").trim();
     const password = String(fields.password?.value || "");
     const name = String(fields.name?.value || "").trim();
+    const email = normalizeEmail(fields.email?.value);
     const confirmPassword = String(fields.confirmPassword?.value || "");
 
     if (!username) {
@@ -483,12 +452,135 @@
     if (pageType === "signup" && password !== confirmPassword) {
       throw new Error("Password and confirm password must match.");
     }
+    if (pageType === "signup" && !email) {
+      throw new Error("Enter a valid recovery email.");
+    }
 
     return {
       username,
       password,
       name,
+      email,
     };
+  }
+
+  function setupPasswordRecovery(config, options = {}) {
+    const toggle = document.querySelector("#forgotPasswordToggle");
+    const panel = document.querySelector("#passwordRecoveryPanel");
+    const form = document.querySelector("#passwordRecoveryForm");
+    const cancel = document.querySelector("#passwordRecoveryCancel");
+    const confirmPanel = document.querySelector("#passwordRecoveryConfirm");
+    const submit = document.querySelector("#passwordRecoverySubmit");
+    const status = document.querySelector("#passwordRecoveryStatus");
+    const usernameField = document.querySelector("#recoveryUsername");
+    const codeField = document.querySelector("#recoveryCode");
+    const passwordField = document.querySelector("#recoveryPassword");
+    const confirmPasswordField = document.querySelector("#recoveryConfirmPassword");
+    const signInUsername = document.querySelector("#authUsername");
+
+    if (!toggle || !panel || !form || !submit || !usernameField) {
+      return;
+    }
+
+    let step = "request";
+    let recoveryUsername = "";
+
+    const setRecoveryBusy = (isBusy) => {
+      submit.disabled = isBusy;
+      [usernameField, codeField, passwordField, confirmPasswordField, cancel].filter(Boolean).forEach((control) => {
+        control.disabled = isBusy;
+      });
+    };
+
+    const setStep = (nextStep) => {
+      step = nextStep;
+      confirmPanel.hidden = step !== "confirm";
+      submit.textContent = step === "confirm" ? "Update Password" : "Send Reset Code";
+      usernameField.readOnly = step === "confirm";
+    };
+
+    const resetRecoveryForm = () => {
+      setStep("request");
+      form.reset();
+      recoveryUsername = "";
+      setStatus(status, "Password recovery uses Cognito and never reveals your existing password.", "idle");
+    };
+
+    toggle.addEventListener("click", () => {
+      panel.hidden = !panel.hidden;
+      if (!panel.hidden) {
+        usernameField.value = signInUsername?.value || "";
+        usernameField.focus();
+      }
+    });
+
+    cancel?.addEventListener("click", () => {
+      panel.hidden = true;
+      resetRecoveryForm();
+    });
+
+    form.addEventListener("submit", async (event) => {
+      event.preventDefault();
+
+      if (!options.cognitoConfigured) {
+        setStatus(
+          status,
+          "Password recovery needs AWS Live Cognito. On this public Cloud Demo, type any password to open the demo workspace.",
+          "error",
+        );
+        return;
+      }
+
+      try {
+        setRecoveryBusy(true);
+
+        if (step === "request") {
+          recoveryUsername = String(usernameField.value || "").trim();
+          if (!recoveryUsername) {
+            throw new Error("Enter your username first.");
+          }
+
+          await requestPasswordReset(config, recoveryUsername);
+          setStep("confirm");
+          setStatus(status, "If that account exists, Cognito sent a reset code to its verified recovery email.", "success");
+          codeField?.focus();
+          return;
+        }
+
+        const code = String(codeField?.value || "").trim();
+        const password = String(passwordField?.value || "");
+        const confirmPassword = String(confirmPasswordField?.value || "");
+
+        if (!code) {
+          throw new Error("Enter the reset code from your email.");
+        }
+        if (password.length < 8) {
+          throw new Error("New password must be at least 8 characters long.");
+        }
+        if (password !== confirmPassword) {
+          throw new Error("New password and confirmation must match.");
+        }
+
+        await confirmPasswordReset(config, {
+          username: recoveryUsername,
+          code,
+          password,
+        });
+
+        setStatus(status, "Password updated. Sign in with your new password.", "success");
+        setStep("request");
+        passwordField.value = "";
+        confirmPasswordField.value = "";
+        codeField.value = "";
+        usernameField.readOnly = false;
+        usernameField.value = recoveryUsername;
+        document.querySelector("#authPassword")?.focus();
+      } catch (error) {
+        setStatus(status, toFriendlyErrorMessage(error), "error");
+      } finally {
+        setRecoveryBusy(false);
+      }
+    });
   }
 
   async function signInAfterSignup(config, credentials) {
@@ -541,6 +633,7 @@
     const form = document.querySelector("#authForm");
     const fields = {
       name: document.querySelector("#authName"),
+      email: document.querySelector("#authEmail"),
       username: document.querySelector("#authUsername"),
       password: document.querySelector("#authPassword"),
       confirmPassword: document.querySelector("#authConfirmPassword"),
@@ -573,8 +666,12 @@
       setPageStatus("AWS sign-in is offline here. Type any username and password to open the browser-local Cloud Demo.", "idle");
     }
 
-    randomizeFieldNames(fields, pageType || "auth");
-    const hasManualEntryStarted = installAutofillScrubber(form, fields);
+    if (pageType === "signup") {
+      guardAuthFields(fields, true);
+    } else {
+      guardAuthFields(fields, false);
+      setupPasswordRecovery(config, { cognitoConfigured, useLocalDemoAuth });
+    }
 
     const cameFromSignOut = consumeSignedOutFlag();
 
@@ -590,18 +687,7 @@
       setPageStatus("Previous session expired. Sign in again to continue.", "idle");
     }
 
-    if (pageType === "signup") {
-      guardAuthFields(fields, true);
-      scheduleFieldReset(fields, hasManualEntryStarted);
-      window.addEventListener("pageshow", () => {
-        scheduleFieldReset(fields, hasManualEntryStarted);
-      });
-    } else {
-      guardAuthFields(fields, false);
-      scheduleFieldReset(fields, hasManualEntryStarted);
-      window.addEventListener("pageshow", () => {
-        scheduleFieldReset(fields, hasManualEntryStarted);
-      });
+    if (pageType !== "signup") {
       if (cameFromSignOut) {
         setPageStatus("Signed out. Sign in with this account or another one.", "idle");
       }
@@ -655,6 +741,8 @@
     isTokenExpired,
     signIn,
     signUp,
+    requestPasswordReset,
+    confirmPasswordReset,
     refreshSession,
     globalSignOut,
     redirectToApp,

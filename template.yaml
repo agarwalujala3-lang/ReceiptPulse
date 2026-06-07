@@ -135,9 +135,11 @@ Resources:
         - Name: name
           Required: false
           Mutable: true
+      AutoVerifiedAttributes:
+        - email
       AccountRecoverySetting:
         RecoveryMechanisms:
-          - Name: admin_only
+          - Name: verified_email
             Priority: 1
 
   ReceiptIdentityUserPoolClient:

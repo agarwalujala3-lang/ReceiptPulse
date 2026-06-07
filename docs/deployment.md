@@ -63,6 +63,8 @@ After deployment, copy these output values:
 
 You will use them in the dashboard deployment.
 
+The Cognito stack is configured for username/password sign-in, browser-password-manager friendly fields, and verified-email password recovery. New users should provide a recovery email during sign-up so the **Forgot password** flow can send a reset code.
+
 ## Part 2: Deploy the Dashboard
 
 ### Option 0: GitHub Pages Cloud Demo
@@ -158,10 +160,11 @@ GET /receipts (with Authorization header from a signed-in user)
 
 - dashboard loads and shows `Private Workspace` after sign-in
 - Cognito sign-up/sign-in redirects back to the dashboard successfully
+- **Forgot password** sends a Cognito reset code to the user's recovery email and accepts the code plus a new password
 - analytics cards render only the signed-in user's data
 - receipt table fills from the private API
 - uploading a receipt from the browser stores it under the signed-in account
-- receipt progress and processed results appear inside the dashboard without any email step
+- receipt progress and processed results appear inside the dashboard after sign-in
 
 ## Recommended Production Follow-ups
 

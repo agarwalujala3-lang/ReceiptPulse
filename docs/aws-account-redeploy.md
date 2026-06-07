@@ -103,6 +103,7 @@ Cloud Demo can stay enabled. If the new AWS API fails, the dashboard remains usa
 - `View Cloud Demo` opens the dashboard without AWS.
 - Demo upload changes dashboard metrics locally.
 - New Cognito sign-up works in the new account.
+- New Cognito users include a recovery email, and **Forgot password** sends a reset code to that verified email.
 - AWS Live sign-in opens the dashboard.
 - AWS Live receipt upload reaches S3.
 - Lambda processor writes a receipt row to DynamoDB.

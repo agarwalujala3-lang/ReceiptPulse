@@ -3,7 +3,7 @@
 This project is designed to go live in two parts:
 
 1. **AWS SAM** for the serverless backend
-2. **AWS Amplify Hosting** for the dashboard
+2. **AWS Amplify Hosting** or GitHub Pages for the dashboard
 
 For portfolio viewing while the original AWS account is restricted, publish the dashboard through GitHub Pages first. That path runs Cloud Demo mode and does not call AWS.
 
@@ -69,12 +69,12 @@ You will use them in the dashboard deployment.
 
 The repo includes [.github/workflows/deploy-dashboard-pages.yml](../.github/workflows/deploy-dashboard-pages.yml).
 
-On push to `main`, push to the current Codex branch, or manual workflow dispatch, it:
+On push to `main` or manual workflow dispatch, it:
 
-1. Copies `dashboard/` into a static artifact.
+1. Copies `dashboard/` into a clean static artifact.
 2. Rewrites the deployed `config.js` with `apiBaseUrl` and Cognito values empty.
 3. Keeps `demo.enabled` and `demo.autoFallback` set to `true`.
-4. Publishes to GitHub Pages.
+4. Publishes the result to the `gh-pages` branch, which is the live GitHub Pages source.
 
 Expected safe public links:
 

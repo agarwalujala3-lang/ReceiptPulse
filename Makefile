@@ -8,4 +8,4 @@ deploy:
 
 # Run this command: make test
 test:
-	python3 -m unittest discover tests
+	PYTHONPATH=lambda python3 -m unittest discover tests

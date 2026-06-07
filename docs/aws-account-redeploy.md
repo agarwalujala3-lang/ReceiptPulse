@@ -54,7 +54,7 @@ https://agarwalujala3-lang.github.io/ReceiptPulse/
 https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
 ```
 
-The Pages workflow publishes the static dashboard with AWS calls disabled and Cloud Demo enabled. This keeps the project visible without creating AWS resources or charges.
+The Pages publisher updates the `gh-pages` branch with AWS calls disabled and Cloud Demo enabled. This keeps the project visible without creating AWS resources or charges.
 
 ## Redeploy Backend
 

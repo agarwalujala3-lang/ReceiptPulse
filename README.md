@@ -108,7 +108,7 @@ dashboard/                 Static web app, animations, auth, demo mode, dashboar
 lambda/                    Receipt processor, dashboard API, Cognito pre-signup trigger
 template.yaml              AWS SAM infrastructure definition
 dashboard/data/            Demo dashboard data for portfolio-safe mode
-.github/workflows/         CI plus GitHub Pages static dashboard deployment
+.github/workflows/         CI plus gh-pages static dashboard publishing
 docs/deployment.md         Standard deployment guide
 docs/aws-account-redeploy.md  New-account redeploy and billing safety guide
 tests/                     Python test coverage for processor behavior
@@ -124,7 +124,7 @@ https://agarwalujala3-lang.github.io/ReceiptPulse/
 https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
 ```
 
-The Pages workflow publishes `dashboard/` and writes a deployment-only `config.js` with `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled. That means the public link stays interactive without touching the restricted AWS account.
+The Pages publisher copies `dashboard/` to the `gh-pages` branch and writes a deployment-only `config.js` with `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled. That means the public link stays interactive without touching the restricted AWS account.
 
 ## Run Locally
 
@@ -177,7 +177,7 @@ See [docs/aws-account-redeploy.md](docs/aws-account-redeploy.md) for the safe mi
 ## Verification Commands
 
 ```bash
-python -m pytest
+PYTHONPATH=lambda python -m unittest discover tests
 node --check dashboard/app.js
 node --check dashboard/auth.js
 node --check dashboard/entry-3d.js

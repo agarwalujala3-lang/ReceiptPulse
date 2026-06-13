@@ -47,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260613a" />
+    <link rel="stylesheet" href="./styles.css?v=20260613b" />
   </head>
   <body class="auth-page auth-page-signin cinema-ui" data-auth-page="signin" data-entry-launch="root">
     <div class="cinema-stage" aria-hidden="true">
@@ -200,12 +200,16 @@
               autocomplete="off"
               minlength="8"
               placeholder="Enter username first"
+              aria-describedby="authPasswordHint"
               disabled
               data-auth-gated-password="true"
               data-auth-real-name="password"
               data-auth-real-autocomplete="current-password"
               required
             />
+            <small class="auth-field-hint" id="authPasswordHint" data-state="idle">
+              Enter a valid username first to unlock password suggestions.
+            </small>
           </label>
 
           <button class="primary-button auth-submit" id="authSubmit" type="submit">Sign In</button>
@@ -268,7 +272,14 @@
                   autocomplete="new-password"
                   minlength="8"
                   placeholder="New password"
+                  aria-describedby="recoveryPasswordStrength"
                 />
+                <span class="auth-password-strength" data-strength="empty" aria-hidden="true">
+                  <i id="recoveryPasswordStrengthBar"></i>
+                </span>
+                <small class="auth-field-hint" id="recoveryPasswordStrength" data-password-strength data-state="idle">
+                  Use 8+ characters with letters, numbers, and symbols.
+                </small>
               </label>
 
               <label class="field">
@@ -281,7 +292,11 @@
                   autocomplete="new-password"
                   minlength="8"
                   placeholder="Re-enter new password"
+                  aria-describedby="recoveryConfirmHint"
                 />
+                <small class="auth-field-hint" id="recoveryConfirmHint" data-password-match data-state="idle">
+                  Re-enter the new password to confirm.
+                </small>
               </label>
             </div>
 
@@ -328,6 +343,6 @@
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./entry-3d.js?v=20260604a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
-    <script src="./auth.js?v=20260613a" defer></script>
+    <script src="./auth.js?v=20260613b" defer></script>
   </body>
 </html>

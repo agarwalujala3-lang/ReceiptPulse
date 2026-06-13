@@ -47,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260613a" />
+    <link rel="stylesheet" href="./styles.css?v=20260613b" />
   </head>
   <body class="auth-page auth-page-signup cinema-ui" data-auth-page="signup">
     <div class="cinema-stage" aria-hidden="true">
@@ -229,8 +229,15 @@
               autocomplete="new-password"
               minlength="8"
               placeholder="At least 8 characters"
+              aria-describedby="authPasswordStrength"
               required
             />
+            <span class="auth-password-strength" data-strength="empty" aria-hidden="true">
+              <i id="authPasswordStrengthBar"></i>
+            </span>
+            <small class="auth-field-hint" id="authPasswordStrength" data-password-strength data-state="idle">
+              Use 8+ characters with letters, numbers, and symbols.
+            </small>
           </label>
 
           <label class="field">
@@ -243,8 +250,12 @@
               autocomplete="new-password"
               minlength="8"
               placeholder="Re-enter the same password"
+              aria-describedby="authConfirmHint"
               required
             />
+            <small class="auth-field-hint" id="authConfirmHint" data-password-match data-state="idle">
+              Re-enter the password to confirm.
+            </small>
           </label>
 
           <button class="primary-button auth-submit" id="authSubmit" type="submit">Create Account</button>
@@ -265,6 +276,6 @@
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
-    <script src="./auth.js?v=20260613a" defer></script>
+    <script src="./auth.js?v=20260613b" defer></script>
   </body>
 </html>

@@ -354,6 +354,7 @@
 
     const realName = password.dataset.authRealName || "password";
     const realAutocomplete = password.dataset.authRealAutocomplete || "current-password";
+    const passwordHint = document.querySelector("#authPasswordHint");
     let usernameWasEntered = false;
 
     const lockPassword = () => {
@@ -365,6 +366,10 @@
       password.placeholder = "Enter username first";
       password.dataset.passwordGateState = "locked";
       password.setAttribute("aria-disabled", "true");
+      if (passwordHint) {
+        passwordHint.textContent = "Enter a valid username first to unlock password suggestions.";
+        passwordHint.dataset.state = "idle";
+      }
     };
 
     const unlockPassword = () => {
@@ -375,6 +380,10 @@
       password.placeholder = "Enter your password";
       password.dataset.passwordGateState = "unlocked";
       password.removeAttribute("aria-disabled");
+      if (passwordHint) {
+        passwordHint.textContent = "Password unlocked. Use saved password or type it here.";
+        passwordHint.dataset.state = "success";
+      }
     };
 
     const syncPasswordGate = () => {
@@ -400,6 +409,145 @@
 
     window.setTimeout(syncPasswordGate, 120);
     return syncPasswordGate;
+  }
+
+  function assessPasswordStrength(password) {
+    const value = String(password || "");
+    if (!value) {
+      return {
+        state: "empty",
+        width: "0%",
+        message: "Use 8+ characters with letters, numbers, and symbols.",
+      };
+    }
+
+    let score = 0;
+    if (value.length >= 8) score += 1;
+    if (value.length >= 12) score += 1;
+    if (/[a-z]/.test(value) && /[A-Z]/.test(value)) score += 1;
+    if (/\d/.test(value)) score += 1;
+    if (/[^A-Za-z0-9]/.test(value)) score += 1;
+
+    if (score <= 2) {
+      return {
+        state: "weak",
+        width: "34%",
+        message: "Weak: add length, mixed case, numbers, and symbols.",
+      };
+    }
+
+    if (score <= 4) {
+      return {
+        state: "fair",
+        width: "68%",
+        message: "Fair: stronger with 12+ characters and a symbol.",
+      };
+    }
+
+    return {
+      state: "strong",
+      width: "100%",
+      message: "Strong password pattern for this project.",
+    };
+  }
+
+  function setupPasswordFeedback(options = {}) {
+    const password = options.password;
+    const confirmPassword = options.confirmPassword;
+    const strengthHint = options.strengthHint;
+    const strengthBar = options.strengthBar;
+    const strengthTrack = strengthBar?.closest?.(".auth-password-strength") || null;
+    const matchHint = options.matchHint;
+
+    if (!password) {
+      return;
+    }
+
+    const refreshStrength = () => {
+      const result = assessPasswordStrength(password.value);
+      if (strengthHint) {
+        strengthHint.textContent = result.message;
+        strengthHint.dataset.state = result.state === "strong" ? "success" : result.state === "empty" ? "idle" : "warning";
+      }
+      if (strengthTrack) {
+        strengthTrack.dataset.strength = result.state;
+      }
+      if (strengthBar) {
+        strengthBar.style.width = result.width;
+      }
+    };
+
+    const refreshMatch = () => {
+      if (!matchHint || !confirmPassword) {
+        return;
+      }
+
+      const passwordValue = String(password.value || "");
+      const confirmValue = String(confirmPassword.value || "");
+      if (!confirmValue) {
+        matchHint.textContent = "Re-enter the password to confirm.";
+        matchHint.dataset.state = "idle";
+        return;
+      }
+      if (passwordValue && passwordValue === confirmValue) {
+        matchHint.textContent = "Passwords match.";
+        matchHint.dataset.state = "success";
+        return;
+      }
+
+      matchHint.textContent = "Passwords do not match yet.";
+      matchHint.dataset.state = "warning";
+    };
+
+    const refresh = () => {
+      refreshStrength();
+      refreshMatch();
+    };
+
+    password.addEventListener("input", refresh);
+    confirmPassword?.addEventListener("input", refreshMatch);
+    refresh();
+  }
+
+  function setupCapsLockHint(password, hint) {
+    if (!password || !hint) {
+      return;
+    }
+
+    let previousMessage = "";
+    let previousState = "";
+    const syncCapsLock = (event) => {
+      if (password.disabled || typeof event.getModifierState !== "function") {
+        return;
+      }
+      if (event.getModifierState("CapsLock")) {
+        if (!previousMessage) {
+          previousMessage = hint.textContent.trim();
+          previousState = hint.dataset.state || "idle";
+        }
+        hint.textContent = "Caps Lock is on.";
+        hint.dataset.state = "warning";
+        return;
+      }
+
+      if (previousMessage) {
+        hint.textContent = previousMessage;
+        hint.dataset.state = previousState || "idle";
+        previousMessage = "";
+        previousState = "";
+      }
+    };
+
+    password.addEventListener("keydown", syncCapsLock);
+    password.addEventListener("keyup", syncCapsLock);
+    password.addEventListener("blur", () => {
+      if (previousMessage) {
+        hint.textContent = previousMessage;
+        hint.dataset.state = previousState || "idle";
+        previousMessage = "";
+        previousState = "";
+      }
+    });
   }
 
   function guardAuthFields(fields, includeName = false) {
@@ -543,6 +691,14 @@
     if (!toggle || !panel || !form || !submit || !usernameField) {
       return;
     }
+
+    setupPasswordFeedback({
+      password: passwordField,
+      confirmPassword: confirmPasswordField,
+      strengthHint: document.querySelector("#recoveryPasswordStrength"),
+      strengthBar: document.querySelector("#recoveryPasswordStrengthBar"),
+      matchHint: document.querySelector("#recoveryConfirmHint"),
+    });
 
     let step = "request";
     let recoveryUsername = "";
@@ -732,9 +888,17 @@
 
     if (pageType === "signup") {
       guardAuthFields(fields, true);
+      setupPasswordFeedback({
+        password: fields.password,
+        confirmPassword: fields.confirmPassword,
+        strengthHint: document.querySelector("#authPasswordStrength"),
+        strengthBar: document.querySelector("#authPasswordStrengthBar"),
+        matchHint: document.querySelector("#authConfirmHint"),
+      });
     } else {
       guardAuthFields(fields, false);
       syncPasswordGate = setupUsernameGatedPassword(fields);
+      setupCapsLockHint(fields.password, document.querySelector("#authPasswordHint"));
       setupPasswordRecovery(config, { cognitoConfigured, useLocalDemoAuth });
     }
 

@@ -63,7 +63,7 @@ After deployment, copy these output values:
 
 You will use them in the dashboard deployment.
 
-The Cognito stack is configured for username/password sign-in, browser-password-manager friendly fields, and verified-email password recovery. New users should provide a recovery email during sign-up so the **Forgot password** flow can send a reset code.
+The Cognito stack is configured for username/password sign-in, username-gated password entry, browser-password-manager friendly fields, and verified-email password recovery. New users should provide a recovery email during sign-up so the **Forgot password** flow can send a reset code.
 
 ## Part 2: Deploy the Dashboard
 

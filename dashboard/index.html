@@ -47,7 +47,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260607c" />
+    <link rel="stylesheet" href="./styles.css?v=20260613a" />
   </head>
   <body class="auth-page auth-page-signin cinema-ui" data-auth-page="signin" data-entry-launch="root">
     <div class="cinema-stage" aria-hidden="true">
@@ -195,11 +195,15 @@
             <input
               class="text-input"
               id="authPassword"
-              name="password"
-              type="password"
-              autocomplete="current-password"
+              name="password_locked"
+              type="text"
+              autocomplete="off"
               minlength="8"
-              placeholder="Enter your password"
+              placeholder="Enter username first"
+              disabled
+              data-auth-gated-password="true"
+              data-auth-real-name="password"
+              data-auth-real-autocomplete="current-password"
               required
             />
           </label>
@@ -208,7 +212,7 @@
         </form>
 
         <p class="auth-security-note">
-          If fields are already filled, that is your browser or password manager autofill. ReceiptPulse never stores or reveals your password.
+          Password suggestions unlock only after you type a valid username. ReceiptPulse never stores or reveals your password.
         </p>
 
         <button class="auth-link-button" id="forgotPasswordToggle" type="button">
@@ -324,6 +328,6 @@
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./entry-3d.js?v=20260604a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
-    <script src="./auth.js?v=20260607c" defer></script>
+    <script src="./auth.js?v=20260613a" defer></script>
   </body>
 </html>

@@ -340,6 +340,68 @@
     redirectToApp(getDemoConfig());
   }
 
+  function isUsernameReadyForPassword(username) {
+    const value = String(username || "").trim();
+    return Boolean(value) && !/\s/.test(value);
+  }
+
+  function setupUsernameGatedPassword(fields) {
+    const username = fields.username;
+    const password = fields.password;
+    if (!username || !password || password.dataset.authGatedPassword !== "true") {
+      return () => {};
+    }
+
+    const realName = password.dataset.authRealName || "password";
+    const realAutocomplete = password.dataset.authRealAutocomplete || "current-password";
+    let usernameWasEntered = false;
+
+    const lockPassword = () => {
+      password.value = "";
+      password.disabled = true;
+      password.type = "text";
+      password.name = "password_locked";
+      password.autocomplete = "off";
+      password.placeholder = "Enter username first";
+      password.dataset.passwordGateState = "locked";
+      password.setAttribute("aria-disabled", "true");
+    };
+
+    const unlockPassword = () => {
+      password.disabled = false;
+      password.type = "password";
+      password.name = realName;
+      password.autocomplete = realAutocomplete;
+      password.placeholder = "Enter your password";
+      password.dataset.passwordGateState = "unlocked";
+      password.removeAttribute("aria-disabled");
+    };
+
+    const syncPasswordGate = () => {
+      if (usernameWasEntered && isUsernameReadyForPassword(username.value)) {
+        unlockPassword();
+        return;
+      }
+
+      lockPassword();
+    };
+
+    const markUsernameEntered = () => {
+      usernameWasEntered = true;
+      syncPasswordGate();
+    };
+
+    lockPassword();
+    username.addEventListener("input", markUsernameEntered);
+    username.addEventListener("change", markUsernameEntered);
+    username.addEventListener("paste", () => {
+      window.setTimeout(markUsernameEntered, 0);
+    });
+
+    window.setTimeout(syncPasswordGate, 120);
+    return syncPasswordGate;
+  }
+
   function guardAuthFields(fields, includeName = false) {
     const targets = includeName
       ? [fields.name, fields.email, fields.username, fields.password, fields.confirmPassword]
@@ -426,7 +488,7 @@
     }
 
     document.querySelectorAll("#authForm input").forEach((input) => {
-      input.disabled = isBusy;
+      input.disabled = isBusy || input.dataset.passwordGateState === "locked";
     });
   }
 
@@ -574,6 +636,7 @@
         codeField.value = "";
         usernameField.readOnly = false;
         usernameField.value = recoveryUsername;
+        signInUsername?.dispatchEvent(new Event("input", { bubbles: true }));
         document.querySelector("#authPassword")?.focus();
       } catch (error) {
         setStatus(status, toFriendlyErrorMessage(error), "error");
@@ -646,6 +709,7 @@
     const demoEnabled = isDemoEnabled();
     const cognitoConfigured = isConfigured(config);
     const useLocalDemoAuth = !cognitoConfigured && demoEnabled;
+    let syncPasswordGate = () => {};
 
     if (!cognitoConfigured && !demoEnabled) {
       setPageStatus("Cognito configuration is missing in dashboard/config.js.", "error");
@@ -670,6 +734,7 @@
       guardAuthFields(fields, true);
     } else {
       guardAuthFields(fields, false);
+      syncPasswordGate = setupUsernameGatedPassword(fields);
       setupPasswordRecovery(config, { cognitoConfigured, useLocalDemoAuth });
     }
 
@@ -726,6 +791,7 @@
         setPageStatus(toFriendlyErrorMessage(error), "error");
       } finally {
         setFormBusy(false);
+        syncPasswordGate();
       }
     });
   }

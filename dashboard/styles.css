@@ -6129,6 +6129,16 @@ body.topbar-condensed .topbar {
   min-height: 52px;
 }
 
+.auth-form .text-input:disabled,
+.auth-form .text-input[aria-disabled="true"] {
+  opacity: 0.72;
+  cursor: not-allowed;
+  border-style: dashed;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.03)),
+    rgba(10, 24, 39, 0.5);
+}
+
 .auth-status {
   margin: 0;
   min-height: 1.5rem;

@@ -14594,3 +14594,139 @@ html[data-ui-theme="light"] .dashboard-command-copy h1 {
     min-height: 9.5rem;
   }
 }
+
+/* Quick Intake horizontal pass: keep the upload cockpit full-width on desktop. */
+body.cinema-ui.dribbble-dashboard.neuro-skin .control-grid {
+  grid-template-columns: minmax(0, 1fr) !important;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .hero,
+body.cinema-ui.dribbble-dashboard.neuro-skin .cloud-proof-strip,
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-lab {
+  grid-column: 1 / -1;
+  width: 100%;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-lab {
+  overflow: hidden;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-form {
+  display: grid !important;
+  grid-template-columns: minmax(17rem, 0.82fr) minmax(29rem, 1.28fr);
+  grid-template-areas:
+    "drop preview"
+    "fields actions";
+  align-items: stretch;
+  gap: clamp(0.85rem, 1.5vw, 1.15rem);
+  padding-inline: clamp(1rem, 2vw, 1.45rem) !important;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .dropzone {
+  grid-area: drop;
+  min-height: 100% !important;
+  align-content: center;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-preview-shell {
+  grid-area: preview;
+  display: grid !important;
+  grid-template-columns: minmax(18rem, 1fr) minmax(13rem, 0.62fr);
+  align-items: stretch;
+  gap: 0.85rem;
+  min-width: 0;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-preview-frame {
+  min-height: 100%;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .preview-meta {
+  grid-template-columns: 1fr !important;
+  align-content: stretch;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .preview-stat {
+  display: grid;
+  align-content: center;
+  min-height: 0;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .field-grid {
+  grid-area: fields;
+  grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  align-self: end;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-actions-row {
+  grid-area: actions;
+  display: grid !important;
+  grid-template-columns: minmax(12rem, max-content) minmax(0, 1fr);
+  align-items: center !important;
+  gap: 0.75rem !important;
+  align-self: end;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-submit {
+  grid-column: 1;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .sample-demo-upload {
+  grid-column: 2;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .upload-helper {
+  grid-column: 1 / -1;
+  max-width: 68rem;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .sample-demo-upload[hidden] ~ .upload-helper {
+  grid-column: 2;
+}
+
+body.cinema-ui.dribbble-dashboard.neuro-skin .sample-demo-upload:not([hidden]) ~ .upload-helper {
+  grid-column: 1 / -1;
+}
+
+@media (min-width: 1181px) {
+  body.cinema-ui.dribbble-dashboard.neuro-skin .upload-actions-row {
+    grid-template-columns: minmax(12rem, 0.32fr) minmax(0, 1fr);
+  }
+}
+
+@media (max-width: 1180px) {
+  body.cinema-ui.dribbble-dashboard.neuro-skin .upload-form {
+    grid-template-columns: 1fr;
+    grid-template-areas:
+      "drop"
+      "preview"
+      "fields"
+      "actions";
+  }
+
+  body.cinema-ui.dribbble-dashboard.neuro-skin .upload-preview-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  body.cinema-ui.dribbble-dashboard.neuro-skin .preview-meta {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
+}
+
+@media (max-width: 720px) {
+  body.cinema-ui.dribbble-dashboard.neuro-skin .upload-form {
+    padding-inline: 0.9rem !important;
+  }
+
+  body.cinema-ui.dribbble-dashboard.neuro-skin .field-grid,
+  body.cinema-ui.dribbble-dashboard.neuro-skin .preview-meta,
+  body.cinema-ui.dribbble-dashboard.neuro-skin .upload-actions-row {
+    grid-template-columns: 1fr !important;
+  }
+
+  body.cinema-ui.dribbble-dashboard.neuro-skin .upload-submit,
+  body.cinema-ui.dribbble-dashboard.neuro-skin .sample-demo-upload,
+  body.cinema-ui.dribbble-dashboard.neuro-skin .upload-helper {
+    grid-column: 1 / -1;
+  }
+}

@@ -77,6 +77,7 @@ On push to `main` or manual workflow dispatch, it:
 2. Rewrites the deployed `config.js` with `apiBaseUrl` and Cognito values empty.
 3. Keeps `demo.enabled` and `demo.autoFallback` set to `true`.
 4. Publishes the result to the `gh-pages` branch, which is the live GitHub Pages source.
+5. Serves cache-busted dashboard assets with strict referrer metadata and hardened external source links for the public portfolio surface.
 
 Expected safe public links:
 

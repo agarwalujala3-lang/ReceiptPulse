@@ -5457,9 +5457,10 @@ async function updatePreviewFromFile(file) {
   latestPreview = await createPreviewPayload(file);
   const labelOverride = elements.uploadName?.value.trim() || "";
   const theme = getDraftTheme(labelOverride, file.name);
+  const safeFileName = escapeHtml(file.name);
 
   if (latestPreview.type === "image" && latestPreview.objectUrl) {
-    elements.previewFrame.innerHTML = `<img class="preview-image" src="${latestPreview.objectUrl}" alt="${file.name} preview" />`;
+    elements.previewFrame.innerHTML = `<img class="preview-image" src="${latestPreview.objectUrl}" alt="${safeFileName} preview" />`;
   } else {
     const pipelinePreviewCopy = isDemoRuntime()
       ? "This document will run through the browser-local cloud demo path while preserving the S3, Lambda, Textract, and DynamoDB workflow story."
@@ -5467,7 +5468,7 @@ async function updatePreviewFromFile(file) {
     elements.previewFrame.innerHTML = `
       <div class="preview-pdf-card">
         <span class="mini-label">Document preview</span>
-        <strong>${file.name}</strong>
+        <strong>${safeFileName}</strong>
         <p>${pipelinePreviewCopy}</p>
       </div>
     `;

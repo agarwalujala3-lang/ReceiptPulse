@@ -53,8 +53,8 @@ The demo mode does not remove the AWS project meaning. It keeps the cloud archit
 - **Cloud-first architecture:** event-driven receipt processing with S3 events, Lambda workers, DynamoDB indexes, API Gateway endpoints, and Cognito-scoped users.
 - **AI extraction workflow:** Textract `AnalyzeExpense` normalizes vendor, date, total, confidence, category, and line-item style data.
 - **Quality gates:** duplicate detection, missing-field review, confidence thresholds, and user decisions before records affect analytics.
-- **Premium dashboard UI:** 3D brand entry animation, rotatable receipt figures, high-contrast professional theme, animated pipeline timeline, and polished recruiter-facing copy.
-- **Secure account UX:** username-gated password entry, password strength and match feedback, browser/password-manager friendly sign-in fields, wider horizontal auth layouts, and Cognito email-based password recovery for AWS Live deployments.
+- **Premium dashboard UI:** 3D brand entry animation, rotatable receipt figures, high-contrast professional theme, full-width horizontal Quick Intake, animated pipeline timeline, and polished recruiter-facing copy.
+- **Secure account UX:** username-gated password entry, password strength and match feedback, browser/password-manager friendly sign-in fields, public-link hardening, escaped upload-preview filenames, wider horizontal auth layouts, and Cognito email-based password recovery for AWS Live deployments.
 - **Demo-safe resilience:** the app remains interactive without AWS access by using local browser state and sample data.
 - **AI/recruiter readable docs:** architecture, mode behavior, deployment, cost controls, and repo map are documented clearly.
 

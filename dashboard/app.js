@@ -4897,12 +4897,12 @@ async function handleDuplicateReceiptDecision(receipt) {
     if (!decision || decision.action === "reject") {
       await showDuplicateDecisionOutcome({
         tone: "reject",
-        eyebrow: "Demo Upload Discarded",
-        title: "Duplicate receipt was discarded.",
-        body: "This browser-only duplicate was removed before it changed the demo dashboard.",
+        eyebrow: "Safety Review Complete",
+        title: "Duplicate skipped safely.",
+        body: "This browser-only duplicate was kept out of the demo dashboard so totals stay clean.",
         note: "Returning you to the upload module now.",
-        noteTone: "error",
-        icon: "X",
+        noteTone: "neutral",
+        icon: "✓",
       });
       if (!elements.duplicateDecisionModal?.hidden) {
         closeDuplicateDecisionDialog();
@@ -4960,12 +4960,12 @@ async function handleDuplicateReceiptDecision(receipt) {
       const payload = await response.json();
       await showDuplicateDecisionOutcome({
         tone: "reject",
-        eyebrow: "Upload Discarded",
-        title: "Duplicate receipt was discarded.",
-        body: "This repeated receipt was removed and will not change your dashboard totals, history, or results.",
+        eyebrow: "Safety Review Complete",
+        title: "Duplicate skipped safely.",
+        body: "This repeated receipt was kept out of your dashboard totals, history, and results.",
         note: "Returning you to the upload module now.",
-        noteTone: "error",
-        icon: "X",
+        noteTone: "neutral",
+        icon: "✓",
       });
       return {
         action: "reject",

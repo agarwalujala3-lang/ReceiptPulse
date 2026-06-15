@@ -1,5 +1,5 @@
 window.RECEIPTPULSE_CONFIG = {
-  apiBaseUrl: "https://xooa7yv1tf.execute-api.ap-south-1.amazonaws.com",
+  apiBaseUrl: "",
   demo: {
     enabled: true,
     autoFallback: true,
@@ -11,12 +11,12 @@ window.RECEIPTPULSE_CONFIG = {
     },
   },
   auth: {
-    hostedUiDomain: "https://receiptpulse-119944160349-20260326.auth.ap-south-1.amazoncognito.com",
-    clientId: "61nlmqvbrs46bc9i4mvsljgf4c",
+    hostedUiDomain: "",
+    clientId: "",
     region: "ap-south-1",
     appPath: "./app.html",
-    redirectSignIn: "https://d2ijsg7huf2h2p.cloudfront.net",
-    redirectSignOut: "https://d2ijsg7huf2h2p.cloudfront.net",
+    redirectSignIn: "https://agarwalujala3-lang.github.io/ReceiptPulse/",
+    redirectSignOut: "https://agarwalujala3-lang.github.io/ReceiptPulse/",
     scopes: ["openid", "profile"],
   },
 };

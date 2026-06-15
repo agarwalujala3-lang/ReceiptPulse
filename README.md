@@ -43,7 +43,7 @@ ReceiptPulse is a production-style AWS cloud project that turns receipt uploads 
 | --- | --- | --- |
 | GitHub Pages Live Demo | Public recruiter link | Publishes the static dashboard with Cloud Demo enabled and AWS calls disabled by default. |
 | AWS Live | Real cloud deployment | Uses Cognito auth, API Gateway, Lambda, S3, DynamoDB, and Textract. |
-| Cloud Demo | Recruiter-safe portfolio mode | Uses browser-local demo tokens and sample data. Uploads, rename, delete, and analytics update locally without calling AWS or creating charges. |
+| Cloud Demo | Recruiter-safe portfolio mode | Uses browser-local demo tokens and sample data. Uploads, rename, delete, and analytics update locally without calling AWS, collecting real passwords, or creating charges. |
 | Static Preview | No auth/API configured | Shows the interface and cloud architecture story with built-in sample data. |
 
 The demo mode does not remove the AWS project meaning. It keeps the cloud architecture visible and makes the showcase usable while a previous AWS account is restricted or while a new AWS account is being prepared.
@@ -54,7 +54,7 @@ The demo mode does not remove the AWS project meaning. It keeps the cloud archit
 - **AI extraction workflow:** Textract `AnalyzeExpense` normalizes vendor, date, total, confidence, category, and line-item style data.
 - **Quality gates:** duplicate detection, missing-field review, confidence thresholds, and user decisions before records affect analytics.
 - **Premium dashboard UI:** 3D brand entry animation, rotatable receipt figures, high-contrast professional theme, full-width horizontal Quick Intake, crisp processing timeline visuals, and polished recruiter-facing copy.
-- **Secure account UX:** username-gated password entry, password strength and match feedback, browser/password-manager friendly sign-in fields, public-link hardening, escaped upload-preview filenames, wider horizontal auth layouts, and Cognito email-based password recovery for AWS Live deployments.
+- **Secure account UX:** demo-first public auth, username-gated password entry for AWS Live, password strength and match feedback, browser/password-manager friendly sign-in fields, public-link hardening, escaped upload-preview filenames, wider horizontal auth layouts, and Cognito email-based password recovery for AWS Live deployments.
 - **Demo-safe resilience:** the app remains interactive without AWS access by using local browser state and sample data.
 - **AI/recruiter readable docs:** architecture, mode behavior, deployment, cost controls, and repo map are documented clearly.
 
@@ -125,9 +125,9 @@ https://agarwalujala3-lang.github.io/ReceiptPulse/
 https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
 ```
 
-The Pages publisher copies `dashboard/` to the `gh-pages` branch and writes a deployment-only `config.js` with `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled. That means the public link stays interactive without touching the restricted AWS account.
+The committed `dashboard/config.js` and the Pages publisher both keep `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled for the public portfolio surface. That means the public link stays interactive without touching the restricted AWS account.
 
-The public Cloud Demo does not store real account passwords. Browser-saved passwords are handled by the user's password manager, the password field stays locked until a valid username is typed, and sign-up/recovery forms show password strength plus match feedback. Password recovery is available when the dashboard is connected to an AWS Live Cognito user pool with verified email recovery enabled.
+The public Cloud Demo does not collect or store real account passwords. Credential forms are not shipped in the public HTML source and are injected only when an AWS Live Cognito backend is configured. Browser-saved passwords, username-gated password entry, sign-up strength checks, and password recovery are available when the dashboard is connected to an AWS Live Cognito user pool with verified email recovery enabled.
 
 ## Run Locally
 

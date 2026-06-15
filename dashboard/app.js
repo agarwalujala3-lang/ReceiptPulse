@@ -1171,6 +1171,16 @@ async function initializeAuth() {
   }
 
   if (!isAuthConfigured()) {
+    if (isDemoEnabled()) {
+      if (authState.tokens && isDemoSession() && !isTokenExpired()) {
+        updateAuthFromTokens(authState.tokens);
+      } else {
+        updateAuthFromTokens(createDemoTokenSet());
+      }
+      reloadUploadHistory();
+      return;
+    }
+
     authState = {
       ...authState,
       status: "unavailable",
@@ -1333,7 +1343,7 @@ function updateAuthUI() {
     elements.authSecondaryCta.hidden = hideAuthEntry;
     elements.authSecondaryCta.style.display = hideAuthEntry ? "none" : "";
     elements.authSecondaryCta.disabled = authBusy;
-    elements.authSecondaryCta.textContent = "Create Account";
+    elements.authSecondaryCta.textContent = "AWS Live Setup";
   }
 
   if (elements.demoAccessCta) {

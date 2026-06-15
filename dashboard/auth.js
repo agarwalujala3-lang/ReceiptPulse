@@ -550,6 +550,340 @@
     });
   }
 
+  function getAuthFields() {
+    return {
+      name: document.querySelector("#authName"),
+      email: document.querySelector("#authEmail"),
+      username: document.querySelector("#authUsername"),
+      password: document.querySelector("#authPassword"),
+      confirmPassword: document.querySelector("#authConfirmPassword"),
+    };
+  }
+
+  function getSignInFormMarkup() {
+    return `
+      <form class="auth-form" id="authForm" novalidate autocomplete="on">
+        <label class="field">
+          <span>Username</span>
+          <input
+            class="text-input"
+            id="authUsername"
+            name="username"
+            type="text"
+            autocomplete="username"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="64"
+            placeholder="your-username"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input
+            class="text-input"
+            id="authPassword"
+            name="password_locked"
+            type="text"
+            autocomplete="off"
+            minlength="8"
+            placeholder="Enter username first"
+            aria-describedby="authPasswordHint"
+            disabled
+            data-auth-gated-password="true"
+            data-auth-real-name="password"
+            data-auth-real-autocomplete="current-password"
+            required
+          />
+          <small class="auth-field-hint" id="authPasswordHint" data-state="idle">
+            Enter a valid username first to unlock password suggestions.
+          </small>
+        </label>
+
+        <button class="primary-button auth-submit" id="authSubmit" type="submit">Open Workspace</button>
+      </form>
+
+      <button class="auth-link-button" id="forgotPasswordToggle" type="button">
+        Forgot password?
+      </button>
+
+      <section class="auth-recovery-card" id="passwordRecoveryPanel" hidden>
+        <div class="auth-recovery-head">
+          <span class="mini-label">Secure recovery</span>
+          <strong>Reset with Cognito email verification</strong>
+          <p>Enter your username. If AWS Live auth is configured, Cognito sends a reset code to the verified recovery email on that account.</p>
+        </div>
+
+        <form class="auth-recovery-form" id="passwordRecoveryForm" novalidate autocomplete="on">
+          <label class="field">
+            <span>Username</span>
+            <input
+              class="text-input"
+              id="recoveryUsername"
+              name="username"
+              type="text"
+              autocomplete="username"
+              autocapitalize="off"
+              spellcheck="false"
+              maxlength="64"
+              placeholder="your-username"
+              required
+            />
+          </label>
+
+          <div class="auth-recovery-confirm" id="passwordRecoveryConfirm" hidden>
+            <label class="field">
+              <span>Reset code</span>
+              <input
+                class="text-input"
+                id="recoveryCode"
+                name="one-time-code"
+                type="text"
+                autocomplete="one-time-code"
+                inputmode="numeric"
+                maxlength="12"
+                placeholder="Code from email"
+              />
+            </label>
+
+            <label class="field">
+              <span>New password</span>
+              <input
+                class="text-input"
+                id="recoveryPassword"
+                name="new-password"
+                type="password"
+                autocomplete="new-password"
+                minlength="8"
+                placeholder="New password"
+                aria-describedby="recoveryPasswordStrength"
+              />
+              <span class="auth-password-strength" data-strength="empty" aria-hidden="true">
+                <i id="recoveryPasswordStrengthBar"></i>
+              </span>
+              <small class="auth-field-hint" id="recoveryPasswordStrength" data-password-strength data-state="idle">
+                Use 8+ characters with letters, numbers, and symbols.
+              </small>
+            </label>
+
+            <label class="field">
+              <span>Confirm new password</span>
+              <input
+                class="text-input"
+                id="recoveryConfirmPassword"
+                name="confirm-new-password"
+                type="password"
+                autocomplete="new-password"
+                minlength="8"
+                placeholder="Re-enter new password"
+                aria-describedby="recoveryConfirmHint"
+              />
+              <small class="auth-field-hint" id="recoveryConfirmHint" data-password-match data-state="idle">
+                Re-enter the new password to confirm.
+              </small>
+            </label>
+          </div>
+
+          <div class="auth-recovery-actions">
+            <button class="primary-button auth-submit" id="passwordRecoverySubmit" type="submit">
+              Send Reset Code
+            </button>
+            <button class="secondary-button" id="passwordRecoveryCancel" type="button">
+              Cancel
+            </button>
+          </div>
+        </form>
+
+        <p class="auth-status auth-recovery-status" id="passwordRecoveryStatus" data-state="idle">
+          Password recovery uses Cognito and never reveals your existing password.
+        </p>
+      </section>
+    `;
+  }
+
+  function getSignUpFormMarkup() {
+    return `
+      <form class="auth-form" id="authForm" novalidate autocomplete="on">
+        <label class="field">
+          <span>Display name</span>
+          <input
+            class="text-input"
+            id="authName"
+            name="name"
+            type="text"
+            autocomplete="name"
+            maxlength="64"
+            placeholder="Optional name for the dashboard"
+          />
+        </label>
+
+        <label class="field">
+          <span>Username</span>
+          <input
+            class="text-input"
+            id="authUsername"
+            name="username"
+            type="text"
+            autocomplete="username"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="64"
+            placeholder="choose-a-username"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Recovery email</span>
+          <input
+            class="text-input"
+            id="authEmail"
+            name="email"
+            type="email"
+            autocomplete="email"
+            autocapitalize="off"
+            spellcheck="false"
+            maxlength="120"
+            placeholder="you@example.com"
+            required
+          />
+        </label>
+
+        <label class="field">
+          <span>Password</span>
+          <input
+            class="text-input"
+            id="authPassword"
+            name="new-password"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            placeholder="At least 8 characters"
+            aria-describedby="authPasswordStrength"
+            required
+          />
+          <span class="auth-password-strength" data-strength="empty" aria-hidden="true">
+            <i id="authPasswordStrengthBar"></i>
+          </span>
+          <small class="auth-field-hint" id="authPasswordStrength" data-password-strength data-state="idle">
+            Use 8+ characters with letters, numbers, and symbols.
+          </small>
+        </label>
+
+        <label class="field">
+          <span>Confirm password</span>
+          <input
+            class="text-input"
+            id="authConfirmPassword"
+            name="confirm-new-password"
+            type="password"
+            autocomplete="new-password"
+            minlength="8"
+            placeholder="Re-enter the same password"
+            aria-describedby="authConfirmHint"
+            required
+          />
+          <small class="auth-field-hint" id="authConfirmHint" data-password-match data-state="idle">
+            Re-enter the password to confirm.
+          </small>
+        </label>
+
+        <button class="primary-button auth-submit" id="authSubmit" type="submit">Create Account</button>
+      </form>
+    `;
+  }
+
+  function renderLiveAuthForm(pageType) {
+    const existingForm = document.querySelector("#authForm");
+    if (existingForm) {
+      return existingForm;
+    }
+
+    const slot = document.querySelector("#authLiveFormSlot");
+    if (!slot) {
+      return null;
+    }
+
+    slot.innerHTML = pageType === "signup" ? getSignUpFormMarkup() : getSignInFormMarkup();
+    return slot.querySelector("#authForm");
+  }
+
+  function setDemoFirstAuthPage(pageType, form) {
+    document.body.classList.add("auth-public-demo");
+    document.body.dataset.authMode = "cloud-demo";
+
+    const panelHead = document.querySelector(".auth-panel-head");
+    const title = panelHead?.querySelector("h2");
+    const copy = panelHead?.querySelector("p:last-child");
+    const securityNote = document.querySelector(".auth-security-note");
+    const forgotPassword = document.querySelector("#forgotPasswordToggle");
+    const recoveryPanel = document.querySelector("#passwordRecoveryPanel");
+    const demoButton = document.querySelector("#demoAccessButton");
+    const authSwitch = document.querySelector(".auth-switch");
+
+    if (title) {
+      title.textContent = pageType === "signup" ? "Open Cloud Demo first" : "Open the portfolio Cloud Demo";
+    }
+    if (copy) {
+      copy.textContent =
+        "This public page is a safe AWS portfolio demo. Real sign-in and account creation appear only when a Cognito backend is configured.";
+    }
+    if (securityNote) {
+      securityNote.textContent =
+        "Portfolio demo only. Do not enter real passwords on the public GitHub Pages link. AWS Live credential forms are enabled only after Cognito is configured.";
+    }
+    if (forgotPassword) {
+      forgotPassword.remove();
+    }
+    if (recoveryPanel) {
+      recoveryPanel.remove();
+    }
+    if (demoButton) {
+      demoButton.textContent = "Open Cloud Demo";
+      demoButton.classList.add("demo-access-button-primary");
+    }
+    if (authSwitch) {
+      authSwitch.innerHTML =
+        '<span>AWS Live ready?</span><a href="./app.html?demo=1&sample=1">Preview dashboard sample</a>';
+    }
+
+    if (form) {
+      form.querySelectorAll("input, button, select, textarea").forEach((control) => {
+        control.disabled = true;
+        control.setAttribute("tabindex", "-1");
+      });
+      form.remove();
+    }
+  }
+
+  function setLiveAuthPage(pageType) {
+    const panelHead = document.querySelector(".auth-panel-head");
+    const title = panelHead?.querySelector("h2");
+    const copy = panelHead?.querySelector("p:last-child");
+    const securityNote = document.querySelector(".auth-security-note");
+
+    if (title) {
+      title.textContent = pageType === "signup" ? "Create an AWS Live workspace" : "Open your AWS Live workspace";
+    }
+    if (copy) {
+      copy.textContent =
+        pageType === "signup"
+          ? "Cognito is configured. Pick a username, recovery email, and password for this deployed workspace."
+          : "Cognito is configured. Use your project username and password to open the deployed workspace.";
+    }
+    if (securityNote) {
+      securityNote.textContent =
+        "AWS Live mode sends credentials only to Amazon Cognito for this configured deployment. ReceiptPulse never stores or reveals your password.";
+    }
+    setPageStatus(
+      pageType === "signup"
+        ? "Create an AWS Live account with a recovery email."
+        : "Sign in with the AWS Live account created for this deployment.",
+      "idle",
+    );
+  }
+
   function guardAuthFields(fields, includeName = false) {
     const targets = includeName
       ? [fields.name, fields.email, fields.username, fields.password, fields.confirmPassword]
@@ -743,7 +1077,7 @@
       if (!options.cognitoConfigured) {
         setStatus(
           status,
-          "Password recovery needs AWS Live Cognito. On this public Cloud Demo, type any password to open the demo workspace.",
+          "Password recovery needs AWS Live Cognito. On this public Cloud Demo, use the Cloud Demo button instead of entering credentials.",
           "error",
         );
         return;
@@ -849,28 +1183,32 @@
     const config = normalizeConfig(window.RECEIPTPULSE_CONFIG?.auth || {}, {
       fallbackUrl: `${window.location.origin}${window.location.pathname}`,
     });
-    const form = document.querySelector("#authForm");
-    const fields = {
-      name: document.querySelector("#authName"),
-      email: document.querySelector("#authEmail"),
-      username: document.querySelector("#authUsername"),
-      password: document.querySelector("#authPassword"),
-      confirmPassword: document.querySelector("#authConfirmPassword"),
-    };
-
-    if (!form) {
-      return;
-    }
-
     const demoEnabled = isDemoEnabled();
     const cognitoConfigured = isConfigured(config);
     const useLocalDemoAuth = !cognitoConfigured && demoEnabled;
+    let form = document.querySelector("#authForm");
+    if (!useLocalDemoAuth) {
+      form = renderLiveAuthForm(pageType);
+    }
+    const fields = getAuthFields();
     let syncPasswordGate = () => {};
 
     if (!cognitoConfigured && !demoEnabled) {
       setPageStatus("Cognito configuration is missing in dashboard/config.js.", "error");
       setFormBusy(true);
       return;
+    }
+
+    if (useLocalDemoAuth) {
+      setDemoFirstAuthPage(pageType, form);
+    } else {
+      if (!form) {
+        setPageStatus("Live auth form could not be created. Check the dashboard markup.", "error");
+        return;
+      }
+      document.body.classList.add("auth-live-mode");
+      document.body.dataset.authMode = "aws-live";
+      setLiveAuthPage(pageType);
     }
 
     const demoButton = document.querySelector("#demoAccessButton");
@@ -883,10 +1221,10 @@
     }
 
     if (useLocalDemoAuth) {
-      setPageStatus("AWS sign-in is offline here. Type any username and password to open the browser-local Cloud Demo.", "idle");
+      setPageStatus("Safe public mode: open the Cloud Demo without entering real credentials.", "idle");
     }
 
-    if (pageType === "signup") {
+    if (pageType === "signup" && !useLocalDemoAuth) {
       guardAuthFields(fields, true);
       setupPasswordFeedback({
         password: fields.password,
@@ -895,7 +1233,7 @@
         strengthBar: document.querySelector("#authPasswordStrengthBar"),
         matchHint: document.querySelector("#authConfirmHint"),
       });
-    } else {
+    } else if (pageType !== "signup" && !useLocalDemoAuth) {
       guardAuthFields(fields, false);
       syncPasswordGate = setupUsernameGatedPassword(fields);
       setupCapsLockHint(fields.password, document.querySelector("#authPasswordHint"));
@@ -922,18 +1260,22 @@
       }
     }
 
+    if (!form) {
+      return;
+    }
+
     form.addEventListener("submit", async (event) => {
       event.preventDefault();
       setFormBusy(true);
 
       try {
-        const credentials = validateAuthForm(pageType, fields);
-
         if (useLocalDemoAuth) {
-          setPageStatus("Opening your browser-local Cloud Demo workspace...", "working");
-          startDemoSession(credentials);
+          setPageStatus("Opening your browser-local Cloud Demo workspace without credentials...", "working");
+          startDemoSession();
           return;
         }
+
+        const credentials = validateAuthForm(pageType, fields);
 
         if (pageType === "signup") {
           setPageStatus("Creating your account...", "working");

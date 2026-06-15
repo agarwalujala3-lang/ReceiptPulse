@@ -6112,6 +6112,11 @@ body.topbar-condensed .topbar {
   gap: 0.92rem;
 }
 
+.auth-live-form-slot {
+  display: grid;
+  gap: 0.92rem;
+}
+
 .auth-page-signin .auth-form,
 .auth-page-signup .auth-form {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -14257,6 +14262,53 @@ html[data-ui-theme="light"] body.cinema-ui .auth-submit {
 .demo-access-button,
 .demo-access-inline {
   white-space: nowrap;
+}
+
+body.auth-public-demo .auth-form,
+body.auth-public-demo .auth-recovery-card,
+body.auth-public-demo .auth-link-button {
+  display: none !important;
+}
+
+body.auth-public-demo .auth-panel {
+  gap: 1.05rem;
+}
+
+body.auth-public-demo .demo-access-card {
+  order: -1;
+  border-color: rgba(8, 127, 144, 0.42);
+  background:
+    linear-gradient(135deg, rgba(244, 253, 255, 0.98), rgba(231, 249, 255, 0.96)),
+    radial-gradient(circle at 12% 20%, rgba(11, 145, 166, 0.2), transparent 34%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 22px 52px rgba(49, 97, 137, 0.16),
+    0 0 42px rgba(10, 139, 166, 0.14);
+}
+
+body.auth-public-demo .demo-access-card strong {
+  color: #0c2f4a;
+}
+
+body.auth-public-demo .demo-access-card p {
+  color: #284760;
+  font-weight: 650;
+}
+
+body.auth-public-demo .demo-access-button-primary {
+  min-height: 54px;
+  color: #062f3d !important;
+  border: 1px solid rgba(6, 112, 138, 0.2) !important;
+  background:
+    linear-gradient(135deg, #74e8ff, #f6d08c) !important;
+  box-shadow:
+    0 14px 28px rgba(22, 111, 137, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.7) !important;
+}
+
+body.auth-public-demo .auth-status {
+  color: #173a59 !important;
+  font-weight: 800;
 }
 
 body.workspace-demo-mode .dashboard-sidebar-pill,

@@ -77,7 +77,7 @@ On push to `main` or manual workflow dispatch, it:
 2. Rewrites the deployed `config.js` with `apiBaseUrl` and Cognito values empty.
 3. Keeps `demo.enabled` and `demo.autoFallback` set to `true`.
 4. Publishes the result to the `gh-pages` branch, which is the live GitHub Pages source.
-5. Serves cache-busted dashboard assets with strict referrer metadata and hardened external source links for the public portfolio surface.
+5. Serves cache-busted dashboard assets with strict referrer metadata, GitHub Pages canonical URLs, no credential forms in the public HTML source, and hardened external source links for the public portfolio surface.
 
 Expected safe public links:
 
@@ -86,7 +86,7 @@ https://agarwalujala3-lang.github.io/ReceiptPulse/
 https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
 ```
 
-Use this path until a healthy AWS account is ready. It creates no AWS charges and still presents the AWS architecture, UI, and redeploy story.
+Use this path until a healthy AWS account is ready. It creates no AWS charges, does not collect real passwords, and still presents the AWS architecture, UI, and redeploy story.
 
 ### Option A: AWS Amplify Hosting
 
@@ -114,7 +114,7 @@ Amplify will copy the `dashboard/` folder into the published site and inject the
 
 If you do not want Amplify, you can host `dashboard/` anywhere static hosting is supported.
 
-In that case, edit [dashboard/config.js](../dashboard/config.js):
+In that case, edit [dashboard/config.js](../dashboard/config.js), which is intentionally demo-safe by default:
 
 ```js
 window.RECEIPTPULSE_CONFIG = {
@@ -143,7 +143,7 @@ demo: {
 }
 ```
 
-When Cognito or the API is unavailable, the dashboard can still open a browser-local Cloud Demo workspace. This keeps the portfolio showcase usable without calling AWS or creating new AWS charges. AWS Live mode resumes when `apiBaseUrl` and Cognito settings point to a healthy deployed stack.
+When Cognito or the API is unavailable, the dashboard can still open a browser-local Cloud Demo workspace. This keeps the portfolio showcase usable without calling AWS, collecting real passwords, or creating new AWS charges. AWS Live mode resumes when `apiBaseUrl` and Cognito settings point to a healthy deployed stack.
 
 ## Quick Smoke Checks
 
@@ -159,7 +159,8 @@ GET /receipts (with Authorization header from a signed-in user)
 
 ### Frontend
 
-- dashboard loads and shows `Private Workspace` after sign-in
+- public GitHub Pages loads with Cloud Demo as the primary action and no visible credential form
+- dashboard loads and shows `Private Workspace` after AWS Live sign-in
 - Cognito sign-up/sign-in redirects back to the dashboard successfully
 - **Forgot password** sends a Cognito reset code to the user's recovery email and accepts the code plus a new password
 - analytics cards render only the signed-in user's data
@@ -175,10 +176,10 @@ GET /receipts (with Authorization header from a signed-in user)
 - add lifecycle policies to the S3 bucket
 - add a custom domain for the dashboard
 
-## Custom Domain on CloudFront
+## Custom Domain On CloudFront
 
-The dashboard is currently being served from a CloudFront distribution. Finishing it on a branded
-domain requires the DNS name you want to use, so this part cannot be completed from code alone.
+If you redeploy the dashboard behind CloudFront, finishing it on a branded domain requires the DNS
+name you want to use, so this part cannot be completed from code alone.
 
 Use this path when you are ready:
 

@@ -809,9 +809,62 @@
     return slot.querySelector("#authForm");
   }
 
+  const AUTH_ENTRY_COPY = {
+    signin: {
+      demoEyebrow: "Cloud Demo",
+      demoTitle: "Launch ReceiptPulse safely",
+      demoCopy: "Open the interactive AWS showcase with browser-local data, sample receipts, and no real credential entry.",
+      demoSecurity:
+        "Public portfolio mode does not collect passwords. AWS Live sign-in appears only when a Cognito backend is configured.",
+      demoSwitchText: "AWS Live account setup is separate from this public demo.",
+      demoSwitchHref: "./signup.html",
+      demoSwitchLink: "View AWS Live setup",
+      liveEyebrow: "AWS Live Sign In",
+      liveTitle: "Open your AWS Live workspace",
+      liveCopy: "Cognito is configured. Use your project username and password to open the deployed workspace.",
+      liveStatus: "Sign in with the AWS Live account created for this deployment.",
+    },
+    signup: {
+      demoEyebrow: "AWS Live Setup",
+      demoTitle: "Live accounts need a configured Cognito backend",
+      demoCopy:
+        "This public portfolio link keeps account creation off. Use Cloud Demo now, then enable live accounts after redeploying AWS.",
+      demoSecurity:
+        "Public portfolio mode does not collect passwords or create accounts. AWS Live account creation appears only when Cognito is configured.",
+      demoSwitchText: "Want to review the public showcase?",
+      demoSwitchHref: "./index.html",
+      demoSwitchLink: "Back to demo launch",
+      liveEyebrow: "AWS Live Setup",
+      liveTitle: "Create an AWS Live workspace",
+      liveCopy:
+        "Cognito is configured. Pick a username, recovery email, and password for this deployed workspace.",
+      liveStatus: "Create an AWS Live account with a recovery email.",
+    },
+  };
+
+  function getAuthEntryCopy(pageType) {
+    return AUTH_ENTRY_COPY[pageType] || AUTH_ENTRY_COPY.signin;
+  }
+
+  function setAuthSwitchContent(authSwitch, text, href, linkText) {
+    if (!authSwitch) {
+      return;
+    }
+
+    const label = document.createElement("span");
+    label.textContent = text;
+
+    const link = document.createElement("a");
+    link.href = href;
+    link.textContent = linkText;
+
+    authSwitch.replaceChildren(label, link);
+  }
+
   function setDemoFirstAuthPage(pageType, form) {
     document.body.classList.add("auth-public-demo");
     document.body.dataset.authMode = "cloud-demo";
+    const copySet = getAuthEntryCopy(pageType);
 
     const panelHead = document.querySelector(".auth-panel-head");
     const eyebrow = panelHead?.querySelector(".eyebrow");
@@ -824,18 +877,16 @@
     const authSwitch = document.querySelector(".auth-switch");
 
     if (eyebrow) {
-      eyebrow.textContent = pageType === "signup" ? "AWS Live Setup" : "Cloud Demo";
+      eyebrow.textContent = copySet.demoEyebrow;
     }
     if (title) {
-      title.textContent = pageType === "signup" ? "Live accounts need Cognito" : "Launch ReceiptPulse safely";
+      title.textContent = copySet.demoTitle;
     }
     if (copy) {
-      copy.textContent =
-        "Use the browser-local Cloud Demo for this public portfolio link. AWS Live credential forms appear only when Cognito is configured.";
+      copy.textContent = copySet.demoCopy;
     }
     if (securityNote) {
-      securityNote.textContent =
-        "Portfolio demo only. Do not enter real passwords on the public GitHub Pages link. AWS Live credential forms are enabled only after Cognito is configured.";
+      securityNote.textContent = copySet.demoSecurity;
     }
     if (forgotPassword) {
       forgotPassword.remove();
@@ -847,10 +898,7 @@
       demoButton.textContent = "Launch Cloud Demo";
       demoButton.classList.add("demo-access-button-primary");
     }
-    if (authSwitch) {
-      authSwitch.innerHTML =
-        '<span>AWS Live setup stays separate from the public demo.</span><a href="./app.html?demo=1&sample=1">Preview sample dashboard</a>';
-    }
+    setAuthSwitchContent(authSwitch, copySet.demoSwitchText, copySet.demoSwitchHref, copySet.demoSwitchLink);
 
     if (form) {
       form.querySelectorAll("input, button, select, textarea").forEach((control) => {
@@ -863,29 +911,27 @@
 
   function setLiveAuthPage(pageType) {
     const panelHead = document.querySelector(".auth-panel-head");
+    const eyebrow = panelHead?.querySelector(".eyebrow");
     const title = panelHead?.querySelector("h2");
     const copy = panelHead?.querySelector("p:last-child");
     const securityNote = document.querySelector(".auth-security-note");
+    const copySet = getAuthEntryCopy(pageType);
+
+    if (eyebrow) {
+      eyebrow.textContent = copySet.liveEyebrow;
+    }
 
     if (title) {
-      title.textContent = pageType === "signup" ? "Create an AWS Live workspace" : "Open your AWS Live workspace";
+      title.textContent = copySet.liveTitle;
     }
     if (copy) {
-      copy.textContent =
-        pageType === "signup"
-          ? "Cognito is configured. Pick a username, recovery email, and password for this deployed workspace."
-          : "Cognito is configured. Use your project username and password to open the deployed workspace.";
+      copy.textContent = copySet.liveCopy;
     }
     if (securityNote) {
       securityNote.textContent =
         "AWS Live mode sends credentials only to Amazon Cognito for this configured deployment. ReceiptPulse never stores or reveals your password.";
     }
-    setPageStatus(
-      pageType === "signup"
-        ? "Create an AWS Live account with a recovery email."
-        : "Sign in with the AWS Live account created for this deployment.",
-      "idle",
-    );
+    setPageStatus(copySet.liveStatus, "idle");
   }
 
   function guardAuthFields(fields, includeName = false) {
@@ -1219,7 +1265,7 @@
     if (demoButton) {
       demoButton.hidden = !demoEnabled;
       demoButton.addEventListener("click", () => {
-        setPageStatus("Opening browser-only cloud demo workspace...", "working");
+        setPageStatus("Opening the browser-local Cloud Demo workspace without credentials...", "working");
         startDemoSession();
       });
     }

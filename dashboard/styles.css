@@ -6117,6 +6117,30 @@ body.topbar-condensed .topbar {
   gap: 0.92rem;
 }
 
+.auth-demo-points {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.65rem;
+}
+
+.auth-demo-points span {
+  display: inline-grid;
+  place-items: center;
+  min-height: 44px;
+  padding: 0.7rem 0.8rem;
+  border: 1px solid rgba(111, 226, 255, 0.22);
+  border-radius: 16px;
+  color: rgba(238, 248, 255, 0.9);
+  background:
+    linear-gradient(145deg, rgba(10, 33, 50, 0.78), rgba(14, 48, 59, 0.62)),
+    radial-gradient(circle at 20% 20%, rgba(111, 226, 255, 0.16), transparent 38%);
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.05em;
+  text-align: center;
+  text-transform: uppercase;
+}
+
 .auth-page-signin .auth-form,
 .auth-page-signup .auth-form {
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -6346,7 +6370,8 @@ body.topbar-condensed .topbar {
   }
 
   .auth-highlight-grid,
-  .auth-project-strip {
+  .auth-project-strip,
+  .auth-demo-points {
     grid-template-columns: 1fr;
   }
 
@@ -14311,6 +14336,17 @@ body.auth-public-demo .auth-status {
   font-weight: 800;
 }
 
+body.auth-public-demo .auth-demo-points span {
+  color: #0f3a54;
+  border-color: rgba(8, 127, 144, 0.2);
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.98), rgba(237, 251, 255, 0.95)),
+    radial-gradient(circle at 20% 20%, rgba(12, 149, 171, 0.14), transparent 38%);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.88),
+    0 10px 24px rgba(49, 97, 137, 0.08);
+}
+
 body.workspace-demo-mode .dashboard-sidebar-pill,
 body.workspace-demo-mode .auth-summary-pill,
 body.workspace-demo-mode .upload-ready-pill {
@@ -14966,4 +15002,87 @@ body.dribbble-dashboard .duplicate-decision-modal[data-tone="reject"] .duplicate
 .duplicate-decision-note[data-tone="neutral"] {
   color: #2c5d73 !important;
   text-shadow: none !important;
+}
+
+/* Public launch page final pass: normal reading order plus stronger contrast. */
+body.auth-public-demo .auth-panel {
+  gap: 1.12rem !important;
+}
+
+body.auth-public-demo .auth-panel-head {
+  padding: 0.1rem 0.1rem 0.2rem;
+}
+
+body.auth-public-demo .demo-access-card {
+  order: initial !important;
+  grid-template-columns: 1fr !important;
+  align-items: start;
+  padding: clamp(1.05rem, 2vw, 1.3rem) !important;
+  border-color: rgba(91, 226, 244, 0.46) !important;
+  background:
+    radial-gradient(circle at 12% 12%, rgba(107, 235, 255, 0.32), transparent 34%),
+    radial-gradient(circle at 90% 6%, rgba(255, 196, 115, 0.2), transparent 30%),
+    linear-gradient(135deg, #08283e 0%, #0b4156 54%, #15334a 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.16),
+    0 24px 58px rgba(20, 62, 90, 0.26),
+    0 0 34px rgba(70, 214, 239, 0.18) !important;
+}
+
+body.auth-public-demo .demo-access-card .mini-label,
+html[data-ui-theme="light"] body.auth-public-demo .demo-access-card .mini-label {
+  color: #8af1ff !important;
+}
+
+body.auth-public-demo .demo-access-card strong,
+html[data-ui-theme="light"] body.auth-public-demo .demo-access-card strong {
+  color: #f7fcff !important;
+  text-shadow: 0 1px 18px rgba(105, 222, 246, 0.18);
+}
+
+body.auth-public-demo .demo-access-card p,
+html[data-ui-theme="light"] body.auth-public-demo .demo-access-card p {
+  color: rgba(226, 243, 252, 0.88) !important;
+  font-weight: 650;
+}
+
+body.auth-public-demo .demo-access-button-primary {
+  justify-self: start;
+  min-width: min(100%, 15rem);
+  color: #062f3d !important;
+  border-color: rgba(255, 255, 255, 0.42) !important;
+  background: linear-gradient(135deg, #7eeaff, #ffd08a) !important;
+}
+
+body.auth-public-demo .auth-security-note {
+  color: #173b59 !important;
+  border-color: rgba(30, 128, 159, 0.32) !important;
+  background:
+    radial-gradient(circle at 9% 18%, rgba(35, 172, 205, 0.17), transparent 32%),
+    linear-gradient(135deg, rgba(250, 254, 255, 0.99), rgba(232, 248, 255, 0.98)) !important;
+}
+
+body.auth-public-demo .auth-status,
+body.auth-public-demo .auth-switch {
+  color: #173b59 !important;
+}
+
+@media (max-width: 760px) {
+  body.auth-page.cinema-ui {
+    overflow-x: clip;
+  }
+
+  body.auth-page.cinema-ui .auth-shell {
+    width: min(100%, calc(100% - 0.85rem)) !important;
+  }
+
+  body.auth-page.cinema-ui .auth-topbar {
+    width: min(100%, calc(100% - 0.85rem)) !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  body.auth-public-demo .demo-access-button-primary {
+    width: 100%;
+  }
 }

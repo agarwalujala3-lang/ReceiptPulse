@@ -48,7 +48,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260614c" />
+    <link rel="stylesheet" href="./styles.css?v=20260615a" />
   </head>
   <body class="auth-page auth-page-signup cinema-ui" data-auth-page="signup">
     <div class="cinema-stage" aria-hidden="true">
@@ -169,9 +169,9 @@
 
       <section class="panel auth-panel">
         <div class="auth-panel-head">
-          <p class="eyebrow">Sign Up</p>
-          <h2>AWS Live account setup</h2>
-          <p>On the public demo, account creation is disabled until Cognito is configured.</p>
+          <p class="eyebrow">AWS Live Setup</p>
+          <h2>Live accounts need a configured Cognito backend</h2>
+          <p>This public portfolio link keeps account creation off. Use Cloud Demo now, then enable live accounts after redeploying AWS.</p>
         </div>
 
         <div class="auth-live-form-slot" id="authLiveFormSlot" data-live-auth-slot></div>
@@ -179,31 +179,37 @@
         <div class="demo-access-card">
           <div>
             <span class="mini-label">Safe public mode</span>
-            <strong>Open Cloud Demo instead of creating credentials.</strong>
+            <strong>Launch Cloud Demo instead of creating credentials.</strong>
             <p>
               The demo uses browser-local data and does not contact AWS billing, Cognito, S3, or API Gateway.
             </p>
           </div>
           <button class="secondary-button demo-access-button" id="demoAccessButton" type="button">
-            View Cloud Demo
+            Launch Cloud Demo
           </button>
         </div>
 
+        <div class="auth-demo-points" aria-label="Public demo safety notes">
+          <span>No signup form</span>
+          <span>No AWS calls</span>
+          <span>Cognito-ready code</span>
+        </div>
+
         <p class="auth-status" id="authStatus" data-state="idle">
-          Public portfolio mode is safe to open without creating an account.
+          Public mode is safe to open without creating an account.
         </p>
 
         <div class="auth-switch">
-          <span>Already created one?</span>
-          <a href="./index.html">Go to sign in</a>
+          <span>Want to review the public showcase?</span>
+          <a href="./index.html">Back to demo launch</a>
         </div>
       </section>
     </main>
 
-    <script src="./config.js?v=20260614c"></script>
+    <script src="./config.js?v=20260615a"></script>
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
-    <script src="./auth.js?v=20260614c" defer></script>
+    <script src="./auth.js?v=20260615a" defer></script>
   </body>
 </html>

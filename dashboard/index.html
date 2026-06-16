@@ -48,7 +48,7 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260614c" />
+    <link rel="stylesheet" href="./styles.css?v=20260615a" />
   </head>
   <body class="auth-page auth-page-signin cinema-ui" data-auth-page="signin" data-entry-launch="root">
     <div class="cinema-stage" aria-hidden="true">
@@ -169,45 +169,51 @@
 
       <section class="panel auth-panel">
         <div class="auth-panel-head">
-          <p class="eyebrow">Sign In</p>
-          <h2>Open the portfolio Cloud Demo</h2>
-          <p>Use the instant demo for this public link. Do not enter real passwords here.</p>
+          <p class="eyebrow">Cloud Demo</p>
+          <h2>Launch ReceiptPulse safely</h2>
+          <p>Open the interactive AWS showcase with browser-local data, sample receipts, and no real credential entry.</p>
         </div>
 
         <p class="auth-security-note">
-          Public demo mode does not collect real passwords. AWS Live sign-in is enabled only when Cognito settings are configured.
+          Public portfolio mode does not collect passwords. AWS Live sign-in appears only when a Cognito backend is configured.
         </p>
 
         <div class="auth-live-form-slot" id="authLiveFormSlot" data-live-auth-slot></div>
 
         <div class="demo-access-card">
           <div>
-            <span class="mini-label">AWS showcase fallback</span>
-            <strong>View Cloud Demo without touching AWS billing.</strong>
+            <span class="mini-label">Recruiter-safe launch</span>
+            <strong>Open the cloud dashboard without touching AWS billing.</strong>
             <p>
-              Opens a browser-local workspace that keeps the S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito architecture visible without calling the restricted AWS account.
+              The demo keeps the S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito architecture visible while running fully in this browser.
             </p>
           </div>
           <button class="secondary-button demo-access-button" id="demoAccessButton" type="button">
-            View Cloud Demo
+            Launch Cloud Demo
           </button>
         </div>
 
+        <div class="auth-demo-points" aria-label="Public demo safety notes">
+          <span>No real passwords</span>
+          <span>No AWS charges</span>
+          <span>Architecture preserved</span>
+        </div>
+
         <p class="auth-status" id="authStatus" data-state="idle">
-          Public portfolio mode is safe to open without AWS billing or real credentials.
+          Ready to open the public Cloud Demo.
         </p>
 
         <div class="auth-switch">
-          <span>Need AWS Live?</span>
-          <a href="./signup.html">Create one here</a>
+          <span>AWS Live account setup is separate from this public demo.</span>
+          <a href="./signup.html">View AWS Live setup</a>
         </div>
       </section>
     </main>
 
-    <script src="./config.js?v=20260614c"></script>
+    <script src="./config.js?v=20260615a"></script>
     <script src="./theme.js?v=20260427b" defer></script>
     <script src="./entry-3d.js?v=20260604a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
-    <script src="./auth.js?v=20260614c" defer></script>
+    <script src="./auth.js?v=20260615a" defer></script>
   </body>
 </html>

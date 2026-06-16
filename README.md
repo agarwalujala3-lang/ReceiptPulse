@@ -143,7 +143,7 @@ Open:
 http://127.0.0.1:4177/index.html
 ```
 
-Use **View Cloud Demo** on the sign-in page to open the dashboard without AWS access. Direct QA/share links also work: `http://127.0.0.1:4177/app.html?demo=1` opens Cloud Demo, and `http://127.0.0.1:4177/app.html?demo=1&sample=1` opens Cloud Demo and auto-runs one sample receipt.
+Use **Launch Cloud Demo** on the public landing page to open the dashboard without AWS access. Direct QA/share links also work: `http://127.0.0.1:4177/app.html?demo=1` opens Cloud Demo, and `http://127.0.0.1:4177/app.html?demo=1&sample=1` opens Cloud Demo and auto-runs one sample receipt.
 
 ## AWS Redeploy
 

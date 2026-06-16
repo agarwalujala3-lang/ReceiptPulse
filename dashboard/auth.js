@@ -814,6 +814,7 @@
     document.body.dataset.authMode = "cloud-demo";
 
     const panelHead = document.querySelector(".auth-panel-head");
+    const eyebrow = panelHead?.querySelector(".eyebrow");
     const title = panelHead?.querySelector("h2");
     const copy = panelHead?.querySelector("p:last-child");
     const securityNote = document.querySelector(".auth-security-note");
@@ -822,12 +823,15 @@
     const demoButton = document.querySelector("#demoAccessButton");
     const authSwitch = document.querySelector(".auth-switch");
 
+    if (eyebrow) {
+      eyebrow.textContent = pageType === "signup" ? "AWS Live Setup" : "Cloud Demo";
+    }
     if (title) {
-      title.textContent = pageType === "signup" ? "Open Cloud Demo first" : "Open the portfolio Cloud Demo";
+      title.textContent = pageType === "signup" ? "Live accounts need Cognito" : "Launch ReceiptPulse safely";
     }
     if (copy) {
       copy.textContent =
-        "This public page is a safe AWS portfolio demo. Real sign-in and account creation appear only when a Cognito backend is configured.";
+        "Use the browser-local Cloud Demo for this public portfolio link. AWS Live credential forms appear only when Cognito is configured.";
     }
     if (securityNote) {
       securityNote.textContent =
@@ -840,12 +844,12 @@
       recoveryPanel.remove();
     }
     if (demoButton) {
-      demoButton.textContent = "Open Cloud Demo";
+      demoButton.textContent = "Launch Cloud Demo";
       demoButton.classList.add("demo-access-button-primary");
     }
     if (authSwitch) {
       authSwitch.innerHTML =
-        '<span>AWS Live ready?</span><a href="./app.html?demo=1&sample=1">Preview dashboard sample</a>';
+        '<span>AWS Live setup stays separate from the public demo.</span><a href="./app.html?demo=1&sample=1">Preview sample dashboard</a>';
     }
 
     if (form) {
@@ -1221,7 +1225,7 @@
     }
 
     if (useLocalDemoAuth) {
-      setPageStatus("Safe public mode: open the Cloud Demo without entering real credentials.", "idle");
+      setPageStatus("Ready to launch the public Cloud Demo.", "idle");
     }
 
     if (pageType === "signup" && !useLocalDemoAuth) {

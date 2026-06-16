@@ -34,7 +34,7 @@ ReceiptPulse is a production-style AWS cloud project that turns receipt uploads 
 ## Visual Showcase
 
 <p align="center">
-  <img src="screenshots/ig_00cb7f44ade894190169f021a87d1081919743edf028fab616.png" alt="ReceiptPulse dashboard preview" width="850" />
+  <img src="screenshots/receiptpulse-demo-first-showcase.png" alt="ReceiptPulse demo-first Cloud Demo launch and analytics dashboard preview" width="850" />
 </p>
 
 ## Demo And Live Modes

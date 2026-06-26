@@ -48,9 +48,9 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260615a" />
+    <link rel="stylesheet" href="./styles.css?v=20260626a" />
   </head>
-  <body class="cinema-ui dribbble-dashboard neuro-skin" data-brand-launch="off">
+  <body class="cinema-ui dribbble-dashboard neuro-skin post-cover-ui" data-brand-launch="off">
     <div class="cinema-stage" aria-hidden="true">
       <span class="cinema-glow cinema-glow-ember"></span>
       <span class="cinema-glow cinema-glow-ice"></span>
@@ -136,6 +136,36 @@
               <input class="text-input dashboard-search-input" type="search" placeholder="Search data..." aria-label="Search dashboard" />
             </label>
           </div>
+          <div class="dashboard-command-visual" aria-hidden="true">
+            <span class="command-grid-plane"></span>
+            <span class="command-orbit command-orbit-one"></span>
+            <span class="command-orbit command-orbit-two"></span>
+            <span class="command-particle command-particle-one"></span>
+            <span class="command-particle command-particle-two"></span>
+            <span class="command-particle command-particle-three"></span>
+            <div class="command-receipt-glass">
+              <span class="command-receipt-fold"></span>
+              <span class="command-receipt-line command-receipt-line-one"></span>
+              <span class="command-receipt-line command-receipt-line-two"></span>
+              <span class="command-receipt-line command-receipt-line-three"></span>
+            </div>
+            <div class="command-arch-node command-arch-node-upload">
+              <span>01</span>
+              <strong>S3</strong>
+            </div>
+            <div class="command-arch-node command-arch-node-ocr">
+              <span>02</span>
+              <strong>OCR</strong>
+            </div>
+            <div class="command-arch-node command-arch-node-archive">
+              <span>03</span>
+              <strong>DB</strong>
+            </div>
+            <div class="command-visual-copy">
+              <strong>Cloud Demo Console</strong>
+              <span>Receipt -> OCR -> review -> analytics</span>
+            </div>
+          </div>
           <div class="dashboard-command-meta">
             <div class="dashboard-command-pills">
               <span class="status-pill auth-summary-pill" id="authSummary">Portfolio Project</span>
@@ -180,6 +210,9 @@
           <div class="neo-figure-stage" data-neo-figure-stage role="region" aria-label="Interactive 3D mesh preview. Drag to rotate.">
             <span class="neo-figure-halo neo-figure-halo--one"></span>
             <span class="neo-figure-halo neo-figure-halo--two"></span>
+            <span class="neo-orbit-label neo-orbit-label-upload">Upload</span>
+            <span class="neo-orbit-label neo-orbit-label-ocr">OCR</span>
+            <span class="neo-orbit-label neo-orbit-label-archive">Archive</span>
             <canvas class="neo-figure-canvas" id="neoFigureCanvas" width="420" height="320"></canvas>
             <p class="neo-figure-hint">Drag to rotate - Double-click to reset</p>
           </div>

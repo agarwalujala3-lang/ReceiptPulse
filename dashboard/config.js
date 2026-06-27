@@ -15,8 +15,8 @@ window.RECEIPTPULSE_CONFIG = {
     clientId: "",
     region: "ap-south-1",
     appPath: "./app.html",
-    redirectSignIn: "https://sunny-cupcake-ee2461.netlify.app/",
-    redirectSignOut: "https://sunny-cupcake-ee2461.netlify.app/",
+    redirectSignIn: "https://receipt-pulse.netlify.app/",
+    redirectSignOut: "https://receipt-pulse.netlify.app/",
     scopes: ["openid", "profile"],
   },
 };

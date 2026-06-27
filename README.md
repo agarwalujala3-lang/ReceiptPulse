@@ -5,8 +5,8 @@
   <p>Upload receipts, extract structured expense data, detect duplicates, review low-confidence results, and analyze spend through a polished cloud operations console.</p>
 
   <p>
-    <a href="https://sunny-cupcake-ee2461.netlify.app/"><strong>Live Netlify Demo</strong></a> |
-    <a href="https://sunny-cupcake-ee2461.netlify.app/app.html?demo=1&sample=1"><strong>Instant Cloud Demo</strong></a> |
+    <a href="https://receipt-pulse.netlify.app/"><strong>Live Netlify Demo</strong></a> |
+    <a href="https://receipt-pulse.netlify.app/app.html?demo=1&sample=1"><strong>Instant Cloud Demo</strong></a> |
     <a href="#demo-and-live-modes">Demo Modes</a> |
     <a href="#architecture">Architecture</a> |
     <a href="#what-makes-it-stand-out">Highlights</a> |
@@ -121,8 +121,8 @@ sample-receipts/           Local receipt samples for manual testing
 The safe public demo is now hosted on Netlify:
 
 ```text
-https://sunny-cupcake-ee2461.netlify.app/
-https://sunny-cupcake-ee2461.netlify.app/app.html?demo=1&sample=1
+https://receipt-pulse.netlify.app/
+https://receipt-pulse.netlify.app/app.html?demo=1&sample=1
 ```
 
 The committed `dashboard/config.js` and Netlify static host config keep `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled for the public portfolio surface. That means the public link stays interactive without touching the restricted AWS account.

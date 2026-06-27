@@ -1,0 +1,45 @@
+services:
+  - type: web
+    name: receiptpulse-cloud-demo
+    runtime: static
+    plan: free
+    region: oregon
+    branch: main
+    autoDeploy: true
+    buildCommand: echo "Publishing ReceiptPulse dashboard static assets"
+    staticPublishPath: ./dashboard
+    routes:
+      - type: rewrite
+        source: /app
+        destination: /app.html
+      - type: rewrite
+        source: /signup
+        destination: /signup.html
+      - type: rewrite
+        source: /profile
+        destination: /profile.html
+      - type: rewrite
+        source: /reports
+        destination: /reports.html
+    headers:
+      - path: /*
+        name: Cache-Control
+        value: public, max-age=0, must-revalidate
+      - path: /*
+        name: Strict-Transport-Security
+        value: max-age=31536000; includeSubDomains
+      - path: /*
+        name: X-Frame-Options
+        value: DENY
+      - path: /*
+        name: X-Content-Type-Options
+        value: nosniff
+      - path: /*
+        name: Referrer-Policy
+        value: strict-origin-when-cross-origin
+      - path: /*
+        name: Permissions-Policy
+        value: camera=(), microphone=(), geolocation=(), payment=(), usb=(), interest-cohort=()
+      - path: /*
+        name: Content-Security-Policy
+        value: frame-ancestors 'none'; base-uri 'self'; object-src 'none'

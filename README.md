@@ -5,7 +5,7 @@
 
   <strong>AI receipt intelligence with a recruiter-ready Cloud Demo and AWS Live architecture path.</strong>
 
-  [Live Site](https://receipt-pulse.netlify.app/) | [Instant Demo](https://receipt-pulse.netlify.app/app.html?demo=1&sample=1) | [Source Code](https://github.com/agarwalujala3-lang/ReceiptPulse)
+  [Live Site](https://receipt-pulse.netlify.app/) | [Source Code](https://github.com/agarwalujala3-lang/ReceiptPulse)
 
   ![Frontend](https://img.shields.io/badge/frontend-HTML%20CSS%20JavaScript-10263a?style=for-the-badge)
   ![Cloud](https://img.shields.io/badge/cloud-AWS%20Serverless-ffb347?style=for-the-badge)
@@ -23,12 +23,9 @@ The frontend has been rebuilt around a premium command-center visual language: d
 
 ## Live Demo
 
-| Entry | Link | Purpose |
-| --- | --- | --- |
-| Public launch | https://receipt-pulse.netlify.app/ | Recruiter-safe landing page with Cloud Demo first. |
-| Instant dashboard | https://receipt-pulse.netlify.app/app.html?demo=1&sample=1 | Opens the analytics cockpit with sample receipts. |
-| AWS Live setup | https://receipt-pulse.netlify.app/signup.html | Shows the production auth path when a healthy backend is configured. |
-| Source | https://github.com/agarwalujala3-lang/ReceiptPulse | Full project code, docs, and deployment history. |
+Use the single **Live Site** link at the top of this README everywhere: resumes, GitHub profiles, LinkedIn posts, and recruiter messages.
+
+From that launch page, click **Open Cloud Demo** to enter the dashboard or **AWS Live Setup** to view the backend-ready auth path. Keeping one canonical URL avoids confusing reviewers.
 
 ## What Makes It Stand Out
 
@@ -128,12 +125,13 @@ cd dashboard
 python -m http.server 4173
 ```
 
-Open the local site:
+Open the local launch page:
 
 ```text
 http://localhost:4173/
-http://localhost:4173/app.html?demo=1&sample=1
 ```
+
+Then click **Open Cloud Demo** to enter the dashboard with sample data.
 
 ## Configure AWS Live Mode
 
@@ -149,11 +147,7 @@ AWS Live mode expects the deployed stack to provide the required Cognito and API
 
 ## Deploy
 
-The current public host is Netlify.
-
-```text
-https://receipt-pulse.netlify.app/
-```
+The current public host is Netlify. Use the canonical public link from the Live Demo section above.
 
 Typical static deploy target:
 
@@ -171,7 +165,7 @@ Before a public update, check these flows:
 | --- | --- |
 | Open `/` | Premium 3D launch page appears with Cloud Demo messaging. |
 | Click Cloud Demo | Dashboard opens without requiring real credentials. |
-| Open `/app.html?demo=1&sample=1` | Sample receipts and analytics render. |
+| Click **Open Cloud Demo** | Sample receipts and analytics render from the canonical launch page. |
 | Open `/signup.html` | AWS Live setup page keeps the same branding and clear mode language. |
 | Mobile viewport | Layout stacks cleanly with no horizontal overflow. |
 | Reduced motion | Core content remains usable without animation dependency. |

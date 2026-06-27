@@ -4912,7 +4912,7 @@ async function handleDuplicateReceiptDecision(receipt) {
         body: "This browser-only duplicate was kept out of the demo dashboard so totals stay clean.",
         note: "Returning you to the upload module now.",
         noteTone: "neutral",
-        icon: "✓",
+        icon: "\u2713",
       });
       if (!elements.duplicateDecisionModal?.hidden) {
         closeDuplicateDecisionDialog();
@@ -4975,7 +4975,7 @@ async function handleDuplicateReceiptDecision(receipt) {
         body: "This repeated receipt was kept out of your dashboard totals, history, and results.",
         note: "Returning you to the upload module now.",
         noteTone: "neutral",
-        icon: "✓",
+        icon: "\u2713",
       });
       return {
         action: "reject",
@@ -6781,6 +6781,125 @@ function initTopbarScrollFX() {
   window.addEventListener("scroll", syncTopbar, { passive: true });
 }
 
+function initCommandVisualFX() {
+  const visual = document.querySelector(".dashboard-command-visual");
+  if (!visual || visual.dataset.commandFxBound === "true") {
+    return;
+  }
+
+  const stages = [
+    {
+      key: "upload",
+      selector: ".command-arch-node-upload",
+      copy: "S3 intake receives the receipt safely.",
+    },
+    {
+      key: "ocr",
+      selector: ".command-arch-node-ocr",
+      copy: "OCR extracts merchant, amount, date, and tax signals.",
+    },
+    {
+      key: "archive",
+      selector: ".command-arch-node-archive",
+      copy: "DynamoDB-style records power archive and analytics views.",
+    },
+  ];
+  const nodes = stages
+    .map((stage) => ({ ...stage, node: visual.querySelector(stage.selector) }))
+    .filter((stage) => Boolean(stage.node));
+  const copy = visual.querySelector("[data-command-visual-copy]") || visual.querySelector(".command-visual-copy span");
+  const reduceMotionQuery = window.matchMedia
+    ? window.matchMedia("(prefers-reduced-motion: reduce)")
+    : { matches: false };
+
+  if (!nodes.length) {
+    return;
+  }
+
+  let activeIndex = 0;
+  let cycleId = 0;
+  let hoverLocked = false;
+  visual.dataset.commandFxBound = "true";
+
+  const activateStage = (index) => {
+    activeIndex = (index + nodes.length) % nodes.length;
+    nodes.forEach((stage, stageIndex) => {
+      stage.node.classList.toggle("is-active", stageIndex === activeIndex);
+    });
+    visual.dataset.activeStage = nodes[activeIndex].key;
+    if (copy) {
+      copy.textContent = nodes[activeIndex].copy;
+    }
+  };
+
+  const clearCycle = () => {
+    if (cycleId) {
+      window.clearInterval(cycleId);
+      cycleId = 0;
+    }
+  };
+
+  const startCycle = () => {
+    clearCycle();
+    if (reduceMotionQuery.matches || nodes.length < 2) {
+      return;
+    }
+    cycleId = window.setInterval(() => {
+      if (!hoverLocked) {
+        activateStage(activeIndex + 1);
+      }
+    }, 2600);
+  };
+
+  const resetTilt = () => {
+    visual.style.setProperty("--visual-tilt-x", "0deg");
+    visual.style.setProperty("--visual-tilt-y", "0deg");
+    visual.style.setProperty("--visual-glow-x", "50%");
+    visual.style.setProperty("--visual-glow-y", "50%");
+  };
+
+  visual.addEventListener("pointermove", (event) => {
+    if (reduceMotionQuery.matches) {
+      return;
+    }
+    const bounds = visual.getBoundingClientRect();
+    const x = Math.min(Math.max((event.clientX - bounds.left) / bounds.width, 0), 1);
+    const y = Math.min(Math.max((event.clientY - bounds.top) / bounds.height, 0), 1);
+    const tiltX = (0.5 - y) * 7;
+    const tiltY = (x - 0.5) * 9;
+    visual.style.setProperty("--visual-tilt-x", `${tiltX.toFixed(2)}deg`);
+    visual.style.setProperty("--visual-tilt-y", `${tiltY.toFixed(2)}deg`);
+    visual.style.setProperty("--visual-glow-x", `${(x * 100).toFixed(1)}%`);
+    visual.style.setProperty("--visual-glow-y", `${(y * 100).toFixed(1)}%`);
+  });
+
+  visual.addEventListener("pointerleave", () => {
+    hoverLocked = false;
+    resetTilt();
+  });
+
+  visual.addEventListener("pointerdown", () => {
+    activateStage(activeIndex + 1);
+  });
+
+  nodes.forEach((stage, index) => {
+    stage.node.addEventListener("pointerenter", () => {
+      hoverLocked = true;
+      activateStage(index);
+    });
+  });
+
+  if (typeof reduceMotionQuery.addEventListener === "function") {
+    reduceMotionQuery.addEventListener("change", () => {
+      resetTilt();
+      startCycle();
+    });
+  }
+
+  resetTilt();
+  activateStage(0);
+  startCycle();
+}
 function formatMonthLabel(value) {
   if (!value || value === "__all") {
     return "All Months";
@@ -6813,6 +6932,7 @@ bindArchiveControls();
 setArchiveVisibility(false);
 initTopbarScrollFX();
 initCursorFX();
+initCommandVisualFX();
 startOverlayReconcileWatchdog();
 window.addEventListener("beforeunload", clearPreviewObjectUrl);
 window.addEventListener("pageshow", resetTransientOverlayState);

@@ -1,193 +1,208 @@
-﻿<div align="center">
-  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse" width="300" />
-  <h1>ReceiptPulse</h1>
-  <p><strong>AWS serverless receipt intelligence platform with a recruiter-ready interactive dashboard.</strong></p>
-  <p>Upload receipts, extract structured expense data, detect duplicates, review low-confidence results, and analyze spend through a polished cloud operations console.</p>
+<div align="center">
+  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse logo" width="96" />
 
-  <p>
-    <a href="https://receipt-pulse.netlify.app/"><strong>Live Netlify Demo</strong></a> |
-    <a href="https://receipt-pulse.netlify.app/app.html?demo=1&sample=1"><strong>Instant Cloud Demo</strong></a> |
-    <a href="#demo-and-live-modes">Demo Modes</a> |
-    <a href="#architecture">Architecture</a> |
-    <a href="#what-makes-it-stand-out">Highlights</a> |
-    <a href="#run-locally">Run Locally</a> |
-    <a href="#aws-redeploy">AWS Redeploy</a>
-  </p>
+  # ReceiptPulse
 
-  <p>
-    <a href="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml">
-      <img src="https://github.com/agarwalujala3-lang/ReceiptPulse/actions/workflows/validate.yml/badge.svg?branch=main" alt="Production Grade CI" />
-    </a>
-    <img src="https://img.shields.io/badge/AWS-SAM%20Serverless-orange" alt="AWS SAM Serverless" />
-    <img src="https://img.shields.io/badge/Frontend-Interactive%203D%20Dashboard-0ea5e9" alt="Interactive dashboard" />
-    <img src="https://img.shields.io/badge/Mode-AWS%20Live%20%2B%20Cloud%20Demo-22c55e" alt="AWS Live plus Cloud Demo" />
-    <img src="https://img.shields.io/badge/License-MIT-brightgreen" alt="MIT License" />
-  </p>
+  <strong>AI receipt intelligence with a recruiter-ready Cloud Demo and AWS Live architecture path.</strong>
+
+  [Live Site](https://receipt-pulse.netlify.app/) | [Instant Demo](https://receipt-pulse.netlify.app/app.html?demo=1&sample=1) | [Source Code](https://github.com/agarwalujala3-lang/ReceiptPulse)
+
+  ![Frontend](https://img.shields.io/badge/frontend-HTML%20CSS%20JavaScript-10263a?style=for-the-badge)
+  ![Cloud](https://img.shields.io/badge/cloud-AWS%20Serverless-ffb347?style=for-the-badge)
+  ![Demo](https://img.shields.io/badge/demo-Netlify%20Safe%20Mode-7ee0f4?style=for-the-badge)
+  ![Security](https://img.shields.io/badge/security-Demo%20First%20Auth-16d6a5?style=for-the-badge)
 </div>
 
----
+![ReceiptPulse recruiter preview](dashboard/social-preview.png)
 
-## 30-Second Pitch
+## Executive Snapshot
 
-ReceiptPulse is a production-style AWS cloud project that turns receipt uploads into structured financial intelligence. The backend is built with AWS SAM, Lambda, S3, DynamoDB, API Gateway, Cognito, and Textract. The frontend is a premium static dashboard with a dynamic 3D entry sequence, interactive receipt pipeline visuals, local upload preview, charts, duplicate-review flows, and an explicit Cloud Demo mode for safe portfolio viewing when AWS is unavailable.
+ReceiptPulse is a polished cloud project showcase for receipt upload, OCR extraction, duplicate review, spend analytics, and archive intelligence. The public Netlify launch opens in a safe browser-local Cloud Demo so recruiters can experience the product instantly, while the AWS Live path remains documented for Cognito, API Gateway, Lambda, S3, DynamoDB, and Textract deployment.
 
-## Visual Showcase
+The frontend has been rebuilt around a premium command-center visual language: dynamic 3D entry surfaces, glass panels, luminous pipeline objects, high-contrast charts, pointer-reactive motion, staged reveals, and a dark professional theme designed to stay readable instead of fading into the background.
 
-<p align="center">
-  <img src="screenshots/receiptpulse-demo-first-showcase.png" alt="ReceiptPulse demo-first Cloud Demo launch and analytics dashboard preview" width="850" />
-</p>
+## Live Demo
 
-## Demo And Live Modes
-
-| Mode | Purpose | Behavior |
+| Entry | Link | Purpose |
 | --- | --- | --- |
-| GitHub Pages Live Demo | Public recruiter link | Publishes the static dashboard with Cloud Demo enabled and AWS calls disabled by default. |
-| AWS Live | Real cloud deployment | Uses Cognito auth, API Gateway, Lambda, S3, DynamoDB, and Textract. |
-| Cloud Demo | Recruiter-safe portfolio mode | Uses browser-local demo tokens and sample data. Uploads, rename, delete, and analytics update locally without calling AWS, collecting real passwords, or creating charges. |
-| Static Preview | No auth/API configured | Shows the interface and cloud architecture story with built-in sample data. |
-
-The demo mode does not remove the AWS project meaning. It keeps the cloud architecture visible and makes the showcase usable while a previous AWS account is restricted or while a new AWS account is being prepared.
+| Public launch | https://receipt-pulse.netlify.app/ | Recruiter-safe landing page with Cloud Demo first. |
+| Instant dashboard | https://receipt-pulse.netlify.app/app.html?demo=1&sample=1 | Opens the analytics cockpit with sample receipts. |
+| AWS Live setup | https://receipt-pulse.netlify.app/signup.html | Shows the production auth path when a healthy backend is configured. |
+| Source | https://github.com/agarwalujala3-lang/ReceiptPulse | Full project code, docs, and deployment history. |
 
 ## What Makes It Stand Out
 
-- **Cloud-first architecture:** event-driven receipt processing with S3 events, Lambda workers, DynamoDB indexes, API Gateway endpoints, and Cognito-scoped users.
-- **AI extraction workflow:** Textract `AnalyzeExpense` normalizes vendor, date, total, confidence, category, and line-item style data.
-- **Quality gates:** duplicate detection, missing-field review, confidence thresholds, and user decisions before records affect analytics.
-- **Premium dashboard UI:** 3D brand entry animation, rotatable receipt figures, high-contrast professional theme, full-width horizontal Quick Intake, crisp processing timeline visuals, and polished recruiter-facing copy.
-- **Secure account UX:** demo-first public auth, username-gated password entry for AWS Live, password strength and match feedback, browser/password-manager friendly sign-in fields, public-link hardening, escaped upload-preview filenames, wider horizontal auth layouts, and Cognito email-based password recovery for AWS Live deployments.
-- **Demo-safe resilience:** the app remains interactive without AWS access by using local browser state and sample data.
-- **AI/recruiter readable docs:** architecture, mode behavior, deployment, cost controls, and repo map are documented clearly.
+| Area | Implementation |
+| --- | --- |
+| Demo-first auth | Public users enter a safe local demo without exposing passwords or cloud secrets. |
+| AWS-ready backend | The same UI can connect to Cognito, API Gateway, Lambda, S3, DynamoDB, and Textract. |
+| 3D launch experience | Entry pages include interactive 3D receipt objects, orbit systems, and pointer-reactive lighting. |
+| Analytics cockpit | The dashboard highlights spend signals, processing state, duplicate decisions, and archive health. |
+| Recruiter clarity | Copy explains what is simulated, what is cloud-ready, and what architecture is demonstrated. |
+| Security posture | Demo mode avoids credential capture, hides AWS auth fields until configured, and keeps secrets out of static files. |
 
-## Architecture
+## Product Flow
 
 ```mermaid
 flowchart LR
-  User["User Browser"] --> Cognito["Amazon Cognito"]
-  User --> Dashboard["Static Dashboard"]
-  Dashboard --> Api["API Gateway HTTP API"]
-  Api --> ApiLambda["Dashboard API Lambda"]
-  Dashboard --> S3Upload["Presigned S3 Upload"]
-  S3Upload --> Bucket["S3 Receipt Bucket"]
-  Bucket --> EventBridge["S3 Object Created Event"]
-  EventBridge --> Processor["Receipt Processor Lambda"]
-  Processor --> Textract["Amazon Textract AnalyzeExpense"]
-  Processor --> DynamoDB["DynamoDB Receipt Table"]
-  Processor --> DLQ["SQS Dead Letter Queue"]
-  ApiLambda --> DynamoDB
-  ApiLambda --> Dashboard
+  A[Recruiter opens Netlify site] --> B[3D Cloud Demo launch]
+  B --> C[Safe browser-local demo session]
+  C --> D[Receipt upload and sample data]
+  D --> E[OCR extraction preview]
+  E --> F[Duplicate review]
+  F --> G[Spend analytics dashboard]
+  G --> H[Archive and reporting cockpit]
+
+  B --> I[AWS Live setup page]
+  I --> J[Cognito sign-in when backend config exists]
+  J --> K[API Gateway and Lambda]
+  K --> L[S3, DynamoDB, Textract]
 ```
 
-## Core Product Flow
+## AWS Architecture
 
-1. User signs in through Cognito or opens Cloud Demo mode.
-2. User selects a PDF, JPG, JPEG, or PNG receipt.
-3. Frontend previews the receipt and requests a secure upload session.
-4. AWS Live uploads to S3; Cloud Demo mirrors the same stages locally.
-5. Lambda and Textract extract receipt fields in AWS Live.
-6. Review rules flag low-confidence or duplicate receipts.
-7. Dashboard updates metrics, category charts, vendor charts, receipt archive, and history.
-8. User can rename labels, delete receipts, or clear date ranges according to the active mode.
+```mermaid
+flowchart TB
+  User[Browser UI] --> Auth[Cognito Auth]
+  User --> Demo[Local Cloud Demo Mode]
+  User --> API[API Gateway]
+  API --> Upload[Lambda Upload Handler]
+  API --> Query[Lambda Query Handler]
+  Upload --> S3[S3 Receipt Storage]
+  Upload --> Textract[Amazon Textract OCR]
+  Upload --> DB[DynamoDB Receipt Metadata]
+  Query --> DB
+  Query --> S3
+  DB --> Dashboard[Analytics and Duplicate Review]
+```
 
-## Technical Stack
+## Frontend Relaunch System
 
-| Layer | Technology |
+The current UI uses a custom high-end visual layer instead of generic templates.
+
+| Layer | Details |
 | --- | --- |
-| Infrastructure | AWS SAM / CloudFormation |
-| Auth | Amazon Cognito User Pools |
-| Upload Storage | Amazon S3 presigned upload flow |
-| Processing | AWS Lambda, EventBridge, SQS DLQ |
-| OCR / AI | Amazon Textract `AnalyzeExpense` |
-| Database | Amazon DynamoDB, on-demand billing, GSIs |
-| API | Amazon API Gateway HTTP API |
-| Frontend | Static HTML, CSS, modular vanilla JavaScript |
-| Demo Fallback | Browser `sessionStorage` and `localStorage` |
+| Brand surface | Deep navy graphite base, cyan/amber signal colors, glass panels, luminous edges. |
+| Typography | Space Grotesk for hero and cockpit headings, Manrope for product copy, IBM Plex Mono for technical labels. |
+| Motion | Page reveal staging, 3D panel tilt, orbital animation, pointer-driven light bloom, and reduced-motion safeguards. |
+| Dashboard graphics | Command visual, pipeline nodes, advanced chart contrast, activity cards, and high-visibility metric panels. |
+| Entry pages | Sign-in and AWS setup share the same premium launch styling and consistent Cloud Demo messaging. |
+
+## Security And Demo Safety
+
+| Control | Purpose |
+| --- | --- |
+| Demo-first launch | Public users can explore without entering real credentials. |
+| Conditional auth state | Credential fields are only presented when the AWS auth configuration is available. |
+| No frontend secrets | Static files do not store AWS secret keys or private credentials. |
+| Safe sample data | Demo data is local and portfolio-safe. |
+| Clear mode labels | The UI distinguishes Cloud Demo from AWS Live mode to avoid misleading reviewers. |
 
 ## Repository Map
 
 ```text
-dashboard/                 Static web app, animations, auth, demo mode, dashboard UI
-lambda/                    Receipt processor, dashboard API, Cognito pre-signup trigger
-template.yaml              AWS SAM infrastructure definition
-dashboard/data/            Demo dashboard data for portfolio-safe mode
-.github/workflows/         CI plus gh-pages static dashboard publishing
-docs/deployment.md         Standard deployment guide
-docs/aws-account-redeploy.md  New-account redeploy and billing safety guide
-tests/                     Python test coverage for processor behavior
-sample-receipts/           Local receipt samples for manual testing
+dashboard/
+  index.html          Public launch and sign-in entry
+  signup.html         AWS Live setup entry
+  app.html            ReceiptPulse command center
+  styles.css          Full visual system and relaunch animations
+  luxe-ui.js          Pointer-reactive relaunch interactions
+  auth.js             Demo/auth state handling
+  app.js              Dashboard, receipts, analytics, duplicate flow
+  config.js           Runtime API configuration placeholder
+
+docs/
+  deployment.md       Netlify and deployment notes
+  aws-account-redeploy.md
+                       AWS recovery and redeploy guidance
+
+template.yaml         Serverless AWS infrastructure template
 ```
-
-## Live Static Demo
-
-The safe public demo is now hosted on Netlify:
-
-```text
-https://receipt-pulse.netlify.app/
-https://receipt-pulse.netlify.app/app.html?demo=1&sample=1
-```
-
-The committed `dashboard/config.js` and Netlify static host config keep `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled for the public portfolio surface. That means the public link stays interactive without touching the restricted AWS account.
-
-The public Cloud Demo does not collect or store real account passwords. Credential forms are not shipped in the public HTML source and are injected only when an AWS Live Cognito backend is configured. Browser-saved passwords, username-gated password entry, sign-up strength checks, and password recovery are available when the dashboard is connected to an AWS Live Cognito user pool with verified email recovery enabled.
 
 ## Run Locally
 
-From the repository root:
+This project is a static frontend plus optional AWS serverless backend.
 
 ```bash
-python -m http.server 4177 -d dashboard --bind 127.0.0.1
+cd dashboard
+python -m http.server 4173
 ```
 
-Open:
+Open the local site:
 
 ```text
-http://127.0.0.1:4177/index.html
+http://localhost:4173/
+http://localhost:4173/app.html?demo=1&sample=1
 ```
 
-Use **Launch Cloud Demo** on the public landing page to open the dashboard without AWS access. Direct QA/share links also work: `http://127.0.0.1:4177/app.html?demo=1` opens Cloud Demo, and `http://127.0.0.1:4177/app.html?demo=1&sample=1` opens Cloud Demo and auto-runs one sample receipt.
+## Configure AWS Live Mode
 
-## AWS Redeploy
+Create or update `dashboard/config.js` with the API endpoint for a deployed AWS backend.
 
-Use this when moving the project to a clean AWS account or a new region.
-
-```bash
-sam build
-sam deploy --guided
+```js
+window.RECEIPTPULSE_CONFIG = {
+  apiBaseUrl: "https://YOUR_API_ID.execute-api.YOUR_REGION.amazonaws.com",
+};
 ```
 
-After deployment, update `dashboard/config.js` or hosting environment variables with:
+AWS Live mode expects the deployed stack to provide the required Cognito and API behavior. If the backend is not available, the public site should continue to present Cloud Demo mode first.
+
+## Deploy
+
+The current public host is Netlify.
 
 ```text
-apiBaseUrl
-Cognito hosted UI domain
-Cognito user pool client id
-redirectSignIn
-redirectSignOut
+https://receipt-pulse.netlify.app/
 ```
 
-See [docs/aws-account-redeploy.md](docs/aws-account-redeploy.md) for the safe migration checklist, billing guardrails, and old-account limitations.
+Typical static deploy target:
 
-## Cost Controls Before Any New AWS Deploy
-
-- Enable MFA on the root user.
-- Create an AWS Budget with email alerts at small thresholds before deploying.
-- Keep DynamoDB on on-demand billing for tiny demo traffic.
-- Keep Lambda memory and timeout conservative.
-- Use sample receipts only during testing.
-- Watch Textract usage because OCR calls can cost money outside free-tier limits.
-- Delete test stacks with `sam delete` when finished.
-- Do not create a new AWS account to avoid an old unpaid balance; treat it as a clean redeploy target only.
-
-## Verification Commands
-
-```bash
-PYTHONPATH=lambda python -m unittest discover tests
-node --check dashboard/app.js
-node --check dashboard/auth.js
-node --check dashboard/entry-3d.js
-node --check dashboard/multipage.js
-node --check dashboard/auth-3d.js
+```text
+dashboard/
 ```
 
-## Status
+Netlify should publish the contents of `dashboard/` so `index.html`, `app.html`, `signup.html`, assets, and scripts are served together.
 
-ReceiptPulse is cloud-ready and demo-safe. If the original AWS account is restricted, the frontend remains usable through Cloud Demo mode while the backend can be redeployed from this repository into a new AWS account when billing and account setup are under control.
+## Verification Checklist
+
+Before a public update, check these flows:
+
+| Check | Expected result |
+| --- | --- |
+| Open `/` | Premium 3D launch page appears with Cloud Demo messaging. |
+| Click Cloud Demo | Dashboard opens without requiring real credentials. |
+| Open `/app.html?demo=1&sample=1` | Sample receipts and analytics render. |
+| Open `/signup.html` | AWS Live setup page keeps the same branding and clear mode language. |
+| Mobile viewport | Layout stacks cleanly with no horizontal overflow. |
+| Reduced motion | Core content remains usable without animation dependency. |
+
+## AI-Friendly Context
+
+```yaml
+project: ReceiptPulse
+category: serverless cloud portfolio project
+public_host: Netlify
+primary_demo: browser-local Cloud Demo
+aws_services:
+  - Cognito
+  - API Gateway
+  - Lambda
+  - S3
+  - DynamoDB
+  - Textract
+frontend:
+  - HTML
+  - CSS
+  - JavaScript
+key_strengths:
+  - recruiter-safe demo path
+  - AWS-ready architecture
+  - interactive 3D auth launch
+  - analytics dashboard
+  - duplicate receipt review
+  - no frontend secrets
+```
+
+## Recruiter Pitch
+
+ReceiptPulse demonstrates product thinking, frontend polish, cloud architecture, and security-aware demo design in one project. The public experience works immediately on Netlify, while the codebase still documents the AWS Live path for a full serverless deployment.

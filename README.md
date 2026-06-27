@@ -5,8 +5,8 @@
   <p>Upload receipts, extract structured expense data, detect duplicates, review low-confidence results, and analyze spend through a polished cloud operations console.</p>
 
   <p>
-    <a href="https://agarwalujala3-lang.github.io/ReceiptPulse/"><strong>Live GitHub Pages Demo</strong></a> |
-    <a href="https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1"><strong>Instant Cloud Demo</strong></a> |
+    <a href="https://sunny-cupcake-ee2461.netlify.app/"><strong>Live Netlify Demo</strong></a> |
+    <a href="https://sunny-cupcake-ee2461.netlify.app/app.html?demo=1&sample=1"><strong>Instant Cloud Demo</strong></a> |
     <a href="#demo-and-live-modes">Demo Modes</a> |
     <a href="#architecture">Architecture</a> |
     <a href="#what-makes-it-stand-out">Highlights</a> |
@@ -118,14 +118,14 @@ sample-receipts/           Local receipt samples for manual testing
 
 ## Live Static Demo
 
-The safe public demo is designed for GitHub Pages:
+The safe public demo is now hosted on Netlify:
 
 ```text
-https://agarwalujala3-lang.github.io/ReceiptPulse/
-https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
+https://sunny-cupcake-ee2461.netlify.app/
+https://sunny-cupcake-ee2461.netlify.app/app.html?demo=1&sample=1
 ```
 
-The committed `dashboard/config.js` and the Pages publisher both keep `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled for the public portfolio surface. That means the public link stays interactive without touching the restricted AWS account.
+The committed `dashboard/config.js` and Netlify static host config keep `apiBaseUrl` empty, Cognito empty, and Cloud Demo enabled for the public portfolio surface. That means the public link stays interactive without touching the restricted AWS account.
 
 The public Cloud Demo does not collect or store real account passwords. Credential forms are not shipped in the public HTML source and are injected only when an AWS Live Cognito backend is configured. Browser-saved passwords, username-gated password entry, sign-up strength checks, and password recovery are available when the dashboard is connected to an AWS Live Cognito user pool with verified email recovery enabled.
 

@@ -15,8 +15,8 @@ window.RECEIPTPULSE_CONFIG = {
     clientId: "",
     region: "ap-south-1",
     appPath: "./app.html",
-    redirectSignIn: "https://agarwalujala3-lang.github.io/ReceiptPulse/",
-    redirectSignOut: "https://agarwalujala3-lang.github.io/ReceiptPulse/",
+    redirectSignIn: "https://sunny-cupcake-ee2461.netlify.app/",
+    redirectSignOut: "https://sunny-cupcake-ee2461.netlify.app/",
     scopes: ["openid", "profile"],
   },
 };

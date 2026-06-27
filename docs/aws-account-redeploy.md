@@ -50,8 +50,8 @@ Do these before deploying any ReceiptPulse stack:
 Use GitHub Pages for the public recruiter link until the AWS account situation is resolved:
 
 ```text
-https://agarwalujala3-lang.github.io/ReceiptPulse/
-https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
+https://receipt-pulse.netlify.app/
+https://receipt-pulse.netlify.app/app.html?demo=1&sample=1
 ```
 
 The Pages publisher updates the `gh-pages` branch with AWS calls disabled and Cloud Demo enabled. This keeps the project visible without creating AWS resources or charges.

@@ -82,8 +82,8 @@ On push to `main` or manual workflow dispatch, it:
 Expected safe public links:
 
 ```text
-https://agarwalujala3-lang.github.io/ReceiptPulse/
-https://agarwalujala3-lang.github.io/ReceiptPulse/app.html?demo=1&sample=1
+https://receipt-pulse.netlify.app/
+https://receipt-pulse.netlify.app/app.html?demo=1&sample=1
 ```
 
 Use this path until a healthy AWS account is ready. It creates no AWS charges, does not collect real passwords, and still presents the AWS architecture, UI, and redeploy story.

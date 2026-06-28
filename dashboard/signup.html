@@ -16,7 +16,7 @@
     <title>ReceiptPulse | AWS Live Account Setup</title>
     <meta
       name="description"
-      content="ReceiptPulse AWS Live account setup page. Public Netlify mode uses a Cloud Demo and does not collect real passwords unless Cognito is configured."
+      content="ReceiptPulse AWS Live account setup page. Public GitHub Pages mode uses a Cloud Demo and does not collect real passwords unless Cognito is configured."
     />
     <meta name="theme-color" content="#071321" />
     <link rel="canonical" href="https://receipt-pulse.netlify.app/signup.html" />
@@ -46,11 +46,11 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       rel="stylesheet"
-      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@400;500;600;700;800&family=Space+Grotesk:wght@500;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
     />
-    <link rel="stylesheet" href="./styles.css?v=20260627b" />
+    <link rel="stylesheet" href="./styles.css?v=20260615a" />
   </head>
-  <body class="auth-page auth-page-signup cinema-ui luxe-relaunch" data-auth-page="signup">
+  <body class="auth-page auth-page-signup cinema-ui" data-auth-page="signup">
     <div class="cinema-stage" aria-hidden="true">
       <span class="cinema-glow cinema-glow-ember"></span>
       <span class="cinema-glow cinema-glow-ice"></span>
@@ -85,14 +85,14 @@
           <p class="eyebrow">AWS Live Setup</p>
           <h1>AWS Live account creation appears only after Cognito is configured.</h1>
           <p class="auth-lead">
-            The public Netlify build stays recruiter-safe by opening Cloud Demo mode first.
+            The public GitHub Pages build stays recruiter-safe by opening Cloud Demo mode first.
             Redeployed AWS Live stacks can enable username, email recovery, and password reset.
           </p>
         </div>
 
         <div class="auth-3d-showcase">
           <div class="auth-3d-head">
-            <span class="mini-label">Live Pipeline</span>
+            <span class="mini-label">Interactive 3D</span>
             <p class="auth-3d-copy">Rotate the figures to explore the private pipeline behind every account.</p>
           </div>
           <div
@@ -100,7 +100,7 @@
             data-auth-3d-scene
             tabindex="0"
             role="region"
-            aria-label="Live Pipeline receipt workflow. Drag to rotate."
+            aria-label="Interactive 3D receipt workflow. Drag to rotate."
           >
             <span class="auth-3d-aura auth-3d-aura--one" aria-hidden="true"></span>
             <span class="auth-3d-aura auth-3d-aura--two" aria-hidden="true"></span>
@@ -183,13 +183,13 @@
         <div class="demo-access-card">
           <div>
             <span class="mini-label">Safe public mode</span>
-            <strong>Open Cloud Demo instead of creating credentials.</strong>
+            <strong>Launch Cloud Demo instead of creating credentials.</strong>
             <p>
               The demo uses browser-local data and does not contact AWS billing, Cognito, S3, or API Gateway.
             </p>
           </div>
           <button class="secondary-button demo-access-button" id="demoAccessButton" type="button">
-            Open Cloud Demo
+            Launch Cloud Demo
           </button>
         </div>
 
@@ -215,6 +215,5 @@
     <script src="./brand-launch.js?v=20260406a" defer></script>
     <script src="./auth-3d.js?v=20260604a" defer></script>
     <script src="./auth.js?v=20260616b" defer></script>
-    <script src="./luxe-ui.js?v=20260627b" defer></script>
   </body>
 </html>

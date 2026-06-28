@@ -79,11 +79,10 @@ On push to `main` or manual workflow dispatch, it:
 4. Publishes the result to the `gh-pages` branch, which is the live GitHub Pages source.
 5. Serves cache-busted dashboard assets with strict referrer metadata, GitHub Pages canonical URLs, no credential forms in the public HTML source, and hardened external source links for the public portfolio surface.
 
-Expected safe public links:
+Expected safe public link:
 
 ```text
 https://receipt-pulse.netlify.app/
-https://receipt-pulse.netlify.app/app.html?demo=1&sample=1
 ```
 
 Use this path until a healthy AWS account is ready. It creates no AWS charges, does not collect real passwords, and still presents the AWS architecture, UI, and redeploy story.

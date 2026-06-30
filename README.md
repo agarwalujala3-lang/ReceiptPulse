@@ -1,12 +1,12 @@
 ﻿<div align="center">
-  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse logo" width="96" />
+  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse logo" width="120" />
 
   # ReceiptPulse
 
   <strong>Demo-first AWS receipt intelligence for upload, OCR extraction, duplicate review, and spend analytics.</strong>
 
   <p>
-    <a href="https://receipt-pulse.netlify.app/"><strong>Open Live Demo</strong></a>
+    <a href="https://receiptpulse-cloud-demo.onrender.com/"><strong>Open Live Demo</strong></a>
     &nbsp;|&nbsp;
     <a href="https://github.com/agarwalujala3-lang/ReceiptPulse"><strong>Source Code</strong></a>
     &nbsp;|&nbsp;

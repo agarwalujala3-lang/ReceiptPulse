@@ -1,0 +1,113 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="680" viewBox="0 0 1200 680" role="img" aria-labelledby="title desc">
+  <title id="title">ReceiptPulse demo-first cloud pipeline</title>
+  <desc id="desc">A visual system map showing the public demo path, AWS live path, OCR processing, secure storage, and analytics dashboard.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#07131f"/>
+      <stop offset="0.48" stop-color="#0c2333"/>
+      <stop offset="1" stop-color="#121a2b"/>
+    </linearGradient>
+    <linearGradient id="cyan" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7ee8ff"/>
+      <stop offset="1" stop-color="#12c7a8"/>
+    </linearGradient>
+    <linearGradient id="amber" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#ffd479"/>
+      <stop offset="1" stop-color="#ff9d42"/>
+    </linearGradient>
+    <filter id="glow" x="-40%" y="-40%" width="180%" height="180%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feColorMatrix in="blur" type="matrix" values="0 0 0 0 0.18 0 0 0 0 0.82 0 0 0 0 0.95 0 0 0 0.75 0"/>
+      <feMerge>
+        <feMergeNode/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+    <filter id="softShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="18" stdDeviation="18" flood-color="#000814" flood-opacity="0.35"/>
+    </filter>
+    <pattern id="grid" width="42" height="42" patternUnits="userSpaceOnUse">
+      <path d="M 42 0 L 0 0 0 42" fill="none" stroke="#28445a" stroke-width="1" opacity="0.22"/>
+    </pattern>
+    <marker id="arrow" markerWidth="12" markerHeight="12" refX="10" refY="6" orient="auto">
+      <path d="M 0 0 L 12 6 L 0 12 z" fill="#7ee8ff"/>
+    </marker>
+  </defs>
+
+  <rect width="1200" height="680" rx="34" fill="url(#bg)"/>
+  <rect width="1200" height="680" rx="34" fill="url(#grid)"/>
+  <circle cx="1075" cy="115" r="170" fill="#16d6c4" opacity="0.08"/>
+  <circle cx="120" cy="580" r="210" fill="#ffb347" opacity="0.07"/>
+
+  <text x="60" y="76" fill="#eaf7ff" font-family="Segoe UI, Arial, sans-serif" font-size="38" font-weight="800">ReceiptPulse System View</text>
+  <text x="60" y="110" fill="#9fc5d7" font-family="Segoe UI, Arial, sans-serif" font-size="17">Demo-first product experience with a documented AWS Live architecture path</text>
+
+  <g filter="url(#softShadow)">
+    <rect x="58" y="150" width="325" height="390" rx="28" fill="#0e2535" stroke="#2d5267"/>
+    <text x="88" y="196" fill="#7ee8ff" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">PUBLIC DEMO PATH</text>
+    <text x="88" y="232" fill="#f4fbff" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800">Recruiter opens</text>
+    <text x="88" y="263" fill="#f4fbff" font-family="Segoe UI, Arial, sans-serif" font-size="26" font-weight="800">one safe launch link</text>
+
+    <rect x="88" y="306" width="245" height="54" rx="16" fill="#102f42" stroke="#2fd8ec" opacity="0.95"/>
+    <text x="114" y="339" fill="#dffaff" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700">Browser-local demo</text>
+
+    <rect x="88" y="378" width="245" height="54" rx="16" fill="#102f42" stroke="#2fd8ec" opacity="0.82"/>
+    <text x="114" y="411" fill="#dffaff" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700">Sample receipts</text>
+
+    <rect x="88" y="450" width="245" height="54" rx="16" fill="#102f42" stroke="#2fd8ec" opacity="0.7"/>
+    <text x="114" y="483" fill="#dffaff" font-family="Segoe UI, Arial, sans-serif" font-size="17" font-weight="700">No real credentials</text>
+  </g>
+
+  <g filter="url(#glow)">
+    <path d="M390 344 C455 344 480 252 555 252" fill="none" stroke="#7ee8ff" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M390 344 C455 344 480 438 555 438" fill="none" stroke="#ffbd68" stroke-width="4" marker-end="url(#arrow)"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="540" y="185" width="275" height="150" rx="26" fill="#0b2b3a" stroke="#58e6f7"/>
+    <text x="572" y="229" fill="#eafcff" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="800">OCR Intelligence</text>
+    <text x="572" y="262" fill="#aacbd8" font-family="Segoe UI, Arial, sans-serif" font-size="15">Vendor, amount, date, label</text>
+    <text x="572" y="291" fill="#aacbd8" font-family="Segoe UI, Arial, sans-serif" font-size="15">Duplicate review and validation</text>
+    <circle cx="760" cy="252" r="34" fill="url(#cyan)" opacity="0.18"/>
+    <path d="M746 253 l12 12 25 -31" fill="none" stroke="#7ee8ff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round"/>
+
+    <rect x="540" y="375" width="275" height="150" rx="26" fill="#2b2417" stroke="#ffbd68"/>
+    <text x="572" y="419" fill="#fff4dc" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="800">AWS Live Path</text>
+    <text x="572" y="452" fill="#e2caa4" font-family="Segoe UI, Arial, sans-serif" font-size="15">Cognito, API Gateway, Lambda</text>
+    <text x="572" y="481" fill="#e2caa4" font-family="Segoe UI, Arial, sans-serif" font-size="15">S3, Textract, DynamoDB</text>
+    <rect x="742" y="424" width="44" height="44" rx="12" fill="url(#amber)" opacity="0.22"/>
+    <path d="M752 447 h24 M764 435 v24" stroke="#ffd479" stroke-width="5" stroke-linecap="round"/>
+  </g>
+
+  <g filter="url(#glow)">
+    <path d="M824 260 C878 260 890 342 940 342" fill="none" stroke="#7ee8ff" stroke-width="4" marker-end="url(#arrow)"/>
+    <path d="M824 450 C878 450 890 352 940 352" fill="none" stroke="#ffbd68" stroke-width="4" marker-end="url(#arrow)"/>
+  </g>
+
+  <g filter="url(#softShadow)">
+    <rect x="925" y="170" width="215" height="360" rx="30" fill="#0e2535" stroke="#315a70"/>
+    <text x="960" y="215" fill="#eaf7ff" font-family="Segoe UI, Arial, sans-serif" font-size="25" font-weight="800">Dashboard</text>
+    <text x="960" y="244" fill="#9fc5d7" font-family="Segoe UI, Arial, sans-serif" font-size="15">Search, charts, reports</text>
+
+    <rect x="960" y="285" width="142" height="22" rx="11" fill="#17384a"/>
+    <rect x="960" y="285" width="104" height="22" rx="11" fill="url(#cyan)"/>
+    <text x="960" y="336" fill="#d8f6ff" font-family="Segoe UI, Arial, sans-serif" font-size="14">Receipt history</text>
+    <rect x="960" y="354" width="142" height="22" rx="11" fill="#17384a"/>
+    <rect x="960" y="354" width="118" height="22" rx="11" fill="url(#amber)"/>
+    <text x="960" y="405" fill="#d8f6ff" font-family="Segoe UI, Arial, sans-serif" font-size="14">Category analytics</text>
+    <rect x="960" y="423" width="142" height="22" rx="11" fill="#17384a"/>
+    <rect x="960" y="423" width="84" height="22" rx="11" fill="url(#cyan)"/>
+    <text x="960" y="474" fill="#d8f6ff" font-family="Segoe UI, Arial, sans-serif" font-size="14">Private workspace</text>
+  </g>
+
+  <g opacity="0.95">
+    <rect x="60" y="585" width="250" height="46" rx="18" fill="#0f2d3d" stroke="#315a70"/>
+    <text x="88" y="614" fill="#dffaff" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Render Blueprint ready</text>
+    <rect x="338" y="585" width="250" height="46" rx="18" fill="#0f2d3d" stroke="#315a70"/>
+    <text x="366" y="614" fill="#dffaff" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">No static secrets</text>
+    <rect x="616" y="585" width="250" height="46" rx="18" fill="#0f2d3d" stroke="#315a70"/>
+    <text x="644" y="614" fill="#dffaff" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">AWS backend documented</text>
+    <rect x="894" y="585" width="246" height="46" rx="18" fill="#0f2d3d" stroke="#315a70"/>
+    <text x="922" y="614" fill="#dffaff" font-family="Segoe UI, Arial, sans-serif" font-size="15" font-weight="700">Recruiter-safe demo</text>
+  </g>
+</svg>

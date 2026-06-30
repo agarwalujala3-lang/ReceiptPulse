@@ -1,5 +1,5 @@
 ﻿<div align="center">
-  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse logo" width="200" />
+  <img src="dashboard/receiptpulse-logo.svg" alt="ReceiptPulse logo" width="300" />
 
   # ReceiptPulse
 

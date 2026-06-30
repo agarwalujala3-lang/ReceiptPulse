@@ -240,17 +240,6 @@ Expected Render settings from `render.yaml`:
 | Clean routes | `/app`, `/signup`, `/profile`, `/reports` |
 | Headers | Security and cache headers included |
 
-## Deploy On Netlify
-
-The current public demo uses Netlify with this target:
-
-```text
-Publish directory: dashboard
-Build command: echo "ReceiptPulse static site: no build step required"
-```
-
-`netlify.toml` already includes route rewrites and security headers for the static build.
-
 ## Verification Checklist
 
 Before sharing the project publicly, verify:

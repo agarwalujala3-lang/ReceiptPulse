@@ -1,0 +1,112 @@
+<svg width="1600" height="900" viewBox="0 0 1600 900" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="title desc">
+  <title id="title">ReceiptPulse GitHub preview banner</title>
+  <desc id="desc">Premium GitHub preview for ReceiptPulse showing private receipt uploads, Textract extraction, duplicate review, and a live AWS dashboard.</desc>
+  <defs>
+    <linearGradient id="bg" x1="96" y1="46" x2="1496" y2="844" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#08131F"/>
+      <stop offset="0.42" stop-color="#10212D"/>
+      <stop offset="1" stop-color="#173445"/>
+    </linearGradient>
+    <radialGradient id="glowGold" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(268 190) rotate(16) scale(472 276)">
+      <stop stop-color="#F4C47A" stop-opacity="0.28"/>
+      <stop offset="1" stop-color="#F4C47A" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="glowBlue" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(1272 700) rotate(150) scale(360 228)">
+      <stop stop-color="#6BE8FF" stop-opacity="0.24"/>
+      <stop offset="1" stop-color="#6BE8FF" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="chipStroke" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#6FE9FF"/>
+      <stop offset="1" stop-color="#4D8CE8"/>
+    </linearGradient>
+    <linearGradient id="panelFill" x1="1028" y1="214" x2="1462" y2="586" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#122638" stop-opacity="0.96"/>
+      <stop offset="1" stop-color="#0D1E2D" stop-opacity="0.94"/>
+    </linearGradient>
+    <linearGradient id="panelStroke" x1="1042" y1="214" x2="1458" y2="592" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#83F6FF"/>
+      <stop offset="1" stop-color="#6DA8FF"/>
+    </linearGradient>
+    <linearGradient id="lineStroke" x1="1176" y1="0" x2="1402" y2="0" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8CFBFF"/>
+      <stop offset="1" stop-color="#81A7FF"/>
+    </linearGradient>
+    <filter id="panelGlow" x="984" y="172" width="538" height="464" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feFlood flood-opacity="0" result="BackgroundImageFix"/>
+      <feBlend mode="normal" in="SourceGraphic" in2="BackgroundImageFix" result="shape"/>
+      <feDropShadow dx="0" dy="0" stdDeviation="18" flood-color="#7AEFFF" flood-opacity="0.3"/>
+      <feDropShadow dx="0" dy="26" stdDeviation="34" flood-color="#07111A" flood-opacity="0.44"/>
+    </filter>
+    <filter id="softBlur" x="-60%" y="-60%" width="220%" height="220%">
+      <feGaussianBlur stdDeviation="34"/>
+    </filter>
+  </defs>
+
+  <rect width="1600" height="900" rx="42" fill="url(#bg)"/>
+  <ellipse cx="268" cy="190" rx="368" ry="240" fill="url(#glowGold)"/>
+  <ellipse cx="1272" cy="700" rx="304" ry="194" fill="url(#glowBlue)"/>
+
+  <g opacity="0.24" filter="url(#softBlur)">
+    <path d="M118 738C278 686 438 660 648 678" stroke="#EFC07A" stroke-width="20" stroke-linecap="round"/>
+    <path d="M1048 782C1190 748 1326 684 1458 552" stroke="#79DFFF" stroke-width="18" stroke-linecap="round"/>
+  </g>
+
+  <g transform="translate(92 74)">
+    <image href="receiptpulse-logo.svg" width="530" height="100"/>
+  </g>
+
+  <text x="96" y="314" fill="#F7FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="800">Private receipt workspace</text>
+  <text x="96" y="386" fill="#F7FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="72" font-weight="800">with live AWS proof</text>
+
+  <text x="96" y="452" fill="#BFD0DD" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="500">Signed-in uploads, Textract extraction, duplicate review, rename flow,</text>
+  <text x="96" y="492" fill="#BFD0DD" font-family="Segoe UI, Arial, sans-serif" font-size="30" font-weight="500">and a dashboard built to feel like a real product instead of a demo.</text>
+
+  <g>
+    <rect x="96" y="556" width="218" height="56" rx="28" fill="#0F2131" stroke="url(#chipStroke)"/>
+    <text x="205" y="592" text-anchor="middle" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Cognito auth</text>
+
+    <rect x="336" y="556" width="212" height="56" rx="28" fill="#0F2131" stroke="url(#chipStroke)"/>
+    <text x="442" y="592" text-anchor="middle" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Textract pass</text>
+
+    <rect x="570" y="556" width="234" height="56" rx="28" fill="#0F2131" stroke="url(#chipStroke)"/>
+    <text x="687" y="592" text-anchor="middle" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Duplicate review</text>
+
+    <rect x="96" y="630" width="208" height="56" rx="28" fill="#0F2131" stroke="url(#chipStroke)"/>
+    <text x="200" y="666" text-anchor="middle" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Live dashboard</text>
+
+    <rect x="326" y="630" width="198" height="56" rx="28" fill="#0F2131" stroke="url(#chipStroke)"/>
+    <text x="425" y="666" text-anchor="middle" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Receipt guard</text>
+
+    <rect x="546" y="630" width="250" height="56" rx="28" fill="#0F2131" stroke="url(#chipStroke)"/>
+    <text x="671" y="666" text-anchor="middle" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="23" font-weight="700">Analytics + history</text>
+  </g>
+
+  <text x="96" y="792" fill="#9CB8C8" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="600">github.com/agarwalujala3-lang/ReceiptPulse</text>
+  <text x="96" y="836" fill="#D2DDE7" font-family="Segoe UI, Arial, sans-serif" font-size="22" font-weight="500">Built with Lambda, S3, DynamoDB, API Gateway, Cognito, Textract, and JavaScript</text>
+
+  <g filter="url(#panelGlow)">
+    <rect x="1044" y="224" width="420" height="370" rx="34" fill="url(#panelFill)" stroke="url(#panelStroke)"/>
+    <rect x="1086" y="264" width="336" height="54" rx="16" fill="#0E2131" stroke="#356280"/>
+    <circle cx="1120" cy="291" r="8.5" fill="#8AF7FF"/>
+    <text x="1146" y="300" fill="#E9FAFF" font-family="Consolas, monospace" font-size="20" font-weight="700">Receipt processing flow</text>
+
+    <rect x="1094" y="386" width="138" height="82" rx="20" fill="#12283A" stroke="#36617D"/>
+    <text x="1129" y="418" fill="#9AF8FF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">STEP 01</text>
+    <text x="1122" y="446" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Upload</text>
+
+    <rect x="1280" y="386" width="138" height="82" rx="20" fill="#12283A" stroke="#36617D"/>
+    <text x="1316" y="418" fill="#9AF8FF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">STEP 02</text>
+    <text x="1299" y="446" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Extract</text>
+
+    <rect x="1185" y="496" width="164" height="82" rx="22" fill="#12283A" stroke="#36617D"/>
+    <text x="1234" y="528" fill="#9AF8FF" font-family="Segoe UI, Arial, sans-serif" font-size="16" font-weight="700">STEP 03</text>
+    <text x="1217" y="556" fill="#F5FBFF" font-family="Segoe UI, Arial, sans-serif" font-size="24" font-weight="700">Review + ship</text>
+
+    <path d="M1232 428H1272" stroke="url(#lineStroke)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M1348 470V516" stroke="url(#lineStroke)" stroke-width="7" stroke-linecap="round"/>
+    <path d="M1334 516H1352" stroke="url(#lineStroke)" stroke-width="7" stroke-linecap="round"/>
+    <circle cx="1272" cy="428" r="8.5" fill="#8AF7FF"/>
+    <circle cx="1348" cy="516" r="8.5" fill="#86AFFF"/>
+    <circle cx="1334" cy="516" r="8.5" fill="#8AF7FF"/>
+  </g>
+</svg>

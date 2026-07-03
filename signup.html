@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <script>
+      (() => {
+        document.documentElement.dataset.uiTheme = "light";
+        document.documentElement.style.colorScheme = "light";
+        try {
+          window.localStorage.setItem("receiptpulse-ui-theme", "light");
+        } catch (error) {}
+      })();
+    </script>
+    <title>ReceiptPulse | AWS Live Account Setup</title>
+    <meta
+      name="description"
+      content="ReceiptPulse AWS Live account setup page. The public portfolio build uses a Cloud Demo and does not collect real passwords unless Cognito is configured."
+    />
+    <meta name="theme-color" content="#071321" />
+    <link rel="canonical" href="https://receiptpulse-cloud-demo.onrender.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://receiptpulse-cloud-demo.onrender.com/" />
+    <meta property="og:site_name" content="ReceiptPulse" />
+    <meta property="og:title" content="ReceiptPulse | AWS Live Account Setup" />
+    <meta
+      property="og:description"
+      content="Account creation is available only for AWS Live deployments. The public portfolio link opens a safe Cloud Demo."
+    />
+    <meta property="og:image" content="https://receiptpulse-cloud-demo.onrender.com/social-preview.png?v=20260616a" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ReceiptPulse AWS Live setup page showing demo-first launch and Cognito-ready account flow." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ReceiptPulse | AWS Live Account Setup" />
+    <meta
+      name="twitter:description"
+      content="AWS Live account creation for ReceiptPulse, with public Cloud Demo fallback."
+    />
+    <meta name="twitter:image" content="https://receiptpulse-cloud-demo.onrender.com/social-preview.png?v=20260616a" />
+    <link rel="icon" type="image/svg+xml" href="./receiptpulse-mark.svg?v=20260402c" />
+    <link rel="icon" type="image/png" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="apple-touch-icon" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260615a" />
+  </head>
+  <body class="auth-page auth-page-signup cinema-ui" data-auth-page="signup">
+    <div class="cinema-stage" aria-hidden="true">
+      <span class="cinema-glow cinema-glow-ember"></span>
+      <span class="cinema-glow cinema-glow-ice"></span>
+      <span class="cinema-grid"></span>
+      <span class="cinema-beam"></span>
+    </div>
+    <header class="topbar auth-topbar">
+      <div class="topbar-row topbar-row-main">
+        <div class="brand-lockup">
+          <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
+            <img
+              class="brand-logo"
+              src="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+              alt="ReceiptPulse"
+            />
+          </a>
+        </div>
+        <div class="topbar-actions auth-topbar-actions">
+          <span class="status-pill">Portfolio Project</span>
+          <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button" hidden>Light Mode</button>
+          <a class="ghost-link" href="./index.html">Demo Home</a>
+          <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noopener noreferrer">Source Code</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="auth-shell">
+      <section class="panel auth-stage">
+        <div class="auth-stage-copy">
+          <p class="eyebrow">AWS Live Setup</p>
+          <h1>AWS Live account creation appears only after Cognito is configured.</h1>
+          <p class="auth-lead">
+            The public portfolio build stays recruiter-safe by opening Cloud Demo mode first.
+            Redeployed AWS Live stacks can enable username, email recovery, and password reset.
+          </p>
+        </div>
+
+        <div class="auth-3d-showcase">
+          <div class="auth-3d-head">
+            <span class="mini-label">Interactive 3D</span>
+            <p class="auth-3d-copy">Rotate the figures to explore the private pipeline behind every account.</p>
+          </div>
+          <div
+            class="auth-3d-scene"
+            data-auth-3d-scene
+            tabindex="0"
+            role="region"
+            aria-label="Interactive 3D receipt workflow. Drag to rotate."
+          >
+            <span class="auth-3d-aura auth-3d-aura--one" aria-hidden="true"></span>
+            <span class="auth-3d-aura auth-3d-aura--two" aria-hidden="true"></span>
+            <div class="auth-3d-world" data-auth-3d-world aria-hidden="true">
+              <article class="auth-3d-figure auth-3d-figure--upload">
+                <div class="auth-3d-cube">
+                  <span class="auth-3d-cube-face face-front"></span>
+                  <span class="auth-3d-cube-face face-back"></span>
+                  <span class="auth-3d-cube-face face-right"></span>
+                  <span class="auth-3d-cube-face face-left"></span>
+                  <span class="auth-3d-cube-face face-top"></span>
+                  <span class="auth-3d-cube-face face-bottom"></span>
+                </div>
+                <p>Upload Node</p>
+              </article>
+
+              <article class="auth-3d-figure auth-3d-figure--extract">
+                <div class="auth-3d-ring">
+                  <span class="auth-3d-ring-orbit"></span>
+                </div>
+                <p>OCR Orbit</p>
+              </article>
+
+              <article class="auth-3d-figure auth-3d-figure--archive">
+                <div class="auth-3d-crystal">
+                  <span class="auth-3d-crystal-face face-a"></span>
+                  <span class="auth-3d-crystal-face face-b"></span>
+                  <span class="auth-3d-crystal-face face-c"></span>
+                  <span class="auth-3d-crystal-face face-d"></span>
+                </div>
+                <p>Archive Prism</p>
+              </article>
+            </div>
+            <p class="auth-3d-hint">Drag to rotate. Double-click to reset.</p>
+          </div>
+        </div>
+
+        <div class="auth-highlight-grid">
+          <article class="auth-info-card">
+            <span class="mini-label">Why separate accounts</span>
+            <strong>Public mode does not collect passwords.</strong>
+            <p>Visitors can review the AWS architecture and dashboard without entering real credentials.</p>
+          </article>
+          <article class="auth-info-card">
+            <span class="mini-label">What happens next</span>
+            <strong>AWS Live still supports real users.</strong>
+            <p>When Cognito is configured, this page creates a user-scoped workspace.</p>
+          </article>
+        </div>
+
+        <div class="auth-project-strip">
+          <article>
+            <span>Account</span>
+            <strong>Username Based</strong>
+          </article>
+          <article>
+            <span>Uploads</span>
+            <strong>Your PC Files</strong>
+          </article>
+          <article>
+            <span>Results</span>
+            <strong>Private Dashboard</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel auth-panel">
+        <div class="auth-panel-head">
+          <p class="eyebrow">AWS Live Setup</p>
+          <h2>Live accounts need a configured Cognito backend</h2>
+          <p>This public portfolio link keeps account creation off. Use Cloud Demo now, then enable live accounts after redeploying AWS.</p>
+        </div>
+
+        <p class="auth-security-note">
+          Public portfolio mode does not collect passwords or create accounts. AWS Live account creation appears only when Cognito is configured.
+        </p>
+
+        <div class="auth-live-form-slot" id="authLiveFormSlot" data-live-auth-slot></div>
+
+        <div class="demo-access-card">
+          <div>
+            <span class="mini-label">Safe public mode</span>
+            <strong>Launch Cloud Demo instead of creating credentials.</strong>
+            <p>
+              The demo uses browser-local data and does not contact AWS billing, Cognito, S3, or API Gateway.
+            </p>
+          </div>
+          <button class="secondary-button demo-access-button" id="demoAccessButton" type="button">
+            Launch Cloud Demo
+          </button>
+        </div>
+
+        <div class="auth-demo-points" aria-label="Public demo safety notes">
+          <span>No signup form</span>
+          <span>No AWS calls</span>
+          <span>Cognito-ready code</span>
+        </div>
+
+        <p class="auth-status" id="authStatus" data-state="idle">
+          Ready to launch the public Cloud Demo.
+        </p>
+
+        <div class="auth-switch">
+          <span>Want to review the public showcase?</span>
+          <a href="./index.html">Back to demo launch</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="./config.js?v=20260615a"></script>
+    <script src="./theme.js?v=20260427b" defer></script>
+    <script src="./brand-launch.js?v=20260406a" defer></script>
+    <script src="./auth-3d.js?v=20260604a" defer></script>
+    <script src="./auth.js?v=20260616b" defer></script>
+  </body>
+</html>

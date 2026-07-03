@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <script>
+      (() => {
+        document.documentElement.dataset.uiTheme = "light";
+        document.documentElement.style.colorScheme = "light";
+        try {
+          window.localStorage.setItem("receiptpulse-ui-theme", "light");
+        } catch (error) {}
+      })();
+    </script>
+    <title>ReceiptPulse | AWS Receipt Intelligence Demo</title>
+    <meta
+      name="description"
+      content="Explore ReceiptPulse as a recruiter-safe AWS portfolio demo with receipt OCR, duplicate review, analytics, and cloud architecture storytelling. Public demo mode does not collect real passwords."
+    />
+    <meta name="theme-color" content="#071321" />
+    <link rel="canonical" href="https://receiptpulse-cloud-demo.onrender.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://receiptpulse-cloud-demo.onrender.com/" />
+    <meta property="og:site_name" content="ReceiptPulse" />
+    <meta property="og:title" content="ReceiptPulse | AWS Receipt Intelligence Demo" />
+    <meta
+      property="og:description"
+      content="Open a safe public Cloud Demo of an AWS serverless receipt intelligence platform with OCR, duplicate handling, analytics, and deployment notes."
+    />
+    <meta property="og:image" content="https://receiptpulse-cloud-demo.onrender.com/social-preview.png?v=20260616a" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ReceiptPulse demo-first Cloud Demo launch with 3D receipt visuals and AWS architecture proof." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ReceiptPulse | AWS Receipt Intelligence Demo" />
+    <meta
+      name="twitter:description"
+      content="Safe public Cloud Demo for an AWS serverless receipt intelligence portfolio project."
+    />
+    <meta name="twitter:image" content="https://receiptpulse-cloud-demo.onrender.com/social-preview.png?v=20260616a" />
+    <link rel="icon" type="image/svg+xml" href="./receiptpulse-mark.svg?v=20260402c" />
+    <link rel="icon" type="image/png" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="apple-touch-icon" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260615a" />
+  </head>
+  <body class="auth-page auth-page-signin cinema-ui" data-auth-page="signin" data-entry-launch="root">
+    <div class="cinema-stage" aria-hidden="true">
+      <span class="cinema-glow cinema-glow-ember"></span>
+      <span class="cinema-glow cinema-glow-ice"></span>
+      <span class="cinema-grid"></span>
+      <span class="cinema-beam"></span>
+    </div>
+    <header class="topbar auth-topbar">
+      <div class="topbar-row topbar-row-main">
+        <div class="brand-lockup">
+          <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
+            <img
+              class="brand-logo"
+              src="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+              alt="ReceiptPulse"
+            />
+          </a>
+        </div>
+        <div class="topbar-actions auth-topbar-actions">
+          <span class="status-pill">Portfolio Project</span>
+          <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button" hidden>Light Mode</button>
+          <a class="ghost-link" href="./signup.html">AWS Live Setup</a>
+          <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noopener noreferrer">Source Code</a>
+        </div>
+      </div>
+    </header>
+
+    <main class="auth-shell">
+      <section class="panel auth-stage">
+        <div class="auth-stage-copy">
+          <p class="eyebrow">Student Project Workspace</p>
+          <h1>Open the AWS receipt intelligence demo without entering real credentials.</h1>
+          <p class="auth-lead">
+            The public portfolio link opens a browser-local Cloud Demo first. AWS Live sign-in
+            appears only when a healthy Cognito backend is configured for a redeployed stack.
+          </p>
+        </div>
+
+        <div class="auth-3d-showcase">
+          <div class="auth-3d-head">
+            <span class="mini-label">Interactive 3D</span>
+            <p class="auth-3d-copy">Drag to rotate the figures and preview the upload to OCR to archive flow.</p>
+          </div>
+          <div
+            class="auth-3d-scene"
+            data-auth-3d-scene
+            tabindex="0"
+            role="region"
+            aria-label="Interactive 3D receipt workflow. Drag to rotate."
+          >
+            <span class="auth-3d-aura auth-3d-aura--one" aria-hidden="true"></span>
+            <span class="auth-3d-aura auth-3d-aura--two" aria-hidden="true"></span>
+            <div class="auth-3d-world" data-auth-3d-world aria-hidden="true">
+              <article class="auth-3d-figure auth-3d-figure--upload">
+                <div class="auth-3d-cube">
+                  <span class="auth-3d-cube-face face-front"></span>
+                  <span class="auth-3d-cube-face face-back"></span>
+                  <span class="auth-3d-cube-face face-right"></span>
+                  <span class="auth-3d-cube-face face-left"></span>
+                  <span class="auth-3d-cube-face face-top"></span>
+                  <span class="auth-3d-cube-face face-bottom"></span>
+                </div>
+                <p>Upload Node</p>
+              </article>
+
+              <article class="auth-3d-figure auth-3d-figure--extract">
+                <div class="auth-3d-ring">
+                  <span class="auth-3d-ring-orbit"></span>
+                </div>
+                <p>OCR Orbit</p>
+              </article>
+
+              <article class="auth-3d-figure auth-3d-figure--archive">
+                <div class="auth-3d-crystal">
+                  <span class="auth-3d-crystal-face face-a"></span>
+                  <span class="auth-3d-crystal-face face-b"></span>
+                  <span class="auth-3d-crystal-face face-c"></span>
+                  <span class="auth-3d-crystal-face face-d"></span>
+                </div>
+                <p>Archive Prism</p>
+              </article>
+            </div>
+            <p class="auth-3d-hint">Drag to rotate. Double-click to reset.</p>
+          </div>
+        </div>
+
+        <div class="auth-highlight-grid">
+          <article class="auth-info-card">
+            <span class="mini-label">What this page does</span>
+            <strong>It presents the safe public demo first.</strong>
+            <p>No real password is needed in the public portfolio build. The local demo keeps the AWS architecture visible.</p>
+          </article>
+          <article class="auth-info-card">
+            <span class="mini-label">AWS Live mode</span>
+            <strong>Credential fields appear only with Cognito configured.</strong>
+            <p>When redeployed to AWS, the same UI can use Cognito, API Gateway, Lambda, S3, and DynamoDB.</p>
+          </article>
+        </div>
+
+        <div class="auth-project-strip">
+          <article>
+            <span>Upload</span>
+            <strong>PDF, JPG, PNG</strong>
+          </article>
+          <article>
+            <span>Backend</span>
+            <strong>AWS Lambda + Textract</strong>
+          </article>
+          <article>
+            <span>Storage</span>
+            <strong>S3 + DynamoDB</strong>
+          </article>
+        </div>
+      </section>
+
+      <section class="panel auth-panel">
+        <div class="auth-panel-head">
+          <p class="eyebrow">Cloud Demo</p>
+          <h2>Launch ReceiptPulse safely</h2>
+          <p>Open the interactive AWS showcase with browser-local data, sample receipts, and no real credential entry.</p>
+        </div>
+
+        <p class="auth-security-note">
+          Public portfolio mode does not collect passwords. AWS Live sign-in appears only when a Cognito backend is configured.
+        </p>
+
+        <div class="auth-live-form-slot" id="authLiveFormSlot" data-live-auth-slot></div>
+
+        <div class="demo-access-card">
+          <div>
+            <span class="mini-label">Recruiter-safe launch</span>
+            <strong>Open the cloud dashboard without touching AWS billing.</strong>
+            <p>
+              The demo keeps the S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito architecture visible while running fully in this browser.
+            </p>
+          </div>
+          <button class="secondary-button demo-access-button" id="demoAccessButton" type="button">
+            Launch Cloud Demo
+          </button>
+        </div>
+
+        <div class="auth-demo-points" aria-label="Public demo safety notes">
+          <span>No real passwords</span>
+          <span>No AWS charges</span>
+          <span>Architecture preserved</span>
+        </div>
+
+        <p class="auth-status" id="authStatus" data-state="idle">
+          Ready to launch the public Cloud Demo.
+        </p>
+
+        <div class="auth-switch">
+          <span>AWS Live account setup is separate from this public demo.</span>
+          <a href="./signup.html">View AWS Live setup</a>
+        </div>
+      </section>
+    </main>
+
+    <script src="./config.js?v=20260615a"></script>
+    <script src="./theme.js?v=20260427b" defer></script>
+    <script src="./entry-3d.js?v=20260604a" defer></script>
+    <script src="./auth-3d.js?v=20260604a" defer></script>
+    <script src="./auth.js?v=20260616b" defer></script>
+  </body>
+</html>

@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <script>
+      (() => {
+        document.documentElement.dataset.uiTheme = "light";
+        document.documentElement.style.colorScheme = "light";
+        try {
+          window.localStorage.setItem("receiptpulse-ui-theme", "light");
+        } catch (error) {}
+      })();
+    </script>
+    <title>ReceiptPulse | Cloud Demo Dashboard</title>
+    <meta
+      name="description"
+      content="Explore the ReceiptPulse Cloud Demo dashboard with receipt OCR, duplicate review, analytics, and AWS architecture highlights without entering real credentials."
+    />
+    <meta name="theme-color" content="#071321" />
+    <link rel="canonical" href="https://receiptpulse-cloud-demo.onrender.com/" />
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://receiptpulse-cloud-demo.onrender.com/" />
+    <meta property="og:site_name" content="ReceiptPulse" />
+    <meta property="og:title" content="ReceiptPulse | Cloud Demo Dashboard" />
+    <meta
+      property="og:description"
+      content="See the public Cloud Demo dashboard with receipt uploads, duplicate decisions, analytics, rename flows, and AWS serverless architecture."
+    />
+    <meta property="og:image" content="https://receiptpulse-cloud-demo.onrender.com/social-preview.png?v=20260616a" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="ReceiptPulse Cloud Demo dashboard with analytics, 3D receipt visuals, and AWS architecture proof." />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="ReceiptPulse | Cloud Demo Dashboard" />
+    <meta
+      name="twitter:description"
+      content="Safe public dashboard demo for the ReceiptPulse AWS serverless portfolio project."
+    />
+    <meta name="twitter:image" content="https://receiptpulse-cloud-demo.onrender.com/social-preview.png?v=20260616a" />
+    <link rel="icon" type="image/svg+xml" href="./receiptpulse-mark.svg?v=20260402c" />
+    <link rel="icon" type="image/png" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="apple-touch-icon" href="./receiptpulse-favicon.png?v=20260402c" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Playfair+Display:wght@500;600;700&display=swap"
+    />
+    <link rel="stylesheet" href="./styles.css?v=20260627a" />
+  </head>
+  <body class="cinema-ui dribbble-dashboard neuro-skin post-cover-ui" data-brand-launch="off">
+    <div class="cinema-stage" aria-hidden="true">
+      <span class="cinema-glow cinema-glow-ember"></span>
+      <span class="cinema-glow cinema-glow-ice"></span>
+      <span class="cinema-grid"></span>
+      <span class="cinema-beam"></span>
+    </div>
+    <div class="dashboard-shell">
+      <header class="topbar dashboard-sidebar">
+        <div class="brand-lockup brand-lockup-sidebar">
+          <a class="brand-mark brand-mark-link" href="./index.html" aria-label="ReceiptPulse home">
+            <img
+              class="brand-logo"
+              src="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+              data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+              alt="ReceiptPulse"
+            />
+          </a>
+        </div>
+        <section class="dashboard-profile-card" aria-label="Workspace profile">
+          <div class="dashboard-profile-head">
+            <img class="dashboard-profile-avatar" src="./profile-avatar.svg?v=20260414a" alt="Workspace profile avatar" />
+            <div class="dashboard-profile-copy">
+              <p class="dashboard-profile-date">Monday, March 24</p>
+              <h3>Welcome back, <span id="profileName">Operator</span>!</h3>
+            </div>
+          </div>
+        </section>
+        <nav class="dashboard-nav" aria-label="Dashboard sections">
+          <a class="dashboard-nav-link is-active" href="./app.html"><span class="dashboard-nav-icon">D</span>Dashboard</a>
+          <a class="dashboard-nav-link" href="./profile.html"><span class="dashboard-nav-icon">P</span>Profile</a>
+          <a class="dashboard-nav-link" href="./reports.html"><span class="dashboard-nav-icon">R</span>Reports</a>
+          <a class="dashboard-nav-link" href="./app.html#uploadLab"><span class="dashboard-nav-icon">I</span>Intake</a>
+          <a class="dashboard-nav-link" href="./app.html#receiptsTable"><span class="dashboard-nav-icon">A</span>Archive</a>
+        </nav>
+        <section class="dashboard-sidebar-card">
+          <p class="eyebrow">Workspace</p>
+          <h3>Private receipt analytics.</h3>
+          <p>Uploads, duplicate decisions, archive records, and dashboard totals stay scoped to the signed-in account.</p>
+          <div class="topbar-pills dashboard-tech-pills">
+            <span>AWS Textract</span>
+            <span>Cognito Auth</span>
+            <span>DynamoDB Storage</span>
+          </div>
+        </section>
+        <div class="dashboard-sidebar-footer">
+          <span class="status-pill dashboard-sidebar-pill" id="modeBadge">Project Demo</span>
+          <span class="status-note" id="statusNote">Booting dashboard.</span>
+        </div>
+      </header>
+
+      <div class="dashboard-main">
+        <section class="panel dashboard-command-bar" id="dashboardCommandBar">
+          <div class="dashboard-command-copy">
+            <div class="dashboard-command-brand">
+              <img
+                class="dashboard-command-logo"
+                src="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-dark="./receiptpulse-logo.svg?v=20260402c"
+                data-logo-light="./receiptpulse-logo-light.svg?v=20260417a"
+                alt="ReceiptPulse"
+              />
+            </div>
+            <p class="eyebrow">Reports Analytics</p>
+            <h1>ReceiptPulse analytics</h1>
+            <p class="topbar-text">
+              Private receipt intake, OCR quality, duplicate handling, and archive reporting in one focused operations workspace.
+            </p>
+          </div>
+          <div class="dashboard-command-tools">
+            <label class="select-shell dashboard-range-shell">
+              <span>Date Range</span>
+              <select class="month-select period-select" id="dashboardPeriodSelect" aria-label="Dashboard time range">
+                <option value="all">All time</option>
+                <option value="month">This month</option>
+                <option value="quarter">Last 3 months</option>
+                <option value="half">Last 6 months</option>
+                <option value="year">This year</option>
+              </select>
+            </label>
+            <label class="dashboard-search-shell">
+              <span class="dashboard-search-icon" aria-hidden="true">&#9906;</span>
+              <input class="text-input dashboard-search-input" type="search" placeholder="Search data..." aria-label="Search dashboard" />
+            </label>
+          </div>
+          <div class="dashboard-command-visual" aria-hidden="true">
+            <span class="command-grid-plane"></span>
+            <span class="command-orbit command-orbit-one"></span>
+            <span class="command-orbit command-orbit-two"></span>
+            <span class="command-particle command-particle-one"></span>
+            <span class="command-particle command-particle-two"></span>
+            <span class="command-particle command-particle-three"></span>
+            <div class="command-receipt-glass">
+              <span class="command-receipt-fold"></span>
+              <span class="command-receipt-line command-receipt-line-one"></span>
+              <span class="command-receipt-line command-receipt-line-two"></span>
+              <span class="command-receipt-line command-receipt-line-three"></span>
+            </div>
+            <div class="command-arch-node command-arch-node-upload" data-command-node="upload">
+              <span>01</span>
+              <strong>S3</strong>
+            </div>
+            <div class="command-arch-node command-arch-node-ocr" data-command-node="ocr">
+              <span>02</span>
+              <strong>OCR</strong>
+            </div>
+            <div class="command-arch-node command-arch-node-archive" data-command-node="archive">
+              <span>03</span>
+              <strong>DB</strong>
+            </div>
+            <div class="command-visual-copy">
+              <strong>Cloud Demo Console</strong>
+              <span data-command-visual-copy>S3 intake -> OCR orbit -> analytics sync</span>
+            </div>
+          </div>
+          <div class="dashboard-command-meta">
+            <div class="dashboard-command-pills">
+              <span class="status-pill auth-summary-pill" id="authSummary">Portfolio Project</span>
+              <div class="range-summary" id="rangeSummary" aria-live="polite"></div>
+            </div>
+            <div class="topbar-actions dashboard-command-actions">
+              <button class="ghost-link ghost-button" id="manageWidgetsButton" type="button">Manage Widgets</button>
+              <button class="primary-button topbar-primary-button" id="addWidgetButton" type="button">+ Add Widget</button>
+              <button class="secondary-button demo-access-inline" id="demoAccessCta" type="button" hidden>Cloud Demo</button>
+              <button class="ghost-link ghost-button theme-toggle" data-theme-toggle type="button" hidden>Light Mode</button>
+              <button class="ghost-link ghost-button" id="authSecondaryCta" type="button" hidden>AWS Live Setup</button>
+              <button class="primary-button topbar-primary-button" id="authCta" type="button" hidden>Sign In</button>
+              <button class="ghost-link ghost-button" id="switchAccountButton" type="button" hidden>Switch Account</button>
+              <button class="ghost-link ghost-button" id="signOutButton" type="button" hidden>Sign Out</button>
+              <button class="ghost-link ghost-button" id="historyToggle" type="button">Past Uploads</button>
+              <a class="ghost-link" href="https://github.com/agarwalujala3-lang/ReceiptPulse" target="_blank" rel="noopener noreferrer">Source Code</a>
+            </div>
+          </div>
+        </section>
+
+        <section class="panel workspace-guard" id="workspaceGuard" hidden>
+          <p class="eyebrow">Private Workspace Lock</p>
+          <h3>Open Cloud Demo or sign in to an AWS Live workspace.</h3>
+          <p>The public demo uses browser-local data. Real account sign-in appears only when Cognito is configured.</p>
+          <div class="workspace-guard-actions">
+            <button class="primary-button" id="guardSignIn" type="button">Sign In</button>
+            <button class="secondary-button" id="guardDemoAccess" type="button">View Cloud Demo</button>
+            <button class="ghost-link ghost-button" id="guardSignUp" type="button">AWS Live Setup</button>
+          </div>
+        </section>
+
+        <main class="shell">
+      <section class="neo-dashboard-board" id="neoDashboardBoard">
+        <article class="panel neo-card neo-card--assistant">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">AI Assistant</p>
+              <h3>Receipt motion intelligence</h3>
+            </div>
+            <button class="ghost-link ghost-button neo-card-action" id="neoFigureAction" type="button">Try Now</button>
+          </div>
+          <div class="neo-figure-stage" data-neo-figure-stage role="region" aria-label="Interactive 3D mesh preview. Drag to rotate.">
+            <span class="neo-figure-halo neo-figure-halo--one"></span>
+            <span class="neo-figure-halo neo-figure-halo--two"></span>
+            <span class="neo-orbit-label neo-orbit-label-upload">Upload</span>
+            <span class="neo-orbit-label neo-orbit-label-ocr">OCR</span>
+            <span class="neo-orbit-label neo-orbit-label-archive">Archive</span>
+            <canvas class="neo-figure-canvas" id="neoFigureCanvas" width="420" height="320"></canvas>
+            <p class="neo-figure-hint">Drag to rotate - Double-click to reset</p>
+          </div>
+          <p class="neo-card-copy" id="neoAssistantCopy">
+            Analyze workspace receipt flow, extraction quality, and store activity from one animated control board.
+          </p>
+        </article>
+
+        <article class="panel neo-card neo-card--total">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Total spend</p>
+              <h3 id="neoTotalValue">$0.00</h3>
+            </div>
+            <span class="neo-card-meta" id="neoTotalMeta">Awaiting receipts</span>
+          </div>
+          <div class="neo-mini-bars" id="neoMiniBars"></div>
+        </article>
+
+        <div class="neo-side-stack">
+          <article class="panel neo-card neo-card--share">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Category share</p>
+                <h3 id="neoShareValue">0%</h3>
+              </div>
+            </div>
+            <div class="neo-share-ring" id="neoShareRing">
+              <span id="neoShareLabel">Awaiting data</span>
+            </div>
+          </article>
+
+          <article class="panel neo-card neo-card--gauge">
+            <div class="neo-card-head">
+              <div>
+                <p class="eyebrow">Credit rate</p>
+                <h3 id="neoGaugeValue">0%</h3>
+              </div>
+            </div>
+            <div class="neo-gauge-track">
+              <span class="neo-gauge-arc" id="neoGaugeArc"></span>
+            </div>
+            <p class="neo-card-copy" id="neoGaugeNote">Receipts that posted cleanly.</p>
+          </article>
+        </div>
+
+        <article class="panel neo-card neo-card--trend">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Revenue trend</p>
+              <h3>Summary statistics</h3>
+            </div>
+          </div>
+          <div class="neo-trend-board" id="neoTrendBoard"></div>
+        </article>
+
+        <article class="panel neo-card neo-card--transactions">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Transactions</p>
+              <h3>Latest receipts</h3>
+            </div>
+          </div>
+          <div class="neo-transaction-list" id="neoTransactionList"></div>
+        </article>
+
+        <article class="panel neo-card neo-card--spending">
+          <div class="neo-card-head">
+            <div>
+              <p class="eyebrow">Spending</p>
+              <h3>Top labels</h3>
+            </div>
+          </div>
+          <div class="neo-spend-list" id="neoSpendList"></div>
+        </article>
+      </section>
+
+      <section class="control-grid" id="overviewSection">
+        <section class="hero panel">
+          <div class="hero-copy">
+            <p class="eyebrow">Operations Workspace</p>
+            <h2>Control private receipt intake and review live expense data.</h2>
+            <p class="hero-text">
+              ReceiptPulse connects S3, Lambda, Textract, DynamoDB, API Gateway, and Cognito so each signed-in user can upload a receipt, inspect extraction quality, and track private reporting.
+            </p>
+            <div class="fun-tags">
+              <span>PDF / Image Uploads</span>
+              <span>OCR Extraction</span>
+              <span>User Accounts</span>
+              <span>Summary Charts</span>
+              <span>AWS Redeploy Ready</span>
+            </div>
+            <div class="hero-actions">
+              <button class="primary-button" id="heroUploadTrigger" type="button">Open Uploader</button>
+              <button class="secondary-button" id="archiveToggle" type="button">Open Archive</button>
+            </div>
+          </div>
+          <div class="hero-grid">
+            <article class="glass-card spotlight">
+              <span class="mini-label">Operations Focus</span>
+              <strong id="riskHeadline">Receipts are parsed, scored, and flagged when the extracted data looks weak.</strong>
+              <p>The dashboard stays wired to the real backend flow instead of behaving like a static concept screen.</p>
+            </article>
+            <article class="glass-card">
+              <span class="mini-label">Pipeline Summary</span>
+              <div class="pipeline">
+                <span>Upload</span>
+                <span>Read</span>
+                <span>Store</span>
+                <span>Review</span>
+                <span>Chart</span>
+              </div>
+            </article>
+            <article class="glass-card">
+              <span class="mini-label">Quick Labeling</span>
+              <p>Users can add a short label before upload so repeat visits and archive records are easier to identify later.</p>
+            </article>
+            <article class="glass-card">
+              <span class="mini-label">Scoped Access</span>
+              <p>Authentication keeps uploaded receipts, delete actions, and dashboard analytics scoped to the signed-in account.</p>
+            </article>
+            <article class="glass-card recruiter-proof-card">
+              <span class="mini-label">Recruiter Proof</span>
+              <strong>Cloud-ready, demo-safe, and explainable.</strong>
+              <p>Demo mode proves the product flow without AWS charges; production mode reconnects through config when the new AWS account is ready.</p>
+            </article>
+          </div>
+        </section>
+
+        <section class="cloud-proof-strip panel" aria-label="ReceiptPulse cloud proof summary">
+          <article class="proof-node proof-node-live">
+            <span class="mini-label">AWS Live Path</span>
+            <strong>S3 -> Lambda -> Textract -> DynamoDB</strong>
+            <p>The production flow remains real infrastructure code, not a decorative portfolio mock.</p>
+          </article>
+          <article class="proof-node proof-node-demo">
+            <span class="mini-label">Safe Showcase</span>
+            <strong>Cloud Demo runs without AWS spend</strong>
+            <p>Recruiters can test upload, archive, rename, delete, charts, and pipeline motion locally.</p>
+          </article>
+          <article class="proof-node proof-node-redeploy">
+            <span class="mini-label">Redeploy Ready</span>
+            <strong>New account setup is documented</strong>
+            <p>Cost guardrails, config outputs, and smoke checks are written before any new cloud launch.</p>
+          </article>
+        </section>
+
+        <aside class="panel upload-lab" id="uploadLab">
+          <div class="section-heading section-heading-tight">
+            <div>
+              <p class="eyebrow">Quick Intake</p>
+              <h3>Create a new receipt intake</h3>
+            </div>
+            <span class="status-tag status-auto-approved upload-ready-pill">Project Demo</span>
+          </div>
+
+          <form class="upload-form" id="uploadForm">
+            <label class="dropzone" id="dropzone" for="fileInput">
+              <input id="fileInput" type="file" accept=".pdf,.png,.jpg,.jpeg,application/pdf,image/png,image/jpeg" hidden />
+              <span class="drop-kicker">Choose from your device or photo library</span>
+              <strong class="drop-title">Receipt or bill PDF, PNG, or JPG only</strong>
+              <span class="drop-copy" id="fileMeta">No receipt or bill selected yet. Phone gallery and device storage are supported, but personal photos and unrelated docs are rejected.</span>
+            </label>
+
+            <div class="upload-preview-shell">
+              <div class="upload-preview-frame" id="previewFrame">
+                <div class="preview-empty">
+                  <span class="mini-label">Preview</span>
+                  <strong>Receipt preview will appear here</strong>
+                  <p>Image receipts show a thumbnail. PDFs show a simple document preview card.</p>
+                </div>
+              </div>
+              <div class="preview-meta" id="previewMeta">
+                <article class="preview-stat">
+                  <span>Status</span>
+                  <strong>Awaiting file</strong>
+                </article>
+                <article class="preview-stat">
+                  <span>Type</span>
+                  <strong>Receipt or bill</strong>
+                </article>
+                <article class="preview-stat">
+                  <span>Visibility</span>
+                  <strong>Browser-side preview</strong>
+                </article>
+              </div>
+            </div>
+
+            <div class="field-grid">
+              <label class="field">
+                <span>Receipt label</span>
+                <input class="text-input" id="uploadName" type="text" placeholder="Groceries, Electricity, Travel..." />
+              </label>
+              <label class="field">
+                <span>Workspace owner</span>
+                <input class="text-input" id="uploadAccount" type="text" placeholder="Sign in to upload receipts" readonly />
+              </label>
+            </div>
+
+            <div class="upload-actions-row">
+              <button class="primary-button upload-submit" id="uploadSubmit" type="submit">
+                Upload And Process
+              </button>
+              <button class="secondary-button sample-demo-upload" id="sampleDemoUpload" type="button" hidden>
+                Run Sample Demo
+              </button>
+              <span class="upload-helper" id="uploadHelper">Add a label if you want. The app checks the uploaded file after OCR and rejects personal photos or unrelated documents.</span>
+            </div>
+          </form>
+
+          <div class="upload-status-card">
+            <div class="upload-status-head">
+              <p class="eyebrow">Processing Timeline</p>
+              <span class="muted" id="uploadMessage">Ready for the next upload.</span>
+            </div>
+            <div class="upload-motion-scene" id="uploadMotionScene" data-phase="idle" data-stage="slot" aria-hidden="true">
+              <div class="motion-cloud">
+                <span class="motion-cloud-glow"></span>
+                <div class="motion-cloud-core">
+                  <span class="motion-cloud-icon"></span>
+                  <div class="motion-cloud-copy">
+                    <strong>Cloud intake</strong>
+                    <span>S3 upload stage</span>
+                  </div>
+                </div>
+              </div>
+              <div class="motion-receipt" id="uploadMotionReceipt">
+                <span class="motion-receipt-mark" id="uploadMotionIcon">&#9635;</span>
+                <div class="motion-receipt-copy">
+                  <strong id="uploadMotionLabel">Next receipt</strong>
+                  <span id="uploadMotionDetail">Pick a file to preview it.</span>
+                </div>
+              </div>
+              <div class="motion-orbit" aria-hidden="true">
+                <span></span>
+                <span></span>
+                <span></span>
+              </div>
+              <div class="motion-processing">
+                <div class="motion-processing-core">
+                  <span class="motion-processing-beam"></span>
+                  <span class="motion-processing-dot"></span>
+                </div>
+                <div class="motion-processing-copy">
+                  <strong id="uploadMotionStage">Waiting for upload</strong>
+                  <span id="uploadMotionStageCopy">Extraction starts after the file reaches S3.</span>
+                </div>
+              </div>
+              <div class="motion-ledger">
+                <span class="motion-ledger-ring"></span>
+                <div class="motion-ledger-copy">
+                  <strong>Dashboard sync</strong>
+                  <span>Charts and tables refresh after processing.</span>
+                </div>
+              </div>
+            </div>
+            <div class="timeline-list" id="uploadTimeline"></div>
+          </div>
+        </aside>
+      </section>
+
+      <section class="ops-strip" id="opsStrip"></section>
+
+      <section class="mission-grid" id="activityBoard">
+        <article class="panel spotlight-panel">
+          <div class="section-heading section-heading-tight">
+            <div>
+              <p class="eyebrow">Latest Result</p>
+              <h3>Most recent processed receipt</h3>
+            </div>
+          </div>
+          <div class="spotlight-shell">
+            <div class="spotlight-copy">
+              <p class="spotlight-kicker" id="spotlightKicker">Current upload</p>
+              <h3 class="spotlight-title" id="spotlightTitle">No receipt from this browser session yet.</h3>
+              <p class="spotlight-narrative" id="spotlightNarrative">
+                Upload a receipt and this panel will show the extracted summary, review state, and file details.
+              </p>
+              <div class="spotlight-actions" id="spotlightActions"></div>
+            </div>
+            <div class="spotlight-facts" id="spotlightFacts"></div>
+          </div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading section-heading-tight">
+            <div>
+              <p class="eyebrow">Project Stages</p>
+              <h3>Open a card to see each step</h3>
+            </div>
+          </div>
+          <div class="flip-grid" id="flipGrid"></div>
+        </article>
+      </section>
+
+      <section class="metrics-grid" id="metricsGrid"></section>
+
+      <section class="insight-layout" id="summaryBoard">
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Revenue By Category</p>
+              <h3>Spend grouped by receipt category</h3>
+            </div>
+          </div>
+          <div id="categoryChart" class="stack-chart"></div>
+        </article>
+
+        <article class="panel">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Vendor Summary</p>
+              <h3>Top vendors across stored receipts</h3>
+            </div>
+          </div>
+          <div id="vendorList" class="vendor-list"></div>
+        </article>
+      </section>
+
+      <section class="panel" id="workflowBoard">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">System Flow</p>
+            <h3>What happens after a file is uploaded</h3>
+          </div>
+        </div>
+        <div class="architecture-track" id="workflowTrack"></div>
+      </section>
+
+      <section class="insight-layout" id="analyticsBoard">
+        <article class="panel" id="reviewQueue">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Exception Queue</p>
+              <h3>Receipts that need manual attention</h3>
+            </div>
+          </div>
+          <div id="queueList" class="queue-list"></div>
+        </article>
+
+        <article class="panel" id="analyticsSection">
+          <div class="section-heading">
+            <div>
+              <p class="eyebrow">Earnings Overview</p>
+              <h3>Spend totals and receipt volume over time</h3>
+            </div>
+            <label class="select-shell chart-select-shell">
+              <span>Chart Range</span>
+              <select class="month-select" id="expenseMonthSelect" aria-label="Expense month selector"></select>
+            </label>
+          </div>
+          <div class="trend-shell">
+            <div id="trendBars" class="trend-bars"></div>
+            <div class="expense-donut-shell">
+              <div class="expense-donut" id="expenseDonut"></div>
+              <div class="expense-legend" id="expenseLegend"></div>
+            </div>
+          </div>
+        </article>
+      </section>
+
+      <section class="panel table-panel archive-collapsed" id="receiptsTable">
+        <div class="section-heading">
+          <div>
+            <p class="eyebrow">Detailed Report Logs</p>
+            <h3>Records currently saved in the project database</h3>
+          </div>
+          <div class="archive-actions">
+            <div class="filter-row" id="filterRow"></div>
+            <button class="ghost-link ghost-button" id="archiveClose" type="button">Hide Archive</button>
+          </div>
+        </div>
+        <div class="table-wrap">
+          <table>
+            <thead>
+              <tr>
+                <th>Receipt</th>
+                <th>Vendor</th>
+                <th>Category</th>
+                <th>Status</th>
+                <th>Total</th>
+                <th>Confidence</th>
+                <th>Month</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="receiptsBody"></tbody>
+          </table>
+        </div>
+      </section>
+    </main>
+      </div>
+    </div>
+
+    <div class="history-scrim" id="historyScrim" hidden></div>
+    <aside class="history-drawer" id="historyDrawer" aria-hidden="true" hidden>
+      <div class="history-head">
+        <div>
+          <p class="eyebrow">Recent Uploads</p>
+          <h3>Uploads from this browser</h3>
+        </div>
+        <div class="history-head-actions">
+          <button class="ghost-link ghost-button" id="historyDelete" type="button">Delete Period Data</button>
+          <button class="ghost-link ghost-button" id="historyClose" type="button">Close</button>
+        </div>
+      </div>
+      <p class="history-copy">
+        This drawer keeps a local record of uploads from this browser. In AWS Live mode, stored delete actions call the API; in Cloud Demo mode, they only change browser-local demo data.
+      </p>
+      <div class="history-range-shell">
+        <label class="field history-field">
+          <span>From</span>
+          <input class="text-input" id="historyRangeStart" type="date" />
+        </label>
+        <label class="field history-field">
+          <span>To</span>
+          <input class="text-input" id="historyRangeEnd" type="date" />
+        </label>
+      </div>
+      <p class="history-note">
+        Delete stored receipts by date range to remove them from the archive, review queue, totals, and charts for the active workspace mode.
+      </p>
+      <div class="history-toolbar">
+        <button class="primary-button history-delete-button" id="historyDeleteAction" type="button">
+          Delete Stored Receipts
+        </button>
+        <button class="ghost-link ghost-button" id="historyClearLocal" type="button">Clear Local Only</button>
+      </div>
+      <div class="history-list" id="historyList"></div>
+    </aside>
+
+    <div class="confirm-scrim" id="confirmScrim" hidden></div>
+    <section class="confirm-modal" id="confirmModal" aria-hidden="true" hidden role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+      <p class="eyebrow">Confirm action</p>
+      <h3 id="confirmTitle">Delete stored receipts?</h3>
+      <p class="confirm-copy" id="confirmBody">
+        This action will remove matching receipts from the archive, charts, totals, and review queue.
+      </p>
+      <div class="confirm-actions">
+        <button class="ghost-link ghost-button" id="confirmCancel" type="button">Cancel</button>
+        <button class="primary-button confirm-danger" id="confirmAccept" type="button">Delete</button>
+      </div>
+    </section>
+
+    <div class="rename-scrim" id="renameScrim" hidden></div>
+    <section class="rename-modal" id="renameModal" aria-hidden="true" hidden role="dialog" aria-modal="true" aria-labelledby="renameTitle">
+      <p class="eyebrow">Rename Receipt</p>
+      <h3 id="renameTitle">Rename receipt label</h3>
+      <p class="confirm-copy" id="renameBody">
+        Type a new label, or clear the field to let ReceiptPulse rebuild a shorter automatic label.
+      </p>
+      <label class="field rename-field">
+        <span>Receipt label</span>
+        <input class="text-input rename-input" id="renameInput" type="text" maxlength="120" />
+      </label>
+      <p class="rename-note" id="renameNote">
+        Leave it blank and ReceiptPulse will rebuild a shorter automatic label.
+      </p>
+      <div class="confirm-actions">
+        <button class="ghost-link ghost-button" id="renameCancel" type="button">Cancel</button>
+        <button class="primary-button rename-save-button" id="renameSave" type="button">Save Label</button>
+      </div>
+    </section>
+
+    <div class="duplicate-decision-scrim" id="duplicateDecisionScrim" hidden></div>
+    <section
+      class="duplicate-decision-modal"
+      id="duplicateDecisionModal"
+      aria-hidden="true"
+      hidden
+      tabindex="-1"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="duplicateDecisionTitle"
+    >
+      <span class="duplicate-decision-aura duplicate-decision-aura--one" aria-hidden="true"></span>
+      <span class="duplicate-decision-aura duplicate-decision-aura--two" aria-hidden="true"></span>
+      <div class="duplicate-decision-head">
+        <p class="eyebrow" id="duplicateDecisionEyebrow">Duplicate Receipt Warning</p>
+        <h3 id="duplicateDecisionTitle">Possible duplicate upload detected.</h3>
+        <p class="duplicate-decision-body" id="duplicateDecisionBody">
+          This file looks like a receipt that already exists in your workspace. Keep it with your own name or let ReceiptPulse create a unique repeat label for you.
+        </p>
+      </div>
+
+      <div class="duplicate-decision-shell">
+        <div class="duplicate-decision-signal" aria-hidden="true">
+          <span class="duplicate-signal-ring duplicate-signal-ring--outer"></span>
+          <span class="duplicate-signal-ring duplicate-signal-ring--inner"></span>
+          <span class="duplicate-signal-core" id="duplicateDecisionSignalCore">!</span>
+        </div>
+
+        <div class="duplicate-decision-copy">
+          <label class="field duplicate-decision-field" id="duplicateDecisionField">
+            <span>New separate receipt name</span>
+            <input
+              class="text-input duplicate-decision-input"
+              id="duplicateDecisionLabel"
+              type="text"
+              placeholder="Optional: type your own separate name"
+              maxlength="120"
+            />
+          </label>
+
+          <p class="duplicate-decision-note" id="duplicateDecisionNote">
+            Leave this blank and ReceiptPulse will generate a unique repeat label.
+          </p>
+
+          <div class="duplicate-decision-actions" id="duplicateDecisionActions">
+            <button class="primary-button duplicate-keep-button" id="duplicateDecisionKeep" type="button">
+              Keep As Separate Receipt
+            </button>
+            <button class="ghost-link ghost-button duplicate-reject-button" id="duplicateDecisionReject" type="button">
+              Reject Upload
+            </button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <script src="./config.js?v=20260615a"></script>
+    <script src="./theme.js?v=20260427b" defer></script>
+    <script src="./brand-launch.js?v=20260406a" defer></script>
+    <script src="./auth.js?v=20260616b" defer></script>
+    <script src="./app.js?v=20260627a" defer></script>
+  </body>
+</html>

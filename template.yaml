@@ -345,3 +345,9 @@ Outputs:
     Value: !Ref ReceiptIdentityUserPoolClient
   ReceiptHostedUiBaseUrl:
     Value: !Sub "https://${CognitoDomainPrefix}.auth.${AWS::Region}.amazoncognito.com"
+  FrontendCallbackUrl:
+    Value: !Ref FrontendCallbackUrl
+  FrontendLogoutUrl:
+    Value: !Ref FrontendLogoutUrl
+  ReceiptAwsRegion:
+    Value: !Ref AWS::Region

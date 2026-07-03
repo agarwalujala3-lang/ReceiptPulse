@@ -19,7 +19,7 @@ These are safe to move because they live in this repository:
 - Dashboard source under `dashboard/`
 - Demo data under `dashboard/data/`
 - Documentation and sample receipts
-- GitHub Pages Cloud Demo workflow under `.github/workflows/`
+- Render Cloud Demo Blueprint under `render.yaml` plus optional static fallback workflow under `.github/workflows/`
 
 ## What Requires Old Account Access
 
@@ -47,13 +47,13 @@ Do these before deploying any ReceiptPulse stack:
 
 ## Interim Live Showcase
 
-Use the single Netlify launch URL for the public recruiter link until the AWS account situation is resolved:
+Use the single Render launch URL for the public recruiter link until the AWS account situation is resolved:
 
 ```text
-https://receipt-pulse.netlify.app/
+https://receiptpulse-cloud-demo.onrender.com/
 ```
 
-The Pages publisher updates the `gh-pages` branch with AWS calls disabled and Cloud Demo enabled. This keeps the project visible without creating AWS resources or charges.
+The Render static demo keeps AWS calls disabled and Cloud Demo enabled. This keeps the project visible without creating AWS resources or charges.
 
 ## Redeploy Backend
 
@@ -69,32 +69,26 @@ After deployment, record these stack outputs:
 - `ReceiptApiUrl`
 - `ReceiptHostedUiBaseUrl`
 - `ReceiptUserPoolClientId`
+- `FrontendCallbackUrl`
+- `FrontendLogoutUrl`
+- `ReceiptAwsRegion`
 
 ## Reconnect Dashboard
 
-Update `dashboard/config.js` for manual static hosting:
+Generate `dashboard/config.js` from the deployed stack instead of editing it by hand:
 
-```js
-window.RECEIPTPULSE_CONFIG = {
-  apiBaseUrl: "https://your-new-api.execute-api.ap-south-1.amazonaws.com",
-  demo: {
-    enabled: true,
-    autoFallback: true,
-    sampleDataPath: "./data/demo-dashboard.json",
-  },
-  auth: {
-    hostedUiDomain: "https://your-new-domain.auth.ap-south-1.amazoncognito.com",
-    clientId: "your-new-cognito-client-id",
-    region: "ap-south-1",
-    appPath: "./app.html",
-    redirectSignIn: "https://your-dashboard-url.example.com",
-    redirectSignOut: "https://your-dashboard-url.example.com",
-    scopes: ["openid", "profile"],
-  },
-};
+```bash
+python tools/generate_dashboard_config.py aws-live --stack-name receiptpulse-prod --output dashboard/config.js
 ```
 
-Cloud Demo can stay enabled. If the new AWS API fails, the dashboard remains usable without calling AWS.
+If you prefer an explicit artifact for redeploy records, save the stack description and generate from that file:
+
+```bash
+aws cloudformation describe-stacks --stack-name receiptpulse-prod --output json > .deploy-dashboard/receiptpulse-stack.json
+python tools/generate_dashboard_config.py aws-live --stack-outputs-file .deploy-dashboard/receiptpulse-stack.json --output dashboard/config.js
+```
+
+Cloud Demo stays enabled in the generated file. If the new AWS API fails, the dashboard remains usable without calling AWS.
 
 ## Smoke Test Checklist
 

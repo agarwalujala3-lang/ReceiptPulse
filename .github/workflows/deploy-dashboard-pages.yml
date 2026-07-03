@@ -9,6 +9,7 @@ on:
       - ".github/workflows/deploy-dashboard-pages.yml"
       - "README.md"
       - "docs/**"
+      - "tools/generate_dashboard_config.py"
   workflow_dispatch:
 
 permissions:
@@ -29,30 +30,7 @@ jobs:
         run: |
           mkdir -p dist
           cp -R dashboard/. dist/
-          cat > dist/config.js <<'EOF'
-          window.RECEIPTPULSE_CONFIG = {
-            apiBaseUrl: "",
-            demo: {
-              enabled: true,
-              autoFallback: true,
-              sampleDataPath: "./data/demo-dashboard.json",
-              user: {
-                id: "demo-cloud-operator",
-                name: "Cloud Demo Operator",
-                email: "demo@receiptpulse.dev",
-              },
-            },
-            auth: {
-              hostedUiDomain: "",
-              clientId: "",
-              region: "ap-south-1",
-              appPath: "./app.html",
-              redirectSignIn: "https://agarwalujala3-lang.github.io/ReceiptPulse/",
-              redirectSignOut: "https://agarwalujala3-lang.github.io/ReceiptPulse/",
-              scopes: ["openid", "profile"],
-            },
-          };
-          EOF
+          python3 tools/generate_dashboard_config.py pages-demo --output dist/config.js
           touch dist/.nojekyll
 
       - name: Publish gh-pages branch

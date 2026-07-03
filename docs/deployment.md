@@ -3,9 +3,9 @@
 This project is designed to go live in two parts:
 
 1. **AWS SAM** for the serverless backend
-2. **AWS Amplify Hosting** or GitHub Pages for the dashboard
+2. **Render Static Site** for the public dashboard, with AWS Amplify available for AWS Live hosting
 
-For portfolio viewing while the original AWS account is restricted, publish the dashboard through GitHub Pages first. That path runs Cloud Demo mode and does not call AWS.
+For portfolio viewing while the original AWS account is restricted, publish the dashboard through Render first. That path runs Cloud Demo mode and does not call AWS.
 
 ## Prerequisites
 
@@ -55,37 +55,38 @@ sam deploy --guided
 
 ### 4. Save the backend outputs
 
-After deployment, copy these output values:
+After deployment, keep these stack outputs available:
 
 - `ReceiptApiUrl`
 - `ReceiptHostedUiBaseUrl`
 - `ReceiptUserPoolClientId`
+- `FrontendCallbackUrl`
+- `FrontendLogoutUrl`
+- `ReceiptAwsRegion`
 
-You will use them in the dashboard deployment.
+You will use them to generate the dashboard config without hand-editing runtime files.
 
 The Cognito stack is configured for username/password sign-in, username-gated password entry, password strength and match feedback, browser-password-manager friendly fields, and verified-email password recovery. New users should provide a recovery email during sign-up so the **Forgot password** flow can send a reset code.
 
 ## Part 2: Deploy the Dashboard
 
-### Option 0: GitHub Pages Cloud Demo
+### Option 0: Render Cloud Demo
 
-The repo includes [.github/workflows/deploy-dashboard-pages.yml](../.github/workflows/deploy-dashboard-pages.yml).
+The repo includes [render.yaml](../render.yaml), which publishes `dashboard/` as a static site with clean routes and security headers.
 
-On push to `main` or manual workflow dispatch, it:
-
-1. Copies `dashboard/` into a clean static artifact.
-2. Rewrites the deployed `config.js` with `apiBaseUrl` and Cognito values empty.
-3. Keeps `demo.enabled` and `demo.autoFallback` set to `true`.
-4. Publishes the result to the `gh-pages` branch, which is the live GitHub Pages source.
-5. Serves cache-busted dashboard assets with strict referrer metadata, GitHub Pages canonical URLs, no credential forms in the public HTML source, and hardened external source links for the public portfolio surface.
-
-Expected safe public link:
+Use the Render Blueprint flow for the public recruiter demo:
 
 ```text
-https://receipt-pulse.netlify.app/
+https://dashboard.render.com/blueprint/new?repo=https://github.com/agarwalujala3-lang/ReceiptPulse
 ```
 
-Use this path until a healthy AWS account is ready. It creates no AWS charges, does not collect real passwords, and still presents the AWS architecture, UI, and redeploy story.
+Current safe public link:
+
+```text
+https://receiptpulse-cloud-demo.onrender.com/
+```
+
+Use this path until a healthy AWS account is ready. It creates no AWS charges, does not collect real passwords, and still presents the AWS architecture, UI, and redeploy story. The GitHub Pages workflow remains available as an optional static fallback, but Render is the canonical public demo host.
 
 ### Option A: AWS Amplify Hosting
 
@@ -107,25 +108,23 @@ COGNITO_REDIRECT_SIGN_OUT=https://your-dashboard.example.com
 
 4. Deploy
 
-Amplify will copy the `dashboard/` folder into the published site and inject the live API base URL plus Cognito hosted UI settings into `dashboard/config.js`.
+Amplify will copy the `dashboard/` folder into the published site and run [`tools/generate_dashboard_config.py`](../tools/generate_dashboard_config.py) in `hosted-env` mode to inject the live API base URL plus Cognito hosted UI settings into `dashboard/config.js`.
 
 ### Option B: Manual Static Hosting
 
 If you do not want Amplify, you can host `dashboard/` anywhere static hosting is supported.
 
-In that case, edit [dashboard/config.js](../dashboard/config.js), which is intentionally demo-safe by default:
+Generate a live config from your deployed stack outputs:
 
-```js
-window.RECEIPTPULSE_CONFIG = {
-  apiBaseUrl: "https://your-api-id.execute-api.ap-south-1.amazonaws.com",
-  auth: {
-    hostedUiDomain: "https://your-domain-prefix.auth.ap-south-1.amazoncognito.com",
-    clientId: "your-cognito-app-client-id",
-    redirectSignIn: "https://your-dashboard.example.com",
-    redirectSignOut: "https://your-dashboard.example.com",
-    scopes: ["openid", "profile"],
-  },
-};
+```bash
+python tools/generate_dashboard_config.py aws-live --stack-name receiptpulse-prod --output dashboard/config.js
+```
+
+If you want to avoid a live AWS CLI call, save the stack description first and generate from the file:
+
+```bash
+aws cloudformation describe-stacks --stack-name receiptpulse-prod --output json > .deploy-dashboard/receiptpulse-stack.json
+python tools/generate_dashboard_config.py aws-live --stack-outputs-file .deploy-dashboard/receiptpulse-stack.json --output dashboard/config.js
 ```
 
 Then upload the `dashboard/` files to your static host.
@@ -144,6 +143,22 @@ demo: {
 
 When Cognito or the API is unavailable, the dashboard can still open a browser-local Cloud Demo workspace. This keeps the portfolio showcase usable without calling AWS, collecting real passwords, or creating new AWS charges. AWS Live mode resumes when `apiBaseUrl` and Cognito settings point to a healthy deployed stack.
 
+## Config Generation Shortcuts
+
+Use the shared generator directly when you want deterministic config files:
+
+```bash
+python tools/generate_dashboard_config.py pages-demo --output dashboard/config.js
+python tools/generate_dashboard_config.py aws-live --stack-name receiptpulse-prod --output dashboard/config.js
+```
+
+Equivalent Make targets are available:
+
+```bash
+make config-pages-demo
+make config-live STACK_NAME=receiptpulse-prod
+```
+
 ## Quick Smoke Checks
 
 After deployment, verify these:
@@ -158,7 +173,7 @@ GET /receipts (with Authorization header from a signed-in user)
 
 ### Frontend
 
-- public GitHub Pages loads with Cloud Demo as the primary action and no visible credential form
+- public Render site loads with Cloud Demo as the primary action and no visible credential form
 - dashboard loads and shows `Private Workspace` after AWS Live sign-in
 - Cognito sign-up/sign-in redirects back to the dashboard successfully
 - **Forgot password** sends a Cognito reset code to the user's recovery email and accepts the code plus a new password

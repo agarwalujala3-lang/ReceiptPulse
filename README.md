@@ -1,4 +1,4 @@
-﻿<div align="center">
+<div align="center">
   <img src="dashboard/receiptpulse-logo-light.svg" alt="ReceiptPulse logo" width="300" />
 
   # ReceiptPulse
@@ -41,7 +41,7 @@ The public build is intentionally **demo-first**. That keeps the project accessi
 | Demo safety | Public users can explore without passwords, billing risk, or private receipt data. |
 | Frontend polish | High-contrast visual system, 3D entry motion, dashboard cards, readable charts, and responsive pages. |
 | Recruiter clarity | The README and UI explain what is live, what is simulated, and how the production path connects. |
-| Deployment maturity | Netlify live demo plus Render Blueprint configuration with security headers and route rewrites. |
+| Deployment maturity | Render live demo with Blueprint-managed security headers, route rewrites, and a clean static deployment path. |
 
 <p align="center">
   <img src="docs/readme-system-graph.svg" alt="ReceiptPulse demo-first cloud pipeline diagram" width="100%" />
@@ -53,8 +53,7 @@ The public build is intentionally **demo-first**. That keeps the project accessi
 | --- | --- | --- |
 | Cloud Demo | Recruiter-safe public preview | Runs in the browser with local/sample data and no real credentials. |
 | AWS Live | Real backend architecture path | Connects when `dashboard/config.js` contains working Cognito/API configuration. |
-| Render Deploy | Alternative public hosting path | `render.yaml` is included for static hosting, headers, and clean routes. |
-| Netlify Deploy | Current live demo host | Publishes the `dashboard/` folder as the canonical public demo. |
+| Render Deploy | Current public demo host | `render.yaml` publishes `dashboard/` with headers and clean routes. |
 
 ## Product Journey
 
@@ -179,7 +178,7 @@ branding/
 
 render.yaml                  Render Static Site Blueprint
 template.yaml                AWS SAM/serverless infrastructure template
-netlify.toml                 Current Netlify static deployment config
+netlify.toml                 Optional static-hosting fallback config
 ```
 
 ## Run Locally
@@ -248,7 +247,7 @@ Before sharing the project publicly, verify:
 | --- | --- |
 | Open `/` | Launch page appears with clear Cloud Demo messaging. |
 | Click Cloud Demo | Dashboard opens without asking for real credentials. |
-| Open `/app` | Render/Netlify rewrite serves `app.html`. |
+| Open `/app` | Render rewrite serves `app.html`. |
 | Open `/signup` | AWS Live setup page stays demo-safe and readable. |
 | Upload/sample action | Demo data renders without backend errors. |
 | Mobile viewport | Cards stack cleanly with no horizontal overflow. |
@@ -263,7 +262,7 @@ current_public_mode: browser-local Cloud Demo
 aws_live_path: config-driven Cognito + API Gateway + Lambda + S3 + DynamoDB + Textract
 frontend: HTML, CSS, JavaScript
 hosting:
-  current_demo: Netlify static site
+  current_demo: Render static site
   render_ready: render.yaml Blueprint included
 security_posture:
   - no static AWS secrets
@@ -280,4 +279,4 @@ reviewer_value:
 
 ## Recruiter Pitch
 
-ReceiptPulse shows more than a static portfolio page. It demonstrates how a cloud product is designed, explained, deployed, and made safe for public review: a polished frontend, a demo-first auth strategy, OCR workflow storytelling, analytics screens, Render/Netlify deployment readiness, and a documented AWS serverless path for production rebuilds.
+ReceiptPulse shows more than a static portfolio page. It demonstrates how a cloud product is designed, explained, deployed, and made safe for public review: a polished frontend, a demo-first auth strategy, OCR workflow storytelling, analytics screens, Render deployment readiness, and a documented AWS serverless path for production rebuilds.
